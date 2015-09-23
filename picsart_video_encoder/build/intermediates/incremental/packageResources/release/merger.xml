@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merger version="3"><dataSet config="main"><source path="/Users/intern/Downloads/GifTest/picsart_video_encoder/res"/><source path="/Users/intern/Downloads/GifTest/picsart_video_encoder/build/generated/res/rs/release"/><source path="/Users/intern/Downloads/GifTest/picsart_video_encoder/build/generated/res/generated/release"/></dataSet><dataSet config="release"><source path="/Users/intern/Downloads/GifTest/picsart_video_encoder/src/release/res"/></dataSet><mergedItems/></merger>

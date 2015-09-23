@@ -1,0 +1,9 @@
+<resources>
+
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">#27292E</item>
+        <item name="android:actionMenuTextColor">#BDBDBD</item>
+
+    </style>
+
+</resources>
