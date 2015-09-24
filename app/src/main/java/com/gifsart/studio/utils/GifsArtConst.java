@@ -17,9 +17,13 @@ public class GifsArtConst {
     public static String GIFIT_LOG = "gifit_log";
     public static String FRONT_CAMERA = "front_camera";
 
-    public static String GIPHY_URL = "http://api.giphy.com/v1/gifs/search?q=funny&limit=40&api_key=dc6zaTOxFJmzC";
+    public static String GIPHY_URL = "http://api.giphy.com/v1/gifs/search?q=funny";
+    public static String GIPHY_OFFSET = "&offset=";
+    //"&offset=2&limit=2"
+    public static String GIPHY_API_KEY = "&api_key=dc6zaTOxFJmzC";
     public static String GIPHY_SIZE_ORIGINAL = "original";
     public static String GIPHY_SIZE_PREVIEW = "fixed_width_small";
+    public static String GIPHY_SIZE_DOWNSAMPLED = "fixed_width_downsampled";
 
     public static int VIDEO_MAX_DURATION = 300000; // Set max duration 30 sec.
     public static int VIDEO_FILE_MAX_SIZE = 40000000; // Set max file size 40M
@@ -30,6 +34,7 @@ public class GifsArtConst {
     public static int SHOOT_GIF_INDEX = 2;
     public static int VIDEO_TO_GIF_INDEX = 3;
     public static int GENERATED_FRAMES_MAX_COUNT = 25;
+    public static String GIPHY_LIMIT = "&limit=30";
 
 
 

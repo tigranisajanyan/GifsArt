@@ -30,7 +30,11 @@
             android:theme="@style/Theme.AppCompat.Light" />
         <activity
             android:name=".activity.GiphyActivity"
-            android:label="@string/title_activity_giphy" >
+            android:label="@string/title_activity_giphy"
+            android:parentActivityName=".activity.MainActivity" />
+        <activity
+            android:name=".activity.ShootingGifActivity"
+            android:label="@string/title_activity_shooting_gif" >
         </activity>
     </application>
 

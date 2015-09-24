@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import com.gifsart.studio.R;
 import com.gifsart.studio.activity.GiphyActivity;
+import com.gifsart.studio.activity.ShootingGifActivity;
 import com.gifsart.studio.item.GalleryItem;
 import com.gifsart.studio.utils.Utils;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -77,7 +78,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
 
             try {
 
-                ImageLoader.getInstance().cancelDisplayTask(holder.image);
+                //ImageLoader.getInstance().cancelDisplayTask(holder.image);
                 ImageLoader.getInstance().displayImage(FILE_PREFIX + array.get(position).getImagePath()
                         , holder.image, new SimpleImageLoadingListener() {
 
@@ -90,7 +91,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
                     @Override
                     public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
 
-                        holder.image.setImageBitmap(Utils.scaleCenterCrop(loadedImage, imageSize, imageSize));
+                        holder.image.setImageBitmap(loadedImage);
                         super.onLoadingComplete(imageUri, view, loadedImage);
                     }
                 });
@@ -108,9 +109,9 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
             holder.image.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(context, "" + position, Toast.LENGTH_LONG).show();
-                    //Intent intent = new Intent(context, GiphyActivity.class);
-                    //context.startActivity(intent);
+                    //Toast.makeText(context, "" + position, Toast.LENGTH_LONG).show();
+                    Intent intent = new Intent(context, ShootingGifActivity.class);
+                    context.startActivity(intent);
                 }
             });
         }
@@ -121,7 +122,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
             holder.image.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(context, "" + position, Toast.LENGTH_LONG).show();
+                    //Toast.makeText(context, "" + position, Toast.LENGTH_LONG).show();
                     Intent intent = new Intent(context, GiphyActivity.class);
                     context.startActivity(intent);
                 }

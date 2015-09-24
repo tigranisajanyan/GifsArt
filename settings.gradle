@@ -1,1 +1,1 @@
-include ':app', ':picsart_video_encoder', ':android-gif-drawable-master'
+include ':app', ':picsart_video_encoder', ':android-gif-drawable-master', ':fab_library'

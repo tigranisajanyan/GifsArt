@@ -235,7 +235,7 @@ public class MakeGifActivity extends ActionBarActivity {
             }
         }));
 
-        giphyAdapter = new GiphyAdapter(this);
+        giphyAdapter = new GiphyAdapter(this, new ArrayList<Integer>());
 
         clipartLayout = (LinearLayout) findViewById(R.id.clipart_horizontal_list_container);
         clipartLayout.setVisibility(View.VISIBLE);

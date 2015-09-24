@@ -8,8 +8,9 @@ public class GiphyItem {
     private String gifUrl;
     private int gifWidth;
     private int gifHeight;
+    private boolean isSelected;
 
-    public GiphyItem(){
+    public GiphyItem() {
 
     }
 
@@ -41,6 +42,14 @@ public class GiphyItem {
 
     public void setGifHeight(int gifHeight) {
         this.gifHeight = gifHeight;
+    }
+
+    public boolean isSelected() {
+        return isSelected;
+    }
+
+    public void setIsSelected(boolean isSelected) {
+        this.isSelected = isSelected;
     }
 
 }

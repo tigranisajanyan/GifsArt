@@ -28,4 +28,5 @@ dependencies {
     compile project(':picsart_video_encoder')
     compile project(':android-gif-drawable-master')
     compile files('libs/library-1.0.11.jar')
+    compile project(':fab_library')
 }
