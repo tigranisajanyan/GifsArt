@@ -2,7 +2,6 @@ package com.gifsart.studio.activity;
 
 import android.content.Intent;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -11,6 +10,8 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.facebook.drawee.backends.pipeline.Fresco;
@@ -27,6 +28,7 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
+    private ProgressBar progressBar;
     private GridLayoutManager gridLayoutManager;
     private RecyclerView.ItemAnimator itemAnimator;
     private GalleryAdapter galleryAdapter;
@@ -54,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
         galleryAdapter = new GalleryAdapter(customGalleryArrayList, this, (int) Utils.getBitmapWidth(this), getSupportActionBar());
 
         recyclerView = (RecyclerView) findViewById(R.id.gallery_rec_view);
+        progressBar = (ProgressBar) findViewById(R.id.progress_bar);
         gridLayoutManager = new GridLayoutManager(this, 3, GridLayoutManager.VERTICAL, false);
         itemAnimator = new DefaultItemAnimator();
 
@@ -63,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setItemAnimator(itemAnimator);
 
         recyclerView.setAdapter(galleryAdapter);
-        recyclerView.addItemDecoration(new SpacesItemDecoration(7));
+        recyclerView.addItemDecoration(new SpacesItemDecoration(4));
 
         new MyTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
@@ -85,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra(GifsArtConst.INDEX, GifsArtConst.IMAGES_TO_GIF_INDEX);
                 intent.putStringArrayListExtra(GifsArtConst.IMAGE_PATHS, galleryAdapter.getSelected());
                 startActivity(intent);
+                galleryAdapter.deselectAll();
 
             } else {
                 Toast.makeText(MainActivity.this, "no images selected", Toast.LENGTH_LONG).show();
@@ -119,6 +123,7 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
             galleryAdapter.notifyDataSetChanged();
+            progressBar.setVisibility(View.GONE);
         }
     }
 

@@ -264,7 +264,6 @@ public class ShootingGifActivity extends ActionBarActivity {
                     Toast toast = Toast.makeText(context, "Sorry, your phone has only one camera!", Toast.LENGTH_LONG);
                     toast.show();
                 }
-
             }
         }
     };

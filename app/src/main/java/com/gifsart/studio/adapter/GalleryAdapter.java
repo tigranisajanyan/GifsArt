@@ -169,4 +169,13 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
         return arrayList;
     }
 
+    public void deselectAll() {
+        for (int i = 0; i < array.size(); i++) {
+            if (array.get(i).isSeleted() == true) {
+                array.get(i).setIsSeleted(false);
+            }
+        }
+        notifyDataSetChanged();
+    }
+
 }

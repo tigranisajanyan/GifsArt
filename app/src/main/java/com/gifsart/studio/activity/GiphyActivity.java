@@ -2,6 +2,9 @@ package com.gifsart.studio.activity;
 
 import android.app.SearchManager;
 import android.content.Context;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
+import android.os.Environment;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -23,16 +26,21 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.gifsart.studio.R;
 import com.gifsart.studio.adapter.GiphyAdapter;
+import com.gifsart.studio.item.GalleryItem;
 import com.gifsart.studio.item.GiphyItem;
 import com.gifsart.studio.utils.GifsArtConst;
 import com.gifsart.studio.utils.SpacesItemDecoration;
+import com.gifsart.studio.utils.Utils;
 import com.melnykov.fab.FloatingActionButton;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
+
+import pl.droidsonroids.gif.GifDrawable;
 
 public class GiphyActivity extends AppCompatActivity {
 
@@ -40,8 +48,9 @@ public class GiphyActivity extends AppCompatActivity {
     private GridLayoutManager gridLayoutManager;
     private RecyclerView.ItemAnimator itemAnimator;
     private GiphyAdapter giphyAdapter;
-    private ArrayList<GiphyItem> customGalleryArrayList = new ArrayList<>();
     int offset = 0;
+
+    private static final String root = Environment.getExternalStorageDirectory().toString();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +81,7 @@ public class GiphyActivity extends AppCompatActivity {
         recyclerView.setItemAnimator(itemAnimator);
 
         recyclerView.setAdapter(giphyAdapter);
-        recyclerView.addItemDecoration(new SpacesItemDecoration(7));
+        recyclerView.addItemDecoration(new SpacesItemDecoration(5));
 
         final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.attachToRecyclerView(recyclerView);
@@ -81,7 +90,7 @@ public class GiphyActivity extends AppCompatActivity {
             public void onClick(View view) {
 
                 Toast.makeText(GiphyActivity.this, "Gorisi tti arax", Toast.LENGTH_LONG).show();
-                recyclerView.smoothScrollToPosition(0);
+                //recyclerView.smoothScrollToPosition(0);
             }
         });
 
@@ -146,6 +155,11 @@ public class GiphyActivity extends AppCompatActivity {
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_done) {
 
+            if (giphyAdapter.getSelectedPosition() > -1) {
+
+                new MyTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
+            }
             Log.d("gagagagag", giphyAdapter.getSelectedPosition() + "");
             return true;
         }
@@ -184,4 +198,36 @@ public class GiphyActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+
+    class MyTask extends AsyncTask<Void, Void, Void> {
+
+        GiphyItem giphyItem = giphyAdapter.getItem(giphyAdapter.getSelectedPosition());
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            Utils.downloadFile(root + "/ttt.gif", giphyItem.getGifUrl());
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
+            try {
+                GifDrawable gifDrawable = new GifDrawable(root + "/ttt.gif");
+                Log.d("gagagagag", gifDrawable.getNumberOfFrames() + "");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
 }
