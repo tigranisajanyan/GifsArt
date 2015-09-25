@@ -12,6 +12,8 @@ public class GalleryItem {
     private boolean isFile;
     private Type type;
 
+    public String[] types = new String[]{"image", "gif", "video"};
+
     private int position;
 
     public GalleryItem() {

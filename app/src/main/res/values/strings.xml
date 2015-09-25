@@ -5,4 +5,5 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_giphy">GiphyActivity</string>
     <string name="title_activity_shooting_gif">ShootingGifActivity</string>
+    <string name="title_activity_gif_preview">GifPreviewActivity</string>
 </resources>

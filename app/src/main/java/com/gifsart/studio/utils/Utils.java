@@ -14,12 +14,18 @@ import android.graphics.RectF;
 import android.media.ExifInterface;
 import android.media.MediaMetadataRetriever;
 import android.media.ThumbnailUtils;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.util.Log;
+import android.webkit.MimeTypeMap;
 
+import com.decoder.PhotoUtils;
+import com.gifsart.studio.gifutils.GifDecoder;
 import com.gifsart.studio.item.GalleryItem;
 import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiscCache;
 import com.nostra13.universalimageloader.cache.disc.naming.HashCodeFileNameGenerator;
@@ -43,6 +49,8 @@ import java.net.URLConnection;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
+
+import pl.droidsonroids.gif.GifDrawable;
 
 
 public class Utils {
@@ -215,10 +223,12 @@ public class Utils {
                     File file = new File(imagecursor.getString(dataColumnIndex));
                     if (file.exists()) {
                         item.setImagePath(imagecursor.getString(dataColumnIndex));
+                        /*if (Utils.getMimeType(item.getImagePath()).toString().toLowerCase().contains("gif")) {
+                            type = GalleryItem.Type.GIF;
+                        }*/
                         //item.setHeight((int) Utils.getBitmapHeight(activity, item.getImagePath()));
                         //item.setWidth((int) Utils.getBitmapWidth(activity));
                         item.setType(GalleryItem.Type.IMAGE);
-
                         galleryList.add(item);
                     }
 
@@ -381,7 +391,7 @@ public class Utils {
         return bytes;
     }
 
-    /*public static ArrayList<Bitmap> getGifFramesPath(String path) {
+    public static ArrayList<Bitmap> getGifFramesPath(String path) {
         ArrayList<Bitmap> bitmaps = new ArrayList<>();
         byte[] bytes = Utils.fileToByteArray(path);
         GifDecoder gifDecoder = new GifDecoder();
@@ -394,9 +404,9 @@ public class Utils {
             gifDecoder.advance();
         }
         return bitmaps;
-    }*/
+    }
 
-    /*public static ArrayList<Bitmap> getGifFramesFromResources(Context context, int resId) {
+    public static ArrayList<Bitmap> getGifFramesFromResources(Context context, int resId) {
 
         GifDrawable gifDrawable = null;
         try {
@@ -414,7 +424,7 @@ public class Utils {
 
         }
         return bitmaps;
-    }*/
+    }
 
     public static float dpToPixel(float dp, Context context) {
         Resources resources = context.getResources();
@@ -444,7 +454,7 @@ public class Utils {
         return (float) Math.toDegrees(radians);
     }
 
-    /*public static Bitmap readBitmapFromBufferFile(Context context, String bytesFilePath) {
+    public static Bitmap readBitmapFromBufferFile(Context context, String bytesFilePath) {
         if (!TextUtils.isEmpty(bytesFilePath)) {
             SharedPreferences sharedPreferences = context.getSharedPreferences("pics_art_video_editor", Context.MODE_PRIVATE);
             int bufferSize = sharedPreferences.getInt("buffer_size", 0);
@@ -454,7 +464,7 @@ public class Utils {
             return PhotoUtils.fromBufferToBitmap(width, height, buffer);
         }
         return null;
-    }*/
+    }
 
     public static boolean downloadFile(String outputFile, String fileUrl) {
         try {
@@ -511,6 +521,35 @@ public class Utils {
         share.putExtra(Intent.EXTRA_STREAM, uri);
 
         activity.startActivity(Intent.createChooser(share, "Share Image!"));
+    }
+
+    public static String getMimeType(String url) {
+        String type = null;
+        String extension = MimeTypeMap.getFileExtensionFromUrl(url);
+        if (extension != null) {
+            type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+        }
+        return type;
+    }
+
+    public static boolean haveNetworkConnection(Context context) {
+        ConnectivityManager connectivityMgr = (ConnectivityManager) context
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo wifi = connectivityMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        NetworkInfo mobile = connectivityMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+        // Check if wifi or mobile network is available or not. If any of them is
+        // available or connected then it will return true, otherwise false;
+        if (wifi != null) {
+            if (wifi.isConnected()) {
+                return true;
+            }
+        }
+        if (mobile != null) {
+            if (mobile.isConnected()) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

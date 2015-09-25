@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Environment;
 
+import com.gifsart.studio.activity.GifPreviewActivity;
 import com.gifsart.studio.item.GalleryItem;
 import com.gifsart.studio.utils.Utils;
 
@@ -101,9 +102,9 @@ public class SaveGIFAsyncTask extends AsyncTask<Void, Integer, Void> {
         gifSavedDialogBuilder.setPositiveButton("Preview", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                //Intent intent = new Intent(activity, GifViewActivity.class);
-                //intent.putExtra(GifViewActivity.EXTRA_GIF_PATH, outputDir);
-                //activity.startActivity(intent);
+                Intent intent = new Intent(activity, GifPreviewActivity.class);
+                intent.putExtra(GifPreviewActivity.EXTRA_GIF_PATH, outputDir);
+                activity.startActivity(intent);
                 activity.finish();
             }
         });

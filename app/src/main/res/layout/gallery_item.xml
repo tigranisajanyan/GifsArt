@@ -14,11 +14,11 @@
         android:scaleType="centerCrop" />
 
     <ImageView
-        android:id="@+id/is_video"
+        android:id="@+id/is_gif"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:background="@drawable/video_icon" />
+        android:background="@drawable/gif_icon" />
 
     <ImageView
         android:id="@+id/gallery_item_selected"

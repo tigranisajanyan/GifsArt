@@ -8,16 +8,21 @@ import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.VolleyError;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.gifsart.studio.R;
 import com.gifsart.studio.adapter.GalleryAdapter;
+import com.gifsart.studio.gifutils.Giphy;
 import com.gifsart.studio.item.GalleryItem;
+import com.gifsart.studio.item.GiphyItem;
 import com.gifsart.studio.utils.GifsArtConst;
 import com.gifsart.studio.utils.SpacesItemDecoration;
 import com.gifsart.studio.utils.Utils;
@@ -49,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
         Utils.craeteDir(GifsArtConst.MY_DIR);
 
         init();
+
     }
 
     public void init() {
@@ -91,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
                 galleryAdapter.deselectAll();
 
             } else {
-                Toast.makeText(MainActivity.this, "no images selected", Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this, "no images selected", Toast.LENGTH_SHORT).show();
             }
             return true;
         }

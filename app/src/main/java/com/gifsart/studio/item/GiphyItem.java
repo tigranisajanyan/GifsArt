@@ -6,6 +6,7 @@ package com.gifsart.studio.item;
 public class GiphyItem {
 
     private String gifUrl;
+    private String originalGifUrl;
     private int gifWidth;
     private int gifHeight;
     private boolean isSelected;
@@ -14,10 +15,11 @@ public class GiphyItem {
 
     }
 
-    public GiphyItem(String gifUrl, int gifWidth, int gifHeight) {
+    public GiphyItem(String gifUrl, int gifWidth, int gifHeight, String originalGifUrl) {
         this.gifUrl = gifUrl;
         this.gifWidth = gifWidth;
         this.gifHeight = gifHeight;
+        this.originalGifUrl = originalGifUrl;
     }
 
     public String getGifUrl() {
@@ -50,6 +52,14 @@ public class GiphyItem {
 
     public void setIsSelected(boolean isSelected) {
         this.isSelected = isSelected;
+    }
+
+    public String getOriginalGifUrl() {
+        return originalGifUrl;
+    }
+
+    public void setOriginalGifUrl(String originalGifUrl) {
+        this.originalGifUrl = originalGifUrl;
     }
 
 }

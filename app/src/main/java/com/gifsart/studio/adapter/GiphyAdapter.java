@@ -3,6 +3,7 @@ package com.gifsart.studio.adapter;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.net.Uri;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,7 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -22,8 +23,10 @@ import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.interfaces.DraweeController;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.gifsart.studio.R;
+import com.gifsart.studio.gifutils.Giphy;
 import com.gifsart.studio.item.GiphyItem;
 import com.gifsart.studio.utils.GifsArtConst;
+import com.gifsart.studio.utils.Utils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -43,12 +46,12 @@ public class GiphyAdapter extends RecyclerView.Adapter<GiphyAdapter.ViewHolder> 
     private Context context;
     private int limit = 30;
     private int offset = 0;
+    private String tag;
     private int selectedPosition = -1;
     Random random = new Random();
 
-    public GiphyAdapter(Context context, ArrayList<Integer> colors) {
+    public GiphyAdapter(Context context) {
         this.context = context;
-        this.colors = colors;
     }
 
     @Override
@@ -56,6 +59,11 @@ public class GiphyAdapter extends RecyclerView.Adapter<GiphyAdapter.ViewHolder> 
         if (inflater == null) {
             inflater = LayoutInflater.from(parent.getContext());
         }
+        colors.add(ContextCompat.getColor(context, R.color.blue));
+        colors.add(ContextCompat.getColor(context, R.color.pink));
+        colors.add(ContextCompat.getColor(context, R.color.yellow));
+        colors.add(ContextCompat.getColor(context, R.color.green));
+        colors.add(ContextCompat.getColor(context, R.color.orange));
         return new ViewHolder(inflater.inflate(R.layout.giphy_item, parent, false));
     }
 
@@ -68,8 +76,21 @@ public class GiphyAdapter extends RecyclerView.Adapter<GiphyAdapter.ViewHolder> 
                 .setAutoPlayAnimations(true).build();
         holder.simpleDraweeView.setController(controller);
         if (position + 1 == limit + offset) {
-            offset = offset + limit;
-            initGipfy(offset);
+            if (Utils.haveNetworkConnection(context)) {
+                offset = offset + limit;
+
+                Giphy giphy = new Giphy(context, "funny", offset, limit);
+                giphy.requestGiphy();
+                giphy.setOnDownloadedListener(new Giphy.GiphyListener() {
+                    @Override
+                    public void onGiphyDownloadFinished(ArrayList<GiphyItem> items) {
+                        giphyItems.addAll(items);
+                        notifyDataSetChanged();
+                    }
+                });
+            } else {
+                Toast.makeText(context, "No Wifi Connection", Toast.LENGTH_SHORT).show();
+            }
         }
         holder.simpleDraweeView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -108,10 +129,17 @@ public class GiphyAdapter extends RecyclerView.Adapter<GiphyAdapter.ViewHolder> 
 
     public void addItem(GiphyItem item) {
         giphyItems.add(item);
+        notifyDataSetChanged();
+    }
+
+    public void addItems(ArrayList<GiphyItem> giphyItems) {
+        this.giphyItems.addAll(giphyItems);
+        notifyDataSetChanged();
     }
 
     public void clear() {
         giphyItems.clear();
+        notifyDataSetChanged();
     }
 
     public GiphyItem getItem(int position) {
@@ -135,52 +163,6 @@ public class GiphyAdapter extends RecyclerView.Adapter<GiphyAdapter.ViewHolder> 
 
     public int getSelectedPosition() {
         return selectedPosition;
-    }
-
-    private void initGipfy(int o) {
-
-        final ProgressDialog progressDialog = new ProgressDialog(context);
-        progressDialog.setCancelable(false);
-        progressDialog.setMessage("please wait");
-        progressDialog.show();
-        String url = GifsArtConst.GIPHY_URL + GifsArtConst.GIPHY_OFFSET + o + GifsArtConst.GIPHY_LIMIT + GifsArtConst.GIPHY_API_KEY;
-        RequestQueue queue = Volley.newRequestQueue(context);
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
-
-                    @Override
-                    public void onResponse(String response) {
-                        JSONObject jsonObject = null;
-                        JSONArray jsonArray = null;
-                        try {
-                            jsonObject = new JSONObject(response);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        try {
-                            jsonArray = jsonObject.getJSONArray("data");
-                            for (int i = 0; i < jsonArray.length(); i++) {
-                                GiphyItem giphyItem = new GiphyItem();
-                                giphyItem.setGifUrl(jsonArray.getJSONObject(i).getJSONObject("images").getJSONObject(GifsArtConst.GIPHY_SIZE_DOWNSAMPLED).getString("url"));
-                                giphyItem.setGifHeight(jsonArray.getJSONObject(i).getJSONObject("images").getJSONObject(GifsArtConst.GIPHY_SIZE_DOWNSAMPLED).getInt("height"));
-                                giphyItem.setGifWidth(jsonArray.getJSONObject(i).getJSONObject("images").getJSONObject(GifsArtConst.GIPHY_SIZE_DOWNSAMPLED).getInt("width"));
-                                addItem(giphyItem);
-                                notifyDataSetChanged();
-                            }
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        notifyDataSetChanged();
-                        progressDialog.dismiss();
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.d(GifsArtConst.GIFIT_LOG, error + "");
-            }
-        });
-        queue.add(stringRequest);
     }
 
 }

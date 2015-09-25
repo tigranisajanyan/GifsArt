@@ -3,6 +3,7 @@ package com.gifsart.studio.adapter;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.Environment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -78,7 +79,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
 
             try {
 
-                //ImageLoader.getInstance().cancelDisplayTask(holder.image);
+                ImageLoader.getInstance().cancelDisplayTask(holder.image);
                 ImageLoader.getInstance().displayImage(FILE_PREFIX + array.get(position).getImagePath()
                         , holder.image, new SimpleImageLoadingListener() {
 
@@ -102,6 +103,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
             } catch (Exception e) {
                 e.printStackTrace();
             }
+
         }
         if (position == 0) {
             holder.image.setScaleType(ImageView.ScaleType.CENTER);
@@ -148,7 +150,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
             image = (ImageView) itemView.findViewById(R.id.gallery_image_item);
             FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(imageSize, imageSize);
             image.setLayoutParams(layoutParams);
-            isVideo = (ImageView) itemView.findViewById(R.id.is_video);
+            isVideo = (ImageView) itemView.findViewById(R.id.is_gif);
             select = (ImageView) itemView.findViewById(R.id.gallery_item_selected);
             select.setVisibility(View.VISIBLE);
             isVideo.setVisibility(View.GONE);
@@ -166,6 +168,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
                 arrayList.add(selected.get(i).getImagePath());
             }
         }
+        //arrayList.add(Environment.getExternalStorageDirectory() + "/myvideo.mp4");
         return arrayList;
     }
 
