@@ -6,4 +6,5 @@
     <string name="title_activity_giphy">GiphyActivity</string>
     <string name="title_activity_shooting_gif">ShootingGifActivity</string>
     <string name="title_activity_gif_preview">GifPreviewActivity</string>
+    <string name="title_activity_android_camera_example">AndroidCameraExample</string>
 </resources>

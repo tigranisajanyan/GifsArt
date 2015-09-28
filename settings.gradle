@@ -1,1 +1,2 @@
-include ':app', ':picsart_video_encoder', ':android-gif-drawable-master', ':fab_library', ':image_chooser_lib'
+include ':app', ':picsart_video_encoder', ':android-gif-drawable-master', ':image_chooser_lib'
+include ':androidCameraExample'

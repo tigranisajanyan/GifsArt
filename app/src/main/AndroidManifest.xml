@@ -42,10 +42,10 @@
             android:parentActivityName=".activity.MainActivity" />
         <activity
             android:name=".activity.ShootingGifActivity"
-            android:label="@string/title_activity_shooting_gif"></activity>
+            android:label="@string/title_activity_shooting_gif" />
         <activity
             android:name=".activity.GifPreviewActivity"
-            android:label="@string/title_activity_gif_preview"></activity>
+            android:label="@string/title_activity_gif_preview" />
     </application>
 
 </manifest>

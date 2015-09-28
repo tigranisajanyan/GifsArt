@@ -33,7 +33,6 @@ import com.gifsart.studio.utils.DownloadFileAsyncTask;
 import com.gifsart.studio.utils.GifsArtConst;
 import com.gifsart.studio.utils.SpacesItemDecoration;
 import com.gifsart.studio.utils.Utils;
-import com.melnykov.fab.FloatingActionButton;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -75,16 +74,6 @@ public class GiphyActivity extends AppCompatActivity {
         recyclerView.setAdapter(giphyAdapter);
         recyclerView.addItemDecoration(new SpacesItemDecoration(5));
 
-        final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.attachToRecyclerView(recyclerView);
-        fab.setText("gagagag");
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                Toast.makeText(GiphyActivity.this, "Gorisi tti arax", Toast.LENGTH_LONG).show();
-            }
-        });
 
         if (Utils.haveNetworkConnection(this)) {
 
