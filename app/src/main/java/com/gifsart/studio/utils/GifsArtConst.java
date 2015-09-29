@@ -1,12 +1,14 @@
 package com.gifsart.studio.utils;
 
+import android.os.Environment;
+
 /**
  * Created by Tigran on 8/25/15.
  */
 public class GifsArtConst {
 
     public static String SLASH = "/";
-    public static String MY_DIR = "test_images";
+    public static String MY_DIR = "GifsArt";
     public static String GIF_NAME = "test.gif";
     public static String VIDEO_NAME = "myvideo.mp4";
     public static String VIDEO_TYPE = "video/*";
@@ -14,7 +16,7 @@ public class GifsArtConst {
     public static String INDEX = "index";
     public static String FILE_PREFIX = "file://";
     public static String VIDEO_PATH = "video_path";
-    public static String GIFIT_LOG = "gifit_log";
+    public static String GIFSART_LOG = "gifsart_log";
     public static String FRONT_CAMERA = "front_camera";
 
     public static String GIPHY_URL = "http://api.giphy.com/v1/gifs/search?q=";
@@ -32,7 +34,7 @@ public class GifsArtConst {
     public static int VIDEO_MAX_SECONDS = 30;
     public static int FRAME_SIZE = 500;
     public static int IMAGES_TO_GIF_INDEX = 1;
-    public static int SHOOT_GIF_INDEX = 2;
+    public static int SHOOT_GIF_INDEX = 3;
     public static int VIDEO_TO_GIF_INDEX = 3;
     public static int GENERATED_FRAMES_MAX_COUNT = 25;
 

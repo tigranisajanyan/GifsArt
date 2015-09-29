@@ -11,10 +11,7 @@ public class GalleryItem {
     private int height;
     private boolean isFile;
     private Type type;
-
-    public String[] types = new String[]{"image", "gif", "video"};
-
-    private int position;
+    private int frameDuration;
 
     public GalleryItem() {
 
@@ -46,14 +43,6 @@ public class GalleryItem {
         this.height = height;
         this.type = type;
 
-    }
-
-    public int getPosition() {
-        return position;
-    }
-
-    public void setPosition(int position) {
-        this.position = position;
     }
 
     public boolean isFile() {
@@ -110,6 +99,14 @@ public class GalleryItem {
 
     public void setType(Type type) {
         this.type = type;
+    }
+
+    public int getFrameDuration() {
+        return frameDuration;
+    }
+
+    public void setFrameDuration(int frameDuration) {
+        this.frameDuration = frameDuration;
     }
 
     public enum Type {

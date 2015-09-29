@@ -20,13 +20,13 @@ import pl.droidsonroids.gif.GifImageView;
 public class GifImitation extends AsyncTask<Void, Integer, Void> {
 
     private Context context;
-    private ViewGroup container;
+    private ImageView container;
     private ArrayList<GalleryItem> bitmaps;
     private int duration;
     private boolean play = false;
     private int k = 0;
 
-    public GifImitation(Context context, ViewGroup container, ArrayList<GalleryItem> bitmaps, int duration) {
+    public GifImitation(Context context, ImageView container, ArrayList<GalleryItem> bitmaps, int duration) {
 
         this.container = container;
         this.bitmaps = bitmaps;
@@ -47,11 +47,7 @@ public class GifImitation extends AsyncTask<Void, Integer, Void> {
     @Override
     protected Void doInBackground(Void... params) {
         while (play) {
-            try {
-                TimeUnit.MILLISECONDS.sleep(duration);
-            } catch (InterruptedException e) {
-                //e.printStackTrace();
-            }
+
             int i = 0;
             while (!bitmaps.get(k % bitmaps.size()).isSeleted()) {
                 if (i == bitmaps.size())
@@ -61,6 +57,12 @@ public class GifImitation extends AsyncTask<Void, Integer, Void> {
             }
             if (i != bitmaps.size())
                 publishProgress(k % bitmaps.size());
+
+            try {
+                TimeUnit.MILLISECONDS.sleep(bitmaps.get(k % bitmaps.size()).getFrameDuration());
+            } catch (InterruptedException e) {
+                //e.printStackTrace();
+            }
             k++;
         }
 
@@ -70,21 +72,8 @@ public class GifImitation extends AsyncTask<Void, Integer, Void> {
     @Override
     protected void onProgressUpdate(Integer... values) {
         super.onProgressUpdate(values);
-        ImageView imageView = (ImageView) container.getChildAt(0);
-        VideoView videoView = (VideoView) container.getChildAt(1);
-        GifImageView gifImageView = (GifImageView) container.getChildAt(2);
+        container.setImageBitmap(bitmaps.get(values[0]).getBitmap());
 
-        if (bitmaps.get(values[0]).getType() == GalleryItem.Type.IMAGE) {
-            videoView.setVisibility(View.GONE);
-            imageView.setVisibility(View.VISIBLE);
-            imageView.setImageBitmap(bitmaps.get(values[0]).getBitmap());
-        }
-        if (bitmaps.get(values[0]).getType() == GalleryItem.Type.VIDEO) {
-            videoView.setVisibility(View.VISIBLE);
-            imageView.setVisibility(View.GONE);
-            videoView.setVideoPath(bitmaps.get(values[0]).getImagePath());
-            videoView.start();
-        }
     }
 
     @Override

@@ -18,29 +18,7 @@
             android:id="@+id/image_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:adjustViewBounds="true"
-            android:visibility="gone" />
-
-        <VideoView
-            android:id="@+id/video_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:adjustViewBounds="true"
-            android:visibility="gone" />
-
-        <pl.droidsonroids.gif.GifImageView
-            android:id="@+id/gif_image_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone" />
-
-        <com.facebook.drawee.view.SimpleDraweeView
-            android:id="@+id/gif_art"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_gravity="center"
-            android:scaleType="matrix"
-            android:visibility="gone" />
+            android:adjustViewBounds="true" />
 
     </FrameLayout>
 

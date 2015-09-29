@@ -3,9 +3,12 @@ package com.gifsart.studio.adapter;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Environment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +22,7 @@ import com.gifsart.studio.R;
 import com.gifsart.studio.activity.GiphyActivity;
 import com.gifsart.studio.activity.ShootingGifActivity;
 import com.gifsart.studio.item.GalleryItem;
+import com.gifsart.studio.utils.Timer;
 import com.gifsart.studio.utils.Utils;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
@@ -32,6 +36,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
     private ArrayList<GalleryItem> array;
     private Context context;
     private ActionBar actionBar;
+    int count = 0;
 
     private ArrayList<GalleryItem> selected = new ArrayList<>();
     private int imageSize;
@@ -56,6 +61,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
 
         Glide.clear(holder.image);
         if (position == 0) {
+            ImageLoader.getInstance().cancelDisplayTask(holder.image);
             holder.image.setScaleType(ImageView.ScaleType.CENTER);
             holder.image.setImageBitmap(array.get(0).getBitmap());
             holder.image.setOnClickListener(new View.OnClickListener() {
@@ -67,6 +73,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
             });
         }
         if (position == 1) {
+            ImageLoader.getInstance().cancelDisplayTask(holder.image);
             holder.image.setScaleType(ImageView.ScaleType.CENTER);
             holder.image.setImageBitmap(array.get(1).getBitmap());
             holder.image.setOnClickListener(new View.OnClickListener() {
@@ -76,6 +83,8 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
                     context.startActivity(intent);
                 }
             });
+
+
         }
         if (position != 0 && position != 1) {
             holder.image.setOnClickListener(new View.OnClickListener() {
@@ -102,14 +111,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
                 }
             });
 
-            Glide.with(context)
-                    .load(FILE_PREFIX + array.get(position).getImagePath())
-                    .into(holder.image);
-
-            /*try {
-
-
-                ImageLoader.getInstance().cancelDisplayTask(holder.image);
+            try {
                 ImageLoader.getInstance().displayImage(FILE_PREFIX + array.get(position).getImagePath()
                         , holder.image, new SimpleImageLoadingListener() {
 
@@ -132,7 +134,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
 
             } catch (Exception e) {
                 e.printStackTrace();
-            }*/
+            }
 
         }
     }
@@ -167,12 +169,14 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
 
     public ArrayList<String> getSelected() {
         ArrayList<String> arrayList = new ArrayList<>();
+        arrayList.add(Environment.getExternalStorageDirectory() + "/myvideo.mp4");
+        arrayList.add(Environment.getExternalStorageDirectory() + "/tt.gif");
         for (int i = 0; i < selected.size(); i++) {
             if (selected.get(i).isSeleted()) {
                 arrayList.add(selected.get(i).getImagePath());
             }
         }
-        //arrayList.add(Environment.getExternalStorageDirectory() + "/myvideo.mp4");
+
         return arrayList;
     }
 

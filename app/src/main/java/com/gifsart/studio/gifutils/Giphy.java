@@ -89,7 +89,7 @@ public class Giphy {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d(GifsArtConst.GIFIT_LOG, error + "");
+                Log.d(GifsArtConst.GIFSART_LOG, error + "");
             }
         });
         queue.add(stringRequest);

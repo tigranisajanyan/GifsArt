@@ -1,8 +1,8 @@
 package com.gifsart.studio.activity;
 
+import android.app.ProgressDialog;
 import android.graphics.Bitmap;
-import android.graphics.Matrix;
-import android.net.Uri;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -12,28 +12,19 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.MimeTypeMap;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
-import android.widget.VideoView;
 
 import com.decoder.PhotoUtils;
 import com.decoder.VideoDecoder;
-import com.facebook.drawee.backends.pipeline.Fresco;
-import com.facebook.drawee.interfaces.DraweeController;
-import com.facebook.drawee.view.SimpleDraweeView;
 import com.gifsart.studio.R;
 import com.gifsart.studio.adapter.Adapter;
-import com.gifsart.studio.adapter.GiphyAdapter;
 import com.gifsart.studio.gifutils.SaveGIFAsyncTask;
-import com.gifsart.studio.helper.RecyclerItemClickListener;
 import com.gifsart.studio.helper.SimpleItemTouchHelperCallback;
 import com.gifsart.studio.item.GalleryItem;
 import com.gifsart.studio.utils.GifImitation;
@@ -48,42 +39,30 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 import pl.droidsonroids.gif.GifDrawable;
-import pl.droidsonroids.gif.GifImageView;
 
 
 public class MakeGifActivity extends ActionBarActivity {
 
     private static final String root = Environment.getExternalStorageDirectory().toString();
 
-
     private ImageView imageView;
-    private VideoView videoView;
-    private GifImageView gifImageView;
     private SeekBar speedSeekBar;
     private LinearLayout clipartLayout;
 
-    private RecyclerView recyclerView;
+    private RecyclerView framesRecyclerView;
     private StaggeredGridLayoutManager staggeredGridLayoutManager;
     private RecyclerView.ItemAnimator itemAnimator;
     private Adapter adapter;
 
     private ArrayList<GalleryItem> galleryItemArrayList = new ArrayList<>();
-    private ArrayList<String> giphyItemUrls = new ArrayList<>();
+    private ArrayList<String> selectedItemsArrayList = new ArrayList<>();
 
     private int speed = 500;
     private String videoPath;
-    private boolean isHide = true;
     private GifImitation gifImitation;
-    private RecyclerView actionsRecyclerView = null;
-    private GiphyAdapter giphyAdapter = null;
 
     private ViewGroup container;
 
-    public static final int ACTION_ADD_EFFECT = 10;
-    public static final int ACTION_ADD_CLIPART = 11;
-    public static final int ACTION_ADD_GIF = 12;
-
-    public int selectedAction = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,23 +71,54 @@ public class MakeGifActivity extends ActionBarActivity {
 
         if (getIntent().getIntExtra(GifsArtConst.INDEX, 0) == GifsArtConst.IMAGES_TO_GIF_INDEX) {
 
-            final ArrayList<String> arrayList = getIntent().getStringArrayListExtra(GifsArtConst.IMAGE_PATHS);
-            for (int i = 0; i < arrayList.size(); i++) {
+            selectedItemsArrayList = getIntent().getStringArrayListExtra(GifsArtConst.IMAGE_PATHS);
+            for (int i = 0; i < selectedItemsArrayList.size(); i++) {
 
-                if (Utils.getMimeType(arrayList.get(i)).toLowerCase().contains("image") && !Utils.getMimeType(arrayList.get(i)).toLowerCase().contains("gif")) {
-                    Bitmap bitmap = ImageLoader.getInstance().loadImageSync(GifsArtConst.FILE_PREFIX + arrayList.get(i));
+                if (Utils.getMimeType(selectedItemsArrayList.get(i)).toLowerCase().contains("image") && !Utils.getMimeType(selectedItemsArrayList.get(i)).toLowerCase().contains("gif")) {
+                    Bitmap bitmap = ImageLoader.getInstance().loadImageSync(GifsArtConst.FILE_PREFIX + selectedItemsArrayList.get(i));
                     bitmap = Utils.scaleCenterCrop(bitmap, GifsArtConst.FRAME_SIZE, GifsArtConst.FRAME_SIZE);
-                    GalleryItem galleryItem = new GalleryItem(bitmap, arrayList.get(i), true, true, bitmap.getWidth(), bitmap.getHeight(), GalleryItem.Type.IMAGE);
+                    GalleryItem galleryItem = new GalleryItem(bitmap, selectedItemsArrayList.get(i), true, true, bitmap.getWidth(), bitmap.getHeight(), GalleryItem.Type.IMAGE);
+                    galleryItem.setFrameDuration(200);
                     galleryItemArrayList.add(galleryItem);
-                } else if (Utils.getMimeType(arrayList.get(i)).toLowerCase().contains("gif")) {
-                    GalleryItem galleryItem = new GalleryItem(null, arrayList.get(i), true, true, 0, 0, GalleryItem.Type.GIF);
-                    galleryItemArrayList.add(galleryItem);
-                } else if (Utils.getMimeType(arrayList.get(i)).toLowerCase().contains("video")) {
-                    GalleryItem galleryItem = new GalleryItem(null, arrayList.get(i), true, true, 0, 0, GalleryItem.Type.VIDEO);
-                    galleryItemArrayList.add(galleryItem);
+                } else if (Utils.getMimeType(selectedItemsArrayList.get(i)).toLowerCase().contains("gif")) {
+                    GifDrawable gifDrawable = null;
+                    try {
+                        gifDrawable = new GifDrawable(selectedItemsArrayList.get(i));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    for (int j = 0; j < gifDrawable.getNumberOfFrames(); j++) {
+                        Bitmap bitmap = gifDrawable.seekToFrameAndGet(j);
+                        GalleryItem galleryItem = new GalleryItem(Utils.squareFit(bitmap, GifsArtConst.FRAME_SIZE), null, true, true, 0, 0, GalleryItem.Type.GIF);
+                        galleryItem.setFrameDuration(gifDrawable.getFrameDuration(0));
+                        galleryItemArrayList.add(galleryItem);
+                    }
+                } else if (Utils.getMimeType(selectedItemsArrayList.get(i)).toLowerCase().contains("video")) {
+                    VideoDecoder videoDecoder = new VideoDecoder(MakeGifActivity.this, selectedItemsArrayList.get(i), Integer.MAX_VALUE, 2, root + GifsArtConst.SLASH + GifsArtConst.MY_DIR);
+                    videoDecoder.extractVideoFrames();
+                    final int finalI = i;
+                    videoDecoder.setOnDecodeFinishedListener(new VideoDecoder.OnDecodeFinishedListener() {
+                        @Override
+                        public void onFinish(boolean isDone) {
+                            videoPath = selectedItemsArrayList.get(finalI);
+                            File file = new File(root, GifsArtConst.MY_DIR);
+                            File[] files = file.listFiles();
+                            for (int i = 0; i < files.length; i++) {
+
+                                ByteBuffer buffer = PhotoUtils.readBufferFromFile(files[i].getAbsolutePath(), PhotoUtils.checkBufferSize(videoPath, 2));
+                                Bitmap bitmap = PhotoUtils.fromBufferToBitmap(PhotoUtils.checkFrameWidth(videoPath, 2), PhotoUtils.checkFrameHeight(videoPath, 2), buffer);
+
+                                GalleryItem galleryItem = new GalleryItem(Utils.squareFit(bitmap, GifsArtConst.FRAME_SIZE), null, true, true, bitmap.getWidth(), bitmap.getHeight(), GalleryItem.Type.VIDEO);
+                                galleryItem.setFrameDuration(40);
+                                galleryItemArrayList.add(galleryItem);
+                            }
+                            adapter.notifyDataSetChanged();
+                        }
+                    });
                 }
 
             }
+
 
         }
         if (getIntent().getIntExtra(GifsArtConst.INDEX, 0) == 2) {
@@ -122,15 +132,29 @@ public class MakeGifActivity extends ActionBarActivity {
             for (int i = 0; i < gifDrawable.getNumberOfFrames(); i++) {
                 bitmaps.add(gifDrawable.seekToFrameAndGet(i));
                 GalleryItem galleryItem = new GalleryItem(bitmaps.get(i), null, true, true, 0, 0, GalleryItem.Type.IMAGE);
+                galleryItem.setFrameDuration(100);
                 galleryItemArrayList.add(galleryItem);
             }
-            /*ArrayList<Bitmap> bitmaps = Utils.getGifFramesPath(getIntent().getStringExtra("gif_path"));
-            for (int i = 0; i < bitmaps.size(); i++) {
-                GalleryItem galleryItem = new GalleryItem(bitmaps.get(i), null, true, true, 0, 0, GalleryItem.Type.IMAGE);
+        }
+        if (getIntent().getIntExtra(GifsArtConst.INDEX, 0) == 3) {
+            int frameSize = getIntent().getIntExtra("frame_size", 2);
+            videoPath = getIntent().getStringExtra(GifsArtConst.VIDEO_PATH);
+            File file = new File(root, GifsArtConst.MY_DIR);
+            File[] files = file.listFiles();
+            for (int i = 0; i < files.length; i++) {
+
+                ByteBuffer buffer = PhotoUtils.readBufferFromFile(files[i].getAbsolutePath(), PhotoUtils.checkBufferSize(videoPath, frameSize));
+                Bitmap bitmap = PhotoUtils.fromBufferToBitmap(PhotoUtils.checkFrameWidth(videoPath, frameSize), PhotoUtils.checkFrameHeight(videoPath, frameSize), buffer);
+
+                GalleryItem galleryItem = new GalleryItem(bitmap, null, true, true, bitmap.getWidth(), bitmap.getHeight(), GalleryItem.Type.IMAGE);
+                galleryItem.setFrameDuration(40);
                 galleryItemArrayList.add(galleryItem);
-            }*/
+            }
         }
 
+        //GalleryItem item = new GalleryItem();
+        //item.setBitmap(BitmapFactory.decodeResource(getResources(), android.R.drawable.ic_menu_add));
+        //galleryItemArrayList.add(item);
         init();
 
     }
@@ -146,12 +170,8 @@ public class MakeGifActivity extends ActionBarActivity {
         int id = item.getItemId();
 
         if (id == R.id.action_next) {
-            SaveGIFAsyncTask saveGIFAsyncTask = new SaveGIFAsyncTask(root + GifsArtConst.SLASH + GifsArtConst.MY_DIR + GifsArtConst.SLASH + GifsArtConst.GIF_NAME, galleryItemArrayList, speed, MakeGifActivity.this);
+            SaveGIFAsyncTask saveGIFAsyncTask = new SaveGIFAsyncTask(root + GifsArtConst.SLASH + GifsArtConst.GIF_NAME, galleryItemArrayList, MakeGifActivity.this);
             saveGIFAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        } else if (id == R.id.action_next) {
-            //DrawClipArtOnMainFrames drawClipArtOnMainFrames = new DrawClipArtOnMainFrames(MakeGifActivity.this, adapter, mainView, galleryItemArrayList, container, clipartLayout, isHide);
-            //drawClipArtOnMainFrames.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-
         }
         return true;
     }
@@ -163,64 +183,32 @@ public class MakeGifActivity extends ActionBarActivity {
         container.setLayoutParams(layoutParams);
 
         imageView = (ImageView) findViewById(R.id.image_view);
-        videoView = (VideoView) findViewById(R.id.video_view);
-        gifImageView = (GifImageView) findViewById(R.id.gif_image_view);
         speedSeekBar = (SeekBar) findViewById(R.id.seek_bar);
-        recyclerView = (RecyclerView) findViewById(R.id.rec_view);
+        framesRecyclerView = (RecyclerView) findViewById(R.id.rec_view);
 
         imageView.setDrawingCacheEnabled(true);
-        adapter = new Adapter(galleryItemArrayList, this);
+        adapter = new Adapter(galleryItemArrayList, selectedItemsArrayList, this);
         staggeredGridLayoutManager = new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.HORIZONTAL);
         itemAnimator = new DefaultItemAnimator();
 
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setClipToPadding(true);
-        recyclerView.setLayoutManager(staggeredGridLayoutManager);
-        recyclerView.setItemAnimator(itemAnimator);
-        recyclerView.setAdapter(adapter);
-        recyclerView.addItemDecoration(new SpacesItemDecoration(1));
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        framesRecyclerView.setHasFixedSize(true);
+        framesRecyclerView.setClipToPadding(true);
+        framesRecyclerView.setLayoutManager(staggeredGridLayoutManager);
+        framesRecyclerView.setItemAnimator(itemAnimator);
+        framesRecyclerView.setAdapter(adapter);
+        framesRecyclerView.addItemDecoration(new SpacesItemDecoration(1));
+        framesRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
         ItemTouchHelper.Callback callback =
                 new SimpleItemTouchHelperCallback(adapter);
         ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
-        touchHelper.attachToRecyclerView(recyclerView);
+        touchHelper.attachToRecyclerView(framesRecyclerView);
 
-        gifImitation = new GifImitation(MakeGifActivity.this, container, galleryItemArrayList, 500);
+        gifImitation = new GifImitation(MakeGifActivity.this, imageView, galleryItemArrayList, 500);
         gifImitation.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
         LinearLayoutManager horizontalLayoutManager = new LinearLayoutManager(getApplicationContext());
         horizontalLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
-
-        actionsRecyclerView = (RecyclerView) findViewById(R.id.actions_recycler_view);
-        actionsRecyclerView.setLayoutManager(horizontalLayoutManager);
-        actionsRecyclerView.addOnItemTouchListener(new RecyclerItemClickListener(getApplicationContext(), new RecyclerItemClickListener.OnItemClickListener() {
-            @Override
-            public void onItemClick(View view, int position) {
-                switch (selectedAction) {
-                    case ACTION_ADD_CLIPART:
-                        /*if (mainView != null) {
-                            mainView.addClipart(clipartList[position]);
-                        }*/
-                        break;
-                    case ACTION_ADD_EFFECT:
-                        //EffectItem selectedItem = effectsAdapter.getItem(position);
-                        //selectedItem.getAction().startAction(galleryItemArrayList, adapter);
-                        break;
-                    case ACTION_ADD_GIF:
-                        /*Uri uri = Uri.parse(giphyItemUrls.get(position));
-                        DraweeController controller = Fresco.newDraweeControllerBuilder()
-                                .setUri(uri)
-                                .setAutoPlayAnimations(true).build();
-
-                        gifImageView.setController(controller);*/
-                        break;
-
-                }
-            }
-        }));
-
-        giphyAdapter = new GiphyAdapter(this);
 
         clipartLayout = (LinearLayout) findViewById(R.id.clipart_horizontal_list_container);
         clipartLayout.setVisibility(View.VISIBLE);

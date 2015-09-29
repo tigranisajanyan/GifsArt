@@ -7,9 +7,11 @@ import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
+import android.os.AsyncTask;
 import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,7 +28,11 @@ import com.gifsart.studio.utils.CameraPreview;
 import com.gifsart.studio.utils.GifsArtConst;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 
 public class ShootingGifActivity extends ActionBarActivity {
@@ -48,6 +54,8 @@ public class ShootingGifActivity extends ActionBarActivity {
     private Thread myThread = null;
 
     int width;
+
+    private Camera.PictureCallback mPicture;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -178,7 +186,7 @@ public class ShootingGifActivity extends ActionBarActivity {
 
         mediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
         mediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
-        mediaRecorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_480P));
+        mediaRecorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_720P));
 
         //mediaRecorder.setVideoFrameRate(2);
 
@@ -186,8 +194,8 @@ public class ShootingGifActivity extends ActionBarActivity {
 
         File file = new File(root, GifsArtConst.VIDEO_NAME);
         mediaRecorder.setOutputFile(file.getAbsolutePath());
-        mediaRecorder.setMaxDuration(GifsArtConst.VIDEO_MAX_DURATION); // Set max duration 90 sec.
-        mediaRecorder.setMaxFileSize(GifsArtConst.VIDEO_FILE_MAX_SIZE); // Set max file size 50M
+        mediaRecorder.setMaxDuration(GifsArtConst.VIDEO_MAX_DURATION); // Set max duration 30 sec.
+        mediaRecorder.setMaxFileSize(GifsArtConst.VIDEO_FILE_MAX_SIZE); // Set max file size 40M
 
         try {
             mediaRecorder.prepare();
@@ -358,7 +366,7 @@ public class ShootingGifActivity extends ActionBarActivity {
                                 Intent intent = new Intent(ShootingGifActivity.this, MakeGifActivity.class);
                                 intent.putExtra(GifsArtConst.INDEX, GifsArtConst.SHOOT_GIF_INDEX);
                                 intent.putExtra("frame_size", 2);
-                                intent.putExtra(GifsArtConst.VIDEO_PATH, root + GifsArtConst.SLASH + GifsArtConst.MY_DIR);
+                                intent.putExtra(GifsArtConst.VIDEO_PATH, root + GifsArtConst.SLASH + GifsArtConst.VIDEO_NAME);
                                 startActivity(intent);
                                 progressDialog.dismiss();
                                 finish();

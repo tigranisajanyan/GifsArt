@@ -22,10 +22,12 @@ import java.util.Collections;
 public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> implements ItemTouchHelperAdapter {
 
     private ArrayList<GalleryItem> array;
+    private ArrayList<String> selectedItems = new ArrayList<>();
     private Context context;
 
-    public Adapter(ArrayList<GalleryItem> arr, Context c) {
+    public Adapter(ArrayList<GalleryItem> arr, ArrayList<String> selectedItems, Context c) {
 
+        this.selectedItems = selectedItems;
         array = arr;
         context = c;
     }
@@ -39,7 +41,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> implements
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
 
-        if (array.get(position).isFile()) {
+        //if (array.get(position).getType() == GalleryItem.Type.IMAGE) {
             holder.icon.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -65,7 +67,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> implements
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }
+        //}
     }
 
     @Override

@@ -9,7 +9,11 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.graphics.PointF;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.media.ExifInterface;
 import android.media.MediaMetadataRetriever;
@@ -24,6 +28,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
+import com.decoder.BitmapManager;
 import com.decoder.PhotoUtils;
 import com.gifsart.studio.gifutils.GifDecoder;
 import com.gifsart.studio.item.GalleryItem;
@@ -328,10 +333,11 @@ public class Utils {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        dir.delete();
 
     }
 
-    public static void craeteDir(String fileName) {
+    public static void createDir(String fileName) {
 
         String root = Environment.getExternalStorageDirectory().toString();
         File myDir = new File(root + "/" + fileName);
@@ -550,6 +556,22 @@ public class Utils {
             }
         }
         return false;
+    }
+
+    public static Bitmap squareFit(Bitmap bitmap, int size) {
+        Bitmap bmOverlay = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
+        bmOverlay.setDensity(bitmap.getDensity());
+        bmOverlay.eraseColor(Color.WHITE);
+
+        Canvas canvas = new Canvas(bmOverlay);
+        if (bitmap.getWidth() > bitmap.getHeight()) {
+            Bitmap bitmap1 = Bitmap.createScaledBitmap(bitmap, size, (size * bitmap.getHeight()) / bitmap.getWidth(), false);
+            canvas.drawBitmap(bitmap1, 0, (size - bitmap1.getHeight()) / 2, new Paint());
+        } else {
+            Bitmap bitmap1 = Bitmap.createScaledBitmap(bitmap, (size * bitmap.getWidth()) / bitmap.getHeight(), size, false);
+            canvas.drawBitmap(bitmap1, (size-bitmap1.getWidth())/2, 0, new Paint());
+        }
+        return bmOverlay;
     }
 
 }

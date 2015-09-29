@@ -8,22 +8,16 @@ import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.VolleyError;
-import com.bumptech.glide.Glide;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.gifsart.studio.R;
 import com.gifsart.studio.adapter.GalleryAdapter;
-import com.gifsart.studio.gifutils.Giphy;
 import com.gifsart.studio.item.GalleryItem;
-import com.gifsart.studio.item.GiphyItem;
 import com.gifsart.studio.utils.GifsArtConst;
 import com.gifsart.studio.utils.SpacesItemDecoration;
 import com.gifsart.studio.utils.Utils;
@@ -52,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
         ImageLoader.getInstance().clearMemoryCache();
         ImageLoader.getInstance().clearDiskCache();
 
-        Utils.craeteDir(GifsArtConst.MY_DIR);
+        Utils.createDir(GifsArtConst.MY_DIR);
 
         init();
 
@@ -94,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(MainActivity.this, MakeGifActivity.class);
                 intent.putExtra(GifsArtConst.INDEX, GifsArtConst.IMAGES_TO_GIF_INDEX);
                 intent.putStringArrayListExtra(GifsArtConst.IMAGE_PATHS, galleryAdapter.getSelected());
+
                 startActivity(intent);
                 galleryAdapter.deselectAll();
 

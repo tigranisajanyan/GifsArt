@@ -27,16 +27,14 @@ public class SaveGIFAsyncTask extends AsyncTask<Void, Integer, Void> {
 
     private Activity activity;
     private String outputDir;
-    private int speed;
     private ArrayList<GalleryItem> bitmaps = new ArrayList<>();
     private ProgressDialog progressDialog;
     private static final String root = Environment.getExternalStorageDirectory().toString();
 
-    public SaveGIFAsyncTask(String outputDir, ArrayList<GalleryItem> bitmaps, int speed, Activity activity) {
+    public SaveGIFAsyncTask(String outputDir, ArrayList<GalleryItem> bitmaps, Activity activity) {
         this.outputDir = outputDir;
         this.bitmaps = bitmaps;
         this.activity = activity;
-        this.speed = speed;
     }
 
     @Override
@@ -58,12 +56,12 @@ public class SaveGIFAsyncTask extends AsyncTask<Void, Integer, Void> {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
             AnimatedGifEncoder animatedGifEncoder = new AnimatedGifEncoder();
-            animatedGifEncoder.setDelay(speed);
             animatedGifEncoder.setRepeat(0);
             animatedGifEncoder.start(bos);
 
             for (int i = 0; i < bitmaps.size(); i++) {
                 if (bitmaps.get(i).isSeleted()) {
+                    animatedGifEncoder.setDelay(bitmaps.get(i).getFrameDuration());
                     animatedGifEncoder.addFrame(bitmaps.get(i).getBitmap());
                     publishProgress(i);
                 }

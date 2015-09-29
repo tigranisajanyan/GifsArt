@@ -212,12 +212,12 @@ public class GiphyActivity extends AppCompatActivity {
 
             if (giphyAdapter.getSelectedPosition() > -1) {
 
-                DownloadFileAsyncTask downloadFileAsyncTask = new DownloadFileAsyncTask(GiphyActivity.this, root + "/tt.gif", giphyAdapter.getItem(giphyAdapter.getSelectedPosition()));
+                DownloadFileAsyncTask downloadFileAsyncTask = new DownloadFileAsyncTask(GiphyActivity.this, root + GifsArtConst.SLASH + GifsArtConst.MY_DIR + "/tt.gif", giphyAdapter.getItem(giphyAdapter.getSelectedPosition()));
                 downloadFileAsyncTask.setOnDownloadedListener(new DownloadFileAsyncTask.OnDownloaded() {
                     @Override
                     public void onDownloaded(boolean isDownloded) {
                         Intent intent = new Intent(GiphyActivity.this, MakeGifActivity.class);
-                        intent.putExtra("gif_path", root + "/tt.gif");
+                        intent.putExtra("gif_path", root + GifsArtConst.SLASH + GifsArtConst.MY_DIR + "/tt.gif");
                         intent.putExtra(GifsArtConst.INDEX, 2);
                         startActivity(intent);
                         finish();
