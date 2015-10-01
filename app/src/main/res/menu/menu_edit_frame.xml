@@ -1,10 +1,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.gifsart.studio.activity.GiphyActivity">
-
+    tools:context="com.gifsart.studio.activity.EditFrameActivity">
     <item
-        android:id="@+id/action_done"
-        android:title="Done"
+        android:id="@+id/action_apply"
+        android:title="apply"
         app:showAsAction="always" />
 </menu>

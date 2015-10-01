@@ -9,7 +9,9 @@ import android.os.AsyncTask;
 import android.os.Environment;
 
 import com.gifsart.studio.activity.GifPreviewActivity;
-import com.gifsart.studio.item.GalleryItem;
+import com.gifsart.studio.item.MakeGifItem;
+import com.gifsart.studio.utils.GifsArtConst;
+import com.gifsart.studio.utils.Type;
 import com.gifsart.studio.utils.Utils;
 
 import java.io.BufferedOutputStream;
@@ -27,13 +29,13 @@ public class SaveGIFAsyncTask extends AsyncTask<Void, Integer, Void> {
 
     private Activity activity;
     private String outputDir;
-    private ArrayList<GalleryItem> bitmaps = new ArrayList<>();
+    private ArrayList<MakeGifItem> makeGifItems = new ArrayList<>();
     private ProgressDialog progressDialog;
     private static final String root = Environment.getExternalStorageDirectory().toString();
 
-    public SaveGIFAsyncTask(String outputDir, ArrayList<GalleryItem> bitmaps, Activity activity) {
+    public SaveGIFAsyncTask(String outputDir, ArrayList<MakeGifItem> makeGifItems, Activity activity) {
         this.outputDir = outputDir;
-        this.bitmaps = bitmaps;
+        this.makeGifItems = makeGifItems;
         this.activity = activity;
     }
 
@@ -42,7 +44,7 @@ public class SaveGIFAsyncTask extends AsyncTask<Void, Integer, Void> {
         super.onPreExecute();
         progressDialog = new ProgressDialog(activity);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        progressDialog.setMax(bitmaps.size());
+        progressDialog.setMax(makeGifItems.size());
         progressDialog.show();
     }
 
@@ -59,10 +61,23 @@ public class SaveGIFAsyncTask extends AsyncTask<Void, Integer, Void> {
             animatedGifEncoder.setRepeat(0);
             animatedGifEncoder.start(bos);
 
-            for (int i = 0; i < bitmaps.size(); i++) {
-                if (bitmaps.get(i).isSeleted()) {
-                    animatedGifEncoder.setDelay(bitmaps.get(i).getFrameDuration());
-                    animatedGifEncoder.addFrame(bitmaps.get(i).getBitmap());
+            for (int i = 0; i < makeGifItems.size(); i++) {
+
+                if (makeGifItems.get(i).getType() == Type.IMAGE) {
+                    animatedGifEncoder.setDelay(makeGifItems.get(i).getDuraton());
+                    animatedGifEncoder.addFrame(Utils.squareFit(makeGifItems.get(i).getBitmap(), GifsArtConst.FRAME_SIZE));
+                    publishProgress(i);
+                } else if (makeGifItems.get(i).getType() == Type.GIF) {
+                    for (int j = 0; j < makeGifItems.get(i).getBitmaps().size(); j++) {
+                        animatedGifEncoder.setDelay(makeGifItems.get(i).getDuraton());
+                        animatedGifEncoder.addFrame(Utils.squareFit(makeGifItems.get(i).getBitmaps().get(j), GifsArtConst.FRAME_SIZE));
+                    }
+                    publishProgress(i);
+                } else if (makeGifItems.get(i).getType() == Type.VIDEO) {
+                    for (int j = 0; j < makeGifItems.get(i).getBitmaps().size(); j++) {
+                        animatedGifEncoder.setDelay(makeGifItems.get(i).getDuraton());
+                        animatedGifEncoder.addFrame(Utils.squareFit(makeGifItems.get(i).getBitmaps().get(j), GifsArtConst.FRAME_SIZE));
+                    }
                     publishProgress(i);
                 }
             }

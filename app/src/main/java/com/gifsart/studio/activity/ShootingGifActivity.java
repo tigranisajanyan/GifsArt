@@ -152,7 +152,7 @@ public class ShootingGifActivity extends ActionBarActivity {
 
     private int findBackFacingCamera() {
         int cameraId = -1;
-        // Search for the back facing camera
+        // Search for the corner facing camera
         // get the number of cameras
         int numberOfCameras = Camera.getNumberOfCameras();
         // for every camera check
@@ -264,7 +264,7 @@ public class ShootingGifActivity extends ActionBarActivity {
                 int camerasNumber = Camera.getNumberOfCameras();
                 if (camerasNumber > 1) {
                     // release the old camera instance
-                    // switch camera, from the front and the back and vice versa
+                    // switch camera, from the front and the corner and vice versa
 
                     releaseCamera();
                     chooseCamera();

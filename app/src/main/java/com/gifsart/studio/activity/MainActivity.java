@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
             if (galleryAdapter.getSelected().size() > 0) {
 
                 Intent intent = new Intent(MainActivity.this, MakeGifActivity.class);
-                intent.putExtra(GifsArtConst.INDEX, GifsArtConst.IMAGES_TO_GIF_INDEX);
+                intent.putExtra(GifsArtConst.INDEX, GifsArtConst.FROM_GALLERY_TO_GIF_INDEX);
                 intent.putStringArrayListExtra(GifsArtConst.IMAGE_PATHS, galleryAdapter.getSelected());
 
                 startActivity(intent);
@@ -110,10 +110,9 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(Void... params) {
 
-            GalleryItem galleryItem1 = new GalleryItem();
-            galleryItem1.setBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.camera_icon));
-            GalleryItem galleryItem2 = new GalleryItem();
-            galleryItem2.setBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.giphy_icon));
+            GalleryItem galleryItem1 = new GalleryItem(BitmapFactory.decodeResource(getResources(), R.drawable.camera_icon));
+            GalleryItem galleryItem2 = new GalleryItem(BitmapFactory.decodeResource(getResources(), R.drawable.giphy_icon));
+
             customGalleryArrayList.add(galleryItem1);
             customGalleryArrayList.add(galleryItem2);
             customGalleryArrayList.addAll(Utils.getGalleryPhotos(MainActivity.this));

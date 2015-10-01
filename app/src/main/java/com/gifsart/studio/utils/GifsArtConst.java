@@ -33,9 +33,9 @@ public class GifsArtConst {
     public static int CAMERA_OUTPUT_ORIENTATION = 90;
     public static int VIDEO_MAX_SECONDS = 30;
     public static int FRAME_SIZE = 500;
-    public static int IMAGES_TO_GIF_INDEX = 1;
-    public static int SHOOT_GIF_INDEX = 3;
-    public static int VIDEO_TO_GIF_INDEX = 3;
+    public static int FROM_GALLERY_TO_GIF_INDEX = 1;
+    public static int SHOOT_GIF_INDEX = 2;
+    public static int GIPHY_TO_GIF_INDEX = 3;
     public static int GENERATED_FRAMES_MAX_COUNT = 25;
 
 

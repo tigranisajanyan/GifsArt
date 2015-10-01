@@ -1,9 +1,8 @@
 <resources>
 
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="colorPrimary">#27292E</item>
-        <item name="android:actionMenuTextColor">#BDBDBD</item>
-
+        <item name="colorPrimary">@color/navigation_bar_color</item>
+        <item name="android:actionMenuTextColor">@color/pink</item>
     </style>
 
 </resources>

@@ -10,5 +10,6 @@
     <color name="green">#5dff4f</color>
     <color name="orange">#f4630d</color>
     <color name="yellow_transparent">#66FACC35</color>
+    <color name="item_backgroud">#2A2C2F</color>
 
 </resources>

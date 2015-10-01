@@ -12,6 +12,8 @@ import android.widget.ImageView;
 import com.gifsart.studio.R;
 import com.gifsart.studio.helper.ItemTouchHelperAdapter;
 import com.gifsart.studio.item.GalleryItem;
+import com.gifsart.studio.item.MakeGifItem;
+import com.gifsart.studio.utils.Type;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,15 +21,13 @@ import java.util.Collections;
 /**
  * Created by Tigran on 6/23/15.
  */
-public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> implements ItemTouchHelperAdapter {
+public class SlideAdapter extends RecyclerView.Adapter<SlideAdapter.ViewHolder> implements ItemTouchHelperAdapter {
 
-    private ArrayList<GalleryItem> array;
-    private ArrayList<String> selectedItems = new ArrayList<>();
+    private ArrayList<MakeGifItem> array;
     private Context context;
 
-    public Adapter(ArrayList<GalleryItem> arr, ArrayList<String> selectedItems, Context c) {
+    public SlideAdapter(ArrayList<MakeGifItem> arr, Context c) {
 
-        this.selectedItems = selectedItems;
         array = arr;
         context = c;
     }
@@ -41,33 +41,29 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> implements
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
 
-        //if (array.get(position).getType() == GalleryItem.Type.IMAGE) {
-            holder.icon.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (array.get(position).isSeleted() && getSelected().size() > 1) {
-                        array.get(position).setIsSeleted(false);
-
-                    } else {
-                        array.get(position).setIsSeleted(true);
-                    }
-
-                    holder.selected.setSelected(array
-                            .get(position).isSeleted());
-                }
-            });
-
+        if (array.get(position).getType() == Type.IMAGE) {
 
             try {
                 holder.icon.setImageBitmap(array.get(position).getBitmap());
 
-                holder.selected
-                        .setSelected(array.get(position).isSeleted());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else if (array.get(position).getType() == Type.GIF) {
+            try {
+                holder.icon.setImageBitmap(array.get(position).getBitmap());
 
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        //}
+        } else if (array.get(position).getType() == Type.VIDEO) {
+            try {
+                holder.icon.setImageBitmap(array.get(position).getBitmap());
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
@@ -105,19 +101,9 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> implements
         }
     }
 
-    public String getItem(int i) {
-        return array.get(i).getImagePath();
+    public MakeGifItem getItem(int i) {
+        return array.get(i);
     }
 
-    public ArrayList<Bitmap> getSelected() {
-        ArrayList<Bitmap> arrayList = new ArrayList<>();
-        for (int i = 0; i < array.size(); i++) {
-            if (array.get(i).isSeleted() == true) {
-                arrayList.add(array.get(i).getBitmap());
-
-            }
-        }
-        return arrayList;
-    }
 
 }

@@ -233,12 +233,14 @@ public class Utils {
                         }*/
                         //item.setHeight((int) Utils.getBitmapHeight(activity, item.getImagePath()));
                         //item.setWidth((int) Utils.getBitmapWidth(activity));
-                        item.setType(GalleryItem.Type.IMAGE);
                         galleryList.add(item);
                     }
 
                 }
             }
+
+            galleryList.add(new GalleryItem(Environment.getExternalStorageDirectory() + "/myvideo.mp4"));  /////
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -298,7 +300,6 @@ public class Utils {
                         item.setImagePath(imagecursor.getString(dataColumnIndex));
                         item.setHeight((int) halfHeight);
                         item.setWidth((int) halfWidth);
-                        item.setType(GalleryItem.Type.VIDEO);
 
                         Bitmap thumb = ThumbnailUtils.createVideoThumbnail(imagecursor.getString(dataColumnIndex),
                                 MediaStore.Images.Thumbnails.MINI_KIND);
@@ -569,7 +570,7 @@ public class Utils {
             canvas.drawBitmap(bitmap1, 0, (size - bitmap1.getHeight()) / 2, new Paint());
         } else {
             Bitmap bitmap1 = Bitmap.createScaledBitmap(bitmap, (size * bitmap.getWidth()) / bitmap.getHeight(), size, false);
-            canvas.drawBitmap(bitmap1, (size-bitmap1.getWidth())/2, 0, new Paint());
+            canvas.drawBitmap(bitmap1, (size - bitmap1.getWidth()) / 2, 0, new Paint());
         }
         return bmOverlay;
     }

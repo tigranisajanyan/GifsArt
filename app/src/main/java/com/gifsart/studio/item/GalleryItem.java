@@ -2,24 +2,29 @@ package com.gifsart.studio.item;
 
 import android.graphics.Bitmap;
 
+import com.gifsart.studio.utils.Type;
+
 public class GalleryItem {
 
-    private Bitmap bitmap;
-    private String imagePath;
-    private boolean isSeleted;
-    private int width;
-    private int height;
-    private boolean isFile;
+    private Bitmap bitmap = null;
+    private String imagePath = null;
+    private boolean isSeleted = false;
+    private int width = 0;
+    private int height = 0;
+    private boolean isFile = false;
     private Type type;
-    private int frameDuration;
+    private int frameDuration = 0;
 
     public GalleryItem() {
 
-        this.imagePath = null;
-        this.isSeleted = false;
-        this.width = 0;
-        this.height = 0;
+    }
 
+    public GalleryItem(String imagePath) {
+        this.imagePath = imagePath;
+    }
+
+    public GalleryItem(Bitmap bitmap) {
+        this.bitmap = bitmap;
     }
 
     public GalleryItem(Bitmap bitmap, String imagePath, boolean isSeleted, boolean isFile, int width, int height) {
@@ -107,12 +112,6 @@ public class GalleryItem {
 
     public void setFrameDuration(int frameDuration) {
         this.frameDuration = frameDuration;
-    }
-
-    public enum Type {
-        IMAGE,
-        GIF,
-        VIDEO
     }
 
 }

@@ -1,35 +1,31 @@
 package com.gifsart.studio.utils;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.VideoView;
 
-import com.gifsart.studio.item.GalleryItem;
+import com.gifsart.studio.item.MakeGifItem;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
-import pl.droidsonroids.gif.GifImageView;
-
 /**
  * Created by Tigran on 8/6/15.
  */
-public class GifImitation extends AsyncTask<Void, Integer, Void> {
+public class GifImitation extends AsyncTask<Void, Bitmap, Void> {
 
     private Context context;
     private ImageView container;
-    private ArrayList<GalleryItem> bitmaps;
+    private ArrayList<MakeGifItem> makeGifItems;
     private int duration;
     private boolean play = false;
     private int k = 0;
 
-    public GifImitation(Context context, ImageView container, ArrayList<GalleryItem> bitmaps, int duration) {
+    public GifImitation(Context context, ImageView container, ArrayList<MakeGifItem> makeGifItems, int duration) {
 
         this.container = container;
-        this.bitmaps = bitmaps;
+        this.makeGifItems = makeGifItems;
         this.duration = duration;
         this.context = context;
     }
@@ -48,31 +44,52 @@ public class GifImitation extends AsyncTask<Void, Integer, Void> {
     protected Void doInBackground(Void... params) {
         while (play) {
 
-            int i = 0;
-            while (!bitmaps.get(k % bitmaps.size()).isSeleted()) {
-                if (i == bitmaps.size())
-                    break;
-                i++;
+            if (makeGifItems.get(k % makeGifItems.size()).getType() == Type.IMAGE) {
+                publishProgress(makeGifItems.get(k % makeGifItems.size()).getBitmap());
+                try {
+                    TimeUnit.MILLISECONDS.sleep(makeGifItems.get(k % makeGifItems.size()).getDuraton());
+                } catch (InterruptedException e) {
+                    //e.printStackTrace();
+                }
+                k++;
+            } else if (makeGifItems.get(k % makeGifItems.size()).getType() == Type.GIF) {
+                for (int i = 0; i < makeGifItems.get(k % makeGifItems.size()).getBitmaps().size(); i++) {
+                    publishProgress(makeGifItems.get(k % makeGifItems.size()).getBitmaps().get(i));
+                    try {
+                        TimeUnit.MILLISECONDS.sleep(makeGifItems.get(k % makeGifItems.size()).getDuraton());
+                    } catch (InterruptedException e) {
+                        //e.printStackTrace();
+                    }
+                }
+                k++;
+
+            } else if ((makeGifItems.get(k % makeGifItems.size()).getType() == Type.VIDEO)) {
+                for (int i = 0; i < makeGifItems.get(k % makeGifItems.size()).getBitmaps().size(); i++) {
+                    publishProgress(makeGifItems.get(k % makeGifItems.size()).getBitmaps().get(i));
+                    try {
+                        TimeUnit.MILLISECONDS.sleep(makeGifItems.get(k % makeGifItems.size()).getDuraton());
+                    } catch (InterruptedException e) {
+                        //e.printStackTrace();
+                    }
+                }
                 k++;
             }
-            if (i != bitmaps.size())
-                publishProgress(k % bitmaps.size());
-
             try {
-                TimeUnit.MILLISECONDS.sleep(bitmaps.get(k % bitmaps.size()).getFrameDuration());
+                TimeUnit.MILLISECONDS.sleep(duration);
             } catch (InterruptedException e) {
                 //e.printStackTrace();
             }
-            k++;
+
+
         }
 
         return null;
     }
 
     @Override
-    protected void onProgressUpdate(Integer... values) {
+    protected void onProgressUpdate(Bitmap... values) {
         super.onProgressUpdate(values);
-        container.setImageBitmap(bitmaps.get(values[0]).getBitmap());
+        container.setImageBitmap(values[0]);
 
     }
 
