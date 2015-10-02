@@ -56,7 +56,10 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
 
         if (position == 0) {
             Glide.clear(holder.mainFrameImageView);
-            //ImageLoader.getInstance().cancelDisplayTask(holder.mainFrameImageView);
+            holder.textView.setVisibility(View.GONE);
+            holder.fileTypeVideo.setVisibility(View.GONE);
+            holder.fileTypeGif.setVisibility(View.GONE);
+            holder.select.setVisibility(View.GONE);
             holder.mainFrameImageView.setScaleType(ImageView.ScaleType.CENTER);
             holder.mainFrameImageView.setImageBitmap(array.get(0).getBitmap());
             holder.mainFrameImageView.setOnClickListener(new View.OnClickListener() {
@@ -68,7 +71,10 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
             });
         } else if (position == 1) {
             Glide.clear(holder.mainFrameImageView);
-            //ImageLoader.getInstance().cancelDisplayTask(holder.mainFrameImageView);
+            holder.textView.setVisibility(View.GONE);
+            holder.fileTypeVideo.setVisibility(View.GONE);
+            holder.fileTypeGif.setVisibility(View.GONE);
+            holder.select.setVisibility(View.GONE);
             holder.mainFrameImageView.setScaleType(ImageView.ScaleType.CENTER);
             holder.mainFrameImageView.setImageBitmap(array.get(1).getBitmap());
             holder.mainFrameImageView.setOnClickListener(new View.OnClickListener() {
@@ -109,7 +115,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
             try {
                 //holder.mainFrameImageView.setImageBitmap(null);
                 //ImageLoader.getInstance().displayImage(FILE_PREFIX + array.get(position).getImagePath(), holder.mainFrameImageView);
-                Glide.with(context).load(array.get(position).getImagePath()).asBitmap().into(holder.mainFrameImageView);
+                Glide.with(context).load(array.get(position).getImagePath()).asBitmap().centerCrop().into(holder.mainFrameImageView);
 
                 holder.select
                         .setSelected(array.get(position).isSeleted());

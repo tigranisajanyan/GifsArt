@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setItemAnimator(itemAnimator);
 
         recyclerView.setAdapter(galleryAdapter);
-        recyclerView.addItemDecoration(new SpacesItemDecoration(4));
+        recyclerView.addItemDecoration(new SpacesItemDecoration(5));
 
         new MyTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 

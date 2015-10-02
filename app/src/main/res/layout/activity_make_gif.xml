@@ -36,8 +36,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_toStartOf="@+id/play_button"
-            android:max="18"
-            android:progress="8" />
+            android:max="2"
+            android:progress="1" />
 
         <ImageButton
             android:id="@+id/play_button"
@@ -91,6 +91,19 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/clipart_rec_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
     </LinearLayout>
 
 </RelativeLayout>

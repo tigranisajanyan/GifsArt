@@ -1,19 +1,23 @@
 package com.gifsart.studio.adapter;
 
+import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 
 import com.gifsart.studio.R;
+import com.gifsart.studio.activity.EditFrameActivity;
 import com.gifsart.studio.helper.ItemTouchHelperAdapter;
-import com.gifsart.studio.item.GalleryItem;
-import com.gifsart.studio.item.MakeGifItem;
+import com.gifsart.studio.item.GifItem;
 import com.gifsart.studio.utils.Type;
+import com.gifsart.studio.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,46 +27,37 @@ import java.util.Collections;
  */
 public class SlideAdapter extends RecyclerView.Adapter<SlideAdapter.ViewHolder> implements ItemTouchHelperAdapter {
 
-    private ArrayList<MakeGifItem> array;
-    private Context context;
+    private ArrayList<GifItem> array;
+    private Activity activity;
 
-    public SlideAdapter(ArrayList<MakeGifItem> arr, Context c) {
+    public SlideAdapter(ArrayList<GifItem> arr, Activity activity) {
 
         array = arr;
-        context = c;
+        this.activity = activity;
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(context).inflate(R.layout.item, parent, false);
+        View v = LayoutInflater.from(activity).inflate(R.layout.item, parent, false);
         return new ViewHolder(v);
     }
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
 
-        if (array.get(position).getType() == Type.IMAGE) {
+        try {
+            holder.icon.setImageBitmap(Utils.scaleCenterCrop(array.get(position).getBitmap(), 400, 400));
+            holder.icon.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.d("gagag", position + "");
+                    Intent intent = new Intent(activity, EditFrameActivity.class);
+                    activity.startActivityForResult(intent, 100);
+                }
+            });
 
-            try {
-                holder.icon.setImageBitmap(array.get(position).getBitmap());
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        } else if (array.get(position).getType() == Type.GIF) {
-            try {
-                holder.icon.setImageBitmap(array.get(position).getBitmap());
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        } else if (array.get(position).getType() == Type.VIDEO) {
-            try {
-                holder.icon.setImageBitmap(array.get(position).getBitmap());
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -70,6 +65,7 @@ public class SlideAdapter extends RecyclerView.Adapter<SlideAdapter.ViewHolder> 
     public int getItemCount() {
         return array.size();
     }
+
 
     @Override
     public boolean onItemMove(int fromPosition, int toPosition) {
@@ -96,12 +92,13 @@ public class SlideAdapter extends RecyclerView.Adapter<SlideAdapter.ViewHolder> 
             super(itemView);
 
             icon = (ImageView) itemView.findViewById(R.id.image_item);
+            icon.setScaleType(ImageView.ScaleType.CENTER_CROP);
             selected = (ImageView) itemView.findViewById(R.id.item_selected);
             selected.setVisibility(View.VISIBLE);
         }
     }
 
-    public MakeGifItem getItem(int i) {
+    public GifItem getItem(int i) {
         return array.get(i);
     }
 

@@ -296,7 +296,7 @@ public class ShootingGifActivity extends ActionBarActivity {
                 progressDialog.show();
                 VideoDecoder videoDecoder = new VideoDecoder(ShootingGifActivity.this, root + GifsArtConst.SLASH + GifsArtConst.VIDEO_NAME, Integer.MAX_VALUE, 2, root + GifsArtConst.SLASH + GifsArtConst.MY_DIR);
                 videoDecoder.extractVideoFrames();
-                videoDecoder.setOnDecodeFinishedListener(new VideoDecoder.OnDecodeFinishedListener() {
+                /*videoDecoder.setOnDecodeFinishedListener(new VideoDecoder.OnDecodeFinishedListener() {
                     @Override
                     public void onFinish(boolean isDone) {
                         Intent intent = new Intent(ShootingGifActivity.this, MakeGifActivity.class);
@@ -308,7 +308,7 @@ public class ShootingGifActivity extends ActionBarActivity {
                         progressDialog.dismiss();
                         finish();
                     }
-                });
+                });*/
             } else {
                 if (!prepareMediaRecorder()) {
                     Toast.makeText(ShootingGifActivity.this, "Fail in prepareMediaRecorder()!\n - Ended -", Toast.LENGTH_LONG).show();
@@ -360,7 +360,7 @@ public class ShootingGifActivity extends ActionBarActivity {
                         progressDialog.show();
                         VideoDecoder videoDecoder = new VideoDecoder(ShootingGifActivity.this, root + GifsArtConst.SLASH + GifsArtConst.VIDEO_NAME, Integer.MAX_VALUE, 2, root + GifsArtConst.SLASH + GifsArtConst.MY_DIR);
                         videoDecoder.extractVideoFrames();
-                        videoDecoder.setOnDecodeFinishedListener(new VideoDecoder.OnDecodeFinishedListener() {
+                        /*videoDecoder.setOnDecodeFinishedListener(new VideoDecoder.OnDecodeFinishedListener() {
                             @Override
                             public void onFinish(boolean isDone) {
                                 Intent intent = new Intent(ShootingGifActivity.this, MakeGifActivity.class);
@@ -371,7 +371,7 @@ public class ShootingGifActivity extends ActionBarActivity {
                                 progressDialog.dismiss();
                                 finish();
                             }
-                        });
+                        });*/
                     }
                     secondsText.setText(" " + currentCapturedTime / 10.0);
 

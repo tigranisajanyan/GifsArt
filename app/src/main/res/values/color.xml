@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="yellow">#FACC35</color>
-    <color name="pink">#D02362</color>
+    <color name="pink">#d02362</color>
     <color name="black">#000000</color>
-    <color name="background_color">#1E2127</color>
-    <color name="font_main_color">#BDBDBD</color>
-    <color name="navigation_bar_color">#27292E</color>
+    <color name="background_color">#1e2125</color>
+    <color name="font_main_color">#bebebe</color>
+    <color name="navigation_bar_color">#2a2c2f</color>
     <color name="blue">#3edcd9</color>
     <color name="green">#5dff4f</color>
     <color name="orange">#f4630d</color>
