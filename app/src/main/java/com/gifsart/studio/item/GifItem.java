@@ -15,7 +15,7 @@ public class GifItem {
     private Bitmap bitmap;
     private ArrayList<Bitmap> bitmaps = new ArrayList<>();
     private int duraton;
-    private Type type;
+    private Type type = Type.NONE;
     private ArrayList<Clipart> cliparts;
 
     public GifItem() {

@@ -40,6 +40,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
+import com.nostra13.universalimageloader.core.process.BitmapProcessor;
 import com.nostra13.universalimageloader.utils.StorageUtils;
 
 import java.io.BufferedInputStream;
@@ -133,7 +134,7 @@ public class Utils {
         int sourceHeight = source.getHeight();
 
         // Compute the scaling factors to fit the new height and width, respectively.
-        // To cover the final image, the final scaling will be the bigger
+        // To cover the final image, the final scaling will be the biggerF
         // of these two.
         float xScale = (float) newWidth / sourceWidth;
         float yScale = (float) newHeight / sourceHeight;
@@ -182,19 +183,19 @@ public class Utils {
                     .bitmapConfig(Bitmap.Config.RGB_565).build();
 
             ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(context)
-                    /*.memoryCacheExtraOptions(1000, 1000) // width, height
-                    .discCacheExtraOptions(1000, 1000, new BitmapProcessor() {
+                    /*.memoryCacheExtraOptions(1024, 1024) // width, height
+                    .diskCacheExtraOptions(1024, 1024, new BitmapProcessor() {
                         @Override
                         public Bitmap process(Bitmap bitmap) {
                             return null;
                         }
-                    })*/
-                    //.threadPoolSize(3)
-                    //.threadPriority(Thread.MIN_PRIORITY + 2)
+                    })
+                    .threadPoolSize(3)
+                    .threadPriority(Thread.MIN_PRIORITY + 2)*/
                     .denyCacheImageMultipleSizesInMemory()
-                    .memoryCache(new UsingFreqLimitedMemoryCache(3 * 1024 * 1024)) // 3 Mb
-                    .discCache(new UnlimitedDiscCache(cacheDir))
-                    .discCacheFileNameGenerator(new HashCodeFileNameGenerator())
+                    .memoryCache(new UsingFreqLimitedMemoryCache(10 * 1024 * 1024)) // 3 Mb
+                    .diskCache(new UnlimitedDiscCache(cacheDir))
+                    .diskCacheFileNameGenerator(new HashCodeFileNameGenerator())
                     .imageDownloader(new BaseImageDownloader(context)) // connectTimeout (5 s), readTimeout (30 s)
                     .defaultDisplayImageOptions(defaultOptions)
                     .build();
@@ -228,11 +229,11 @@ public class Utils {
                     File file = new File(imagecursor.getString(dataColumnIndex));
                     if (file.exists()) {
                         item.setImagePath(imagecursor.getString(dataColumnIndex));
-                        /*if (Utils.getMimeType(item.getImagePath()).toString().toLowerCase().contains("gif")) {
+                        /*if (Utils.getMimeType(gif_item.getImagePath()).toString().toLowerCase().contains("gif")) {
                             type = GalleryItem.Type.GIF;
                         }*/
-                        //item.setHeight((int) Utils.getBitmapHeight(activity, item.getImagePath()));
-                        //item.setWidth((int) Utils.getBitmapWidth(activity));
+                        //gif_item.setHeight((int) Utils.getBitmapHeight(activity, gif_item.getImagePath()));
+                        //gif_item.setWidth((int) Utils.getBitmapWidth(activity));
                         galleryList.add(item);
                     }
 
@@ -445,6 +446,13 @@ public class Utils {
         return dp * (metrics.densityDpi / 160f);
     }
 
+    public static float convertPixelsToDp(float px, Context context) {
+        Resources resources = context.getResources();
+        DisplayMetrics metrics = resources.getDisplayMetrics();
+        float dp = px / (metrics.densityDpi / 160f);
+        return dp;
+    }
+
     public static void getMidPoint(PointF lineStart, PointF lineEnd, PointF outPoint) {
         outPoint.set((lineStart.x + lineEnd.x) / 2, (lineStart.y + lineEnd.y) / 2);
     }
@@ -530,12 +538,25 @@ public class Utils {
         activity.startActivity(Intent.createChooser(share, "Share Image!"));
     }
 
-    public static String getMimeType(String url) {
-        String type = null;
+    public static Type getMimeType(String url) {
+        String stringType = null;
+        Type type = null;
         String extension = MimeTypeMap.getFileExtensionFromUrl(url);
         if (extension != null) {
-            type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+            stringType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
         }
+        if (stringType != null) {
+            if (stringType.toLowerCase().contains("image") && !stringType.toLowerCase().contains("gif")) {
+                type = Type.IMAGE;
+            } else if (stringType.toLowerCase().contains("gif")) {
+                type = Type.GIF;
+            } else if (stringType.toLowerCase().contains("video")) {
+                type = Type.VIDEO;
+            }
+        } else {
+            type = Type.IMAGE;
+        }
+
         return type;
     }
 
@@ -575,4 +596,18 @@ public class Utils {
         return bmOverlay;
     }
 
+    public static int checkVideoFrameDuration(String videoPath, int frameCount) {
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        retriever.setDataSource(videoPath);
+
+        int duration = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+        return duration / frameCount;
+    }
+
+    public static Bitmap getVideoFirstFrame(String path) {
+        MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+        mmr.setDataSource(path);
+        Bitmap b = mmr.getFrameAtTime(100000, MediaMetadataRetriever.OPTION_CLOSEST); // frame at 100 mls
+        return b;
+    }
 }

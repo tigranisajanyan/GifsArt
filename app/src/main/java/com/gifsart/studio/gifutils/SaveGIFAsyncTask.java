@@ -5,8 +5,10 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.util.Log;
 
 import com.gifsart.studio.activity.GifPreviewActivity;
 import com.gifsart.studio.item.GifItem;
@@ -32,11 +34,15 @@ public class SaveGIFAsyncTask extends AsyncTask<Void, Integer, Void> {
     private ArrayList<GifItem> gifItems = new ArrayList<>();
     private ProgressDialog progressDialog;
     private static final String root = Environment.getExternalStorageDirectory().toString();
+    int count = 0;
+    private boolean doSquareFit = false;
+    private int scaleType = 1;
 
-    public SaveGIFAsyncTask(String outputDir, ArrayList<GifItem> gifItems, Activity activity) {
+    public SaveGIFAsyncTask(String outputDir, ArrayList<GifItem> gifItems, int scaleType, Activity activity) {
         this.outputDir = outputDir;
         this.gifItems = gifItems;
         this.activity = activity;
+        this.scaleType = scaleType;
     }
 
     @Override
@@ -45,7 +51,16 @@ public class SaveGIFAsyncTask extends AsyncTask<Void, Integer, Void> {
         progressDialog = new ProgressDialog(activity);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         progressDialog.setMax(gifItems.size());
+        progressDialog.setCancelable(false);
         progressDialog.show();
+        for (int i = 0; i < gifItems.size(); i++) {
+            for (int j = 0; j < gifItems.size(); j++) {
+                if (gifItems.get(i).getBitmap().getWidth() != gifItems.get(j).getBitmap().getWidth() || gifItems.get(i).getBitmap().getHeight() != gifItems.get(j).getBitmap().getHeight()) {
+                    doSquareFit = true;
+                    break;
+                }
+            }
+        }
     }
 
     @Override
@@ -65,18 +80,36 @@ public class SaveGIFAsyncTask extends AsyncTask<Void, Integer, Void> {
 
                 if (gifItems.get(i).getType() == Type.IMAGE) {
                     animatedGifEncoder.setDelay(gifItems.get(i).getDuraton());
-                    animatedGifEncoder.addFrame(Utils.squareFit(gifItems.get(i).getBitmap(), GifsArtConst.FRAME_SIZE));
+                    Bitmap bitmap = gifItems.get(i).getBitmap();
+                    if (doSquareFit) {
+                        bitmap = Utils.squareFit(bitmap, GifsArtConst.FRAME_SIZE);
+                    }
+                    animatedGifEncoder.addFrame(bitmap);
                     publishProgress(i);
+                    count++;
+                    Log.d("gif_generator", "" + count);
                 } else if (gifItems.get(i).getType() == Type.GIF) {
                     for (int j = 0; j < gifItems.get(i).getBitmaps().size(); j++) {
                         animatedGifEncoder.setDelay(gifItems.get(i).getDuraton());
-                        animatedGifEncoder.addFrame(Utils.squareFit(gifItems.get(i).getBitmaps().get(j), GifsArtConst.FRAME_SIZE));
+                        Bitmap bitmap = gifItems.get(i).getBitmaps().get(j);
+                        if (doSquareFit) {
+                            bitmap = Utils.squareFit(bitmap, GifsArtConst.FRAME_SIZE);
+                        }
+                        animatedGifEncoder.addFrame(bitmap);
+                        count++;
+                        Log.d("gif_generator", "" + count);
                     }
                     publishProgress(i);
                 } else if (gifItems.get(i).getType() == Type.VIDEO) {
                     for (int j = 0; j < gifItems.get(i).getBitmaps().size(); j++) {
                         animatedGifEncoder.setDelay(gifItems.get(i).getDuraton());
-                        animatedGifEncoder.addFrame(Utils.squareFit(gifItems.get(i).getBitmaps().get(j), GifsArtConst.FRAME_SIZE));
+                        Bitmap bitmap = gifItems.get(i).getBitmaps().get(j);
+                        if (doSquareFit) {
+                            bitmap = Utils.squareFit(bitmap, GifsArtConst.FRAME_SIZE);
+                        }
+                        animatedGifEncoder.addFrame(bitmap);
+                        count++;
+                        Log.d("gif_generator", "" + count);
                     }
                     publishProgress(i);
                 }

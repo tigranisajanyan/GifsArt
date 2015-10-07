@@ -1,22 +1,79 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/background_color"
+    android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/gallery_rec_view"
+    <!--<android.support.v7.widget.Toolbar
+        android:id="@+id/navigation_toolbar"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#1E2127"
-        android:padding="2dp"
-        android:scrollbars="vertical" />
+        android:layout_height="50dp"
+        android:background="@color/navigation_bar_color">
 
-    <ProgressBar
-        android:id="@+id/progress_bar"
-        android:layout_width="wrap_content"
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:background="@android:color/transparent"
+                android:gravity="center"
+                android:text="deselect"
+                android:textColor="@color/pink" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_centerInParent="true"
+                android:orientation="vertical">
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="cameraroll"
+                    android:textSize="10dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="4 selected" />
+
+            </LinearLayout>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:background="@android:color/transparent"
+                android:gravity="center"
+                android:text="next"
+                android:textColor="@color/pink" />
+        </RelativeLayout>
+    </android.support.v7.widget.Toolbar>
+-->
+    <FrameLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:visibility="visible" />
+        android:layout_marginTop="5dp">
 
-</FrameLayout>
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/gallery_rec_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#1E2127"
+            android:padding="2dp"
+            android:scrollbars="vertical" />
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="visible" />
+    </FrameLayout>
+
+</LinearLayout>

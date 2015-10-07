@@ -6,5 +6,6 @@ package com.gifsart.studio.utils;
 public enum Type {
     IMAGE,
     GIF,
-    VIDEO
+    VIDEO,
+    NONE
 }

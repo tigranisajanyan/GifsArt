@@ -19,7 +19,7 @@ package com.gifsart.studio.helper;
 import android.support.v7.widget.helper.ItemTouchHelper;
 
 /**
- * Interface to notify an item ViewHolder of relevant callbacks from {@link
+ * Interface to notify an gif_item ViewHolder of relevant callbacks from {@link
  * ItemTouchHelper.Callback}.
  *
  * @author Paul Burke (ipaulpro)
@@ -27,14 +27,14 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 public interface ItemTouchHelperViewHolder {
 
     /**
-     * Called when the {@link ItemTouchHelper} first registers an item as being moved or swiped.
-     * Implementations should update the item view to indicate it's active state.
+     * Called when the {@link ItemTouchHelper} first registers an gif_item as being moved or swiped.
+     * Implementations should update the gif_item view to indicate it's active state.
      */
     void onItemSelected();
 
 
     /**
-     * Called when the {@link ItemTouchHelper} has completed the move or swipe, and the active item
+     * Called when the {@link ItemTouchHelper} has completed the move or swipe, and the active gif_item
      * state should be cleared.
      */
     void onItemClear();

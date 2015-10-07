@@ -20,6 +20,7 @@ import com.gifsart.studio.R;
 import com.gifsart.studio.activity.GiphyActivity;
 import com.gifsart.studio.activity.ShootingGifActivity;
 import com.gifsart.studio.item.GalleryItem;
+import com.gifsart.studio.utils.Type;
 import com.gifsart.studio.utils.Utils;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
@@ -56,10 +57,10 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
 
         if (position == 0) {
             Glide.clear(holder.mainFrameImageView);
+            array.get(position).setIsSeleted(false);
+            holder.fileTypeImageView.setImageBitmap(null);
             holder.textView.setVisibility(View.GONE);
-            holder.fileTypeVideo.setVisibility(View.GONE);
-            holder.fileTypeGif.setVisibility(View.GONE);
-            holder.select.setVisibility(View.GONE);
+            //holder.select.setVisibility(View.GONE);
             holder.mainFrameImageView.setScaleType(ImageView.ScaleType.CENTER);
             holder.mainFrameImageView.setImageBitmap(array.get(0).getBitmap());
             holder.mainFrameImageView.setOnClickListener(new View.OnClickListener() {
@@ -71,10 +72,10 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
             });
         } else if (position == 1) {
             Glide.clear(holder.mainFrameImageView);
+            array.get(position).setIsSeleted(false);
+            holder.fileTypeImageView.setImageBitmap(null);
             holder.textView.setVisibility(View.GONE);
-            holder.fileTypeVideo.setVisibility(View.GONE);
-            holder.fileTypeGif.setVisibility(View.GONE);
-            holder.select.setVisibility(View.GONE);
+            //holder.select.setVisibility(View.GONE);
             holder.mainFrameImageView.setScaleType(ImageView.ScaleType.CENTER);
             holder.mainFrameImageView.setImageBitmap(array.get(1).getBitmap());
             holder.mainFrameImageView.setOnClickListener(new View.OnClickListener() {
@@ -113,27 +114,20 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
             });
 
             try {
-                //holder.mainFrameImageView.setImageBitmap(null);
-                //ImageLoader.getInstance().displayImage(FILE_PREFIX + array.get(position).getImagePath(), holder.mainFrameImageView);
                 Glide.with(context).load(array.get(position).getImagePath()).asBitmap().centerCrop().into(holder.mainFrameImageView);
-
                 holder.select
                         .setSelected(array.get(position).isSeleted());
 
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            if (Utils.getMimeType(array.get(position).getImagePath()) != null && Utils.getMimeType(array.get(position).getImagePath()).toLowerCase().contains("gif")) {
-                holder.fileTypeGif.setVisibility(View.VISIBLE);
-                holder.fileTypeVideo.setVisibility(View.GONE);
-            } else if (Utils.getMimeType(array.get(position).getImagePath()) != null && Utils.getMimeType(array.get(position).getImagePath()).toLowerCase().contains("video")) {
-                //ImageLoader.getInstance().displayImage(array.get(position).getImagePath(),holder.mainFrameImageView);
+            if (Utils.getMimeType(array.get(position).getImagePath()) != null && Utils.getMimeType(array.get(position).getImagePath()) == Type.GIF) {
+                holder.fileTypeImageView.setImageDrawable(context.getResources().getDrawable(R.drawable.gif_icon));
+            } else if (Utils.getMimeType(array.get(position).getImagePath()) != null && Utils.getMimeType(array.get(position).getImagePath()) == Type.VIDEO) {
                 Glide.with(context).load(array.get(position).getImagePath()).into(holder.mainFrameImageView);
-                holder.fileTypeGif.setVisibility(View.GONE);
-                holder.fileTypeVideo.setVisibility(View.VISIBLE);
+                holder.fileTypeImageView.setImageDrawable(context.getResources().getDrawable(R.drawable.video_icon));
             } else {
-                holder.fileTypeGif.setVisibility(View.GONE);
-                holder.fileTypeVideo.setVisibility(View.GONE);
+                holder.fileTypeImageView.setImageBitmap(null);
             }
 
             if (array.get(position).isSeleted()) {
@@ -153,9 +147,9 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
 
     class ViewHolder extends RecyclerView.ViewHolder {
 
+        private ViewGroup viewGroup;
         private ImageView mainFrameImageView;
-        private ImageView fileTypeGif;
-        private ImageView fileTypeVideo;
+        private ImageView fileTypeImageView;
         private ImageView select;
         private TextView textView;
 
@@ -164,14 +158,12 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
 
             FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(imageSize, imageSize);
 
+            viewGroup = (ViewGroup) itemView.findViewById(R.id.container);
+            viewGroup.setLayoutParams(layoutParams);
+
             mainFrameImageView = (ImageView) itemView.findViewById(R.id.gallery_image_item);
-            mainFrameImageView.setLayoutParams(layoutParams);
 
-            fileTypeGif = (ImageView) itemView.findViewById(R.id.file_type_gif);
-            fileTypeGif.setVisibility(View.GONE);
-
-            fileTypeVideo = (ImageView) itemView.findViewById(R.id.file_type_video);
-            fileTypeVideo.setVisibility(View.GONE);
+            fileTypeImageView = (ImageView) itemView.findViewById(R.id.file_type_image_view);
 
             select = (ImageView) itemView.findViewById(R.id.gallery_item_selected);
             select.setVisibility(View.VISIBLE);

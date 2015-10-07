@@ -1,5 +1,7 @@
 package com.gifsart.studio.activity;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -13,6 +15,7 @@ import com.gifsart.studio.R;
 public class EditFrameActivity extends AppCompatActivity {
 
     private ImageView editImageView;
+    private Bitmap originalBitmap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,8 +25,10 @@ public class EditFrameActivity extends AppCompatActivity {
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(getResources().getDisplayMetrics().widthPixels, getResources().getDisplayMetrics().widthPixels);
         editImageView = (ImageView) findViewById(R.id.edited_frame_image_view);
         editImageView.setLayoutParams(layoutParams);
-        editImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        editImageView.setImageDrawable(getResources().getDrawable(R.drawable.car));
+
+        byte[] byteArray = getIntent().getByteArrayExtra("image");
+        originalBitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+        editImageView.setImageBitmap(originalBitmap);
 
     }
 
@@ -37,7 +42,9 @@ public class EditFrameActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_apply) {
+            setResult(RESULT_OK);
+            finish();
             return true;
         }
 

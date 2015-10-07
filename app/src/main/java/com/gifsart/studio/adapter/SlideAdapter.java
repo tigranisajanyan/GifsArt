@@ -3,22 +3,27 @@ package com.gifsart.studio.adapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 
 import com.gifsart.studio.R;
 import com.gifsart.studio.activity.EditFrameActivity;
+import com.gifsart.studio.activity.MainActivity;
 import com.gifsart.studio.helper.ItemTouchHelperAdapter;
 import com.gifsart.studio.item.GifItem;
+import com.gifsart.studio.utils.GifsArtConst;
 import com.gifsart.studio.utils.Type;
 import com.gifsart.studio.utils.Utils;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -38,27 +43,57 @@ public class SlideAdapter extends RecyclerView.Adapter<SlideAdapter.ViewHolder> 
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(activity).inflate(R.layout.item, parent, false);
+        View v = LayoutInflater.from(activity).inflate(R.layout.gif_item, parent, false);
         return new ViewHolder(v);
     }
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
 
+
         try {
-            holder.icon.setImageBitmap(Utils.scaleCenterCrop(array.get(position).getBitmap(), 400, 400));
-            holder.icon.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Log.d("gagag", position + "");
-                    Intent intent = new Intent(activity, EditFrameActivity.class);
-                    activity.startActivityForResult(intent, 100);
-                }
-            });
+            holder.mainFrameImage.setImageBitmap(Utils.scaleCenterCrop(array.get(position).getBitmap(), 400, 400));
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+        if (array.get(position).getType() == Type.GIF) {
+            holder.imageType.setImageDrawable(activity.getResources().getDrawable(R.drawable.gif_icon));
+            Log.d("fafaa", position + "");
+        } else if (array.get(position).getType() == Type.VIDEO) {
+            holder.imageType.setImageDrawable(activity.getResources().getDrawable(R.drawable.video_icon));
+        } else if (array.get(position).getType() == Type.IMAGE) {
+            holder.imageType.setImageBitmap(null);
+        }
+        if (position == array.size() - 1) {
+            holder.mainFrameImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(activity, MainActivity.class);
+                    activity.startActivityForResult(intent, GifsArtConst.MAIN_ACTIVITY_REQUEST_CODE);
+                    SharedPreferences sharedPreferences = activity.getSharedPreferences(GifsArtConst.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putBoolean("is_opened", true);
+                    editor.commit();
+                }
+            });
+        } else {
+            holder.mainFrameImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    Bitmap bitmap = array.get(position).getBitmap();
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                    byte[] byteArray = stream.toByteArray();
+
+                    Intent intent = new Intent(activity, EditFrameActivity.class);
+                    intent.putExtra("image", byteArray);
+                    activity.startActivityForResult(intent, GifsArtConst.EDIT_FRAME_ACTIVITY_REQUEST_CODE);
+                }
+            });
+        }
+
     }
 
     @Override
@@ -85,16 +120,17 @@ public class SlideAdapter extends RecyclerView.Adapter<SlideAdapter.ViewHolder> 
 
     class ViewHolder extends RecyclerView.ViewHolder {
 
-        private ImageView icon;
+        private ImageView mainFrameImage;
+        private ImageView imageType;
         private ImageView selected;
 
         public ViewHolder(View itemView) {
             super(itemView);
 
-            icon = (ImageView) itemView.findViewById(R.id.image_item);
-            icon.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            selected = (ImageView) itemView.findViewById(R.id.item_selected);
-            selected.setVisibility(View.VISIBLE);
+            mainFrameImage = (ImageView) itemView.findViewById(R.id.image_item);
+            mainFrameImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
+
+            imageType = (ImageView) itemView.findViewById(R.id.gif_item_type);
         }
     }
 

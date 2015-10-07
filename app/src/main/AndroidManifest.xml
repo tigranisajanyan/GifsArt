@@ -47,11 +47,11 @@
             android:label="@string/title_activity_gif_preview" />
         <activity
             android:name=".activity.EditFrameActivity"
-            android:label="@string/title_activity_edit_frame" >
-        </activity>
+            android:label="@string/title_activity_edit_frame" />
         <activity
             android:name=".activity.SquareFitActivity"
-            android:label="@string/title_activity_square_fit" >
+            android:label="@string/title_activity_square_fit" />
+        <activity android:name=".activity.EffectsActivity" >
         </activity>
     </application>
 

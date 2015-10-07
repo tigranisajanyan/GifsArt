@@ -3,6 +3,7 @@ package com.decoder;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.widget.Toast;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -13,7 +14,6 @@ import java.util.ArrayList;
 public class VideoDecoder {
 
     private static final String root = Environment.getExternalStorageDirectory().toString();
-    private File myDir = new File(root + "/" + "test_images");
 
     private String inputFilePath = "";
     private String outputDirectory = "";
@@ -87,11 +87,20 @@ public class VideoDecoder {
 
     }
 
-    public enum FrameSize {
-        ORIGINAL,
-        NORMAL,
-        SMALL,
-        EXTRA_SMALL
+    public void clearDir(File dir) {
+        try {
+            File[] files = dir.listFiles();
+            if (files != null)
+                for (File f : files) {
+                    if (f.isDirectory())
+                        clearDir(f);
+                    f.delete();
+                }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        dir.delete();
+
     }
 
 }

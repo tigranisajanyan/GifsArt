@@ -32,12 +32,25 @@ public class GifsArtConst {
     public static int VIDEO_FILE_MAX_SIZE = 40000000; // Set max file size 40M
     public static int CAMERA_OUTPUT_ORIENTATION = 90;
     public static int VIDEO_MAX_SECONDS = 30;
-    public static int FRAME_SIZE = 500;
+    public static int FRAME_SIZE = 400;
     public static int FROM_GALLERY_TO_GIF_INDEX = 1;
     public static int SHOOT_GIF_INDEX = 2;
     public static int GIPHY_TO_GIF_INDEX = 3;
     public static int GENERATED_FRAMES_MAX_COUNT = 25;
 
+    public static int MODE_ORIGINAL = 1;
+    public static int MODE_SQUARE = 2;
+    public static int MODE_SQUARE_FIT = 3;
+
+    public static int SQUARE_FIT_ACTIVITY_REQUEST_CODE = 100;
+    public static int EDIT_FRAME_ACTIVITY_REQUEST_CODE = 200;
+    public static int MAIN_ACTIVITY_REQUEST_CODE = 300;
+    public static int EFFECTS_ACTIVITY_REQUEST_CODE = 400;
+
+
+    public static String SHARED_PREFERENCES = "shared_preferences";
+
+    public static int IMAGE_FRAME_DURATION = 200;   // 200 mls
 
 
 

@@ -10,19 +10,21 @@ import com.gifsart.studio.item.GifItem;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
+import jp.co.cyberagent.android.gpuimage.GPUImageView;
+
 /**
  * Created by Tigran on 8/6/15.
  */
 public class GifImitation extends AsyncTask<Void, Bitmap, Void> {
 
     private Context context;
-    private ImageView container;
+    private GPUImageView container;
     private ArrayList<GifItem> gifItems;
     private int duration;
     private boolean play = false;
     private int k = 0;
 
-    public GifImitation(Context context, ImageView container, ArrayList<GifItem> gifItems, int duration) {
+    public GifImitation(Context context, GPUImageView container, ArrayList<GifItem> gifItems, int duration) {
 
         this.container = container;
         this.gifItems = gifItems;
@@ -47,35 +49,34 @@ public class GifImitation extends AsyncTask<Void, Bitmap, Void> {
     protected Void doInBackground(Void... params) {
         while (play) {
 
-            if (gifItems.get(k % gifItems.size()).getType() == Type.IMAGE) {
-                publishProgress(gifItems.get(k % gifItems.size()).getBitmap());
+            int index = k % gifItems.size();
+            if (gifItems.get(index).getType() == Type.IMAGE) {
+                publishProgress(gifItems.get(index).getBitmap());
                 try {
-                    TimeUnit.MILLISECONDS.sleep(gifItems.get(k % gifItems.size()).getDuraton());
+                    TimeUnit.MILLISECONDS.sleep(gifItems.get(index).getDuraton());
                 } catch (InterruptedException e) {
                     //e.printStackTrace();
                 }
-                k++;
-            } else if (gifItems.get(k % gifItems.size()).getType() == Type.GIF) {
-                for (int i = 0; i < gifItems.get(k % gifItems.size()).getBitmaps().size(); i++) {
-                    publishProgress(gifItems.get(k % gifItems.size()).getBitmaps().get(i));
-                    try {
-                        TimeUnit.MILLISECONDS.sleep(gifItems.get(k % gifItems.size()).getDuraton());
-                    } catch (InterruptedException e) {
-                        //e.printStackTrace();
-                    }
-                }
-                k++;
 
-            } else if ((gifItems.get(k % gifItems.size()).getType() == Type.VIDEO)) {
-                for (int i = 0; i < gifItems.get(k % gifItems.size()).getBitmaps().size(); i++) {
-                    publishProgress(gifItems.get(k % gifItems.size()).getBitmaps().get(i));
+            } else if (gifItems.get(index).getType() == Type.GIF) {
+                for (int i = 0; i < gifItems.get(index).getBitmaps().size(); i++) {
+                    publishProgress(gifItems.get(index).getBitmaps().get(i));
                     try {
-                        TimeUnit.MILLISECONDS.sleep(gifItems.get(k % gifItems.size()).getDuraton());
+                        TimeUnit.MILLISECONDS.sleep(gifItems.get(index).getDuraton());
                     } catch (InterruptedException e) {
                         //e.printStackTrace();
                     }
                 }
-                k++;
+
+            } else if ((gifItems.get(index).getType() == Type.VIDEO)) {
+                for (int i = 0; i < gifItems.get(index).getBitmaps().size(); i++) {
+                    publishProgress(gifItems.get(index).getBitmaps().get(i));
+                    try {
+                        TimeUnit.MILLISECONDS.sleep(gifItems.get(index).getDuraton());
+                    } catch (InterruptedException e) {
+                        //e.printStackTrace();
+                    }
+                }
             }
             try {
                 TimeUnit.MILLISECONDS.sleep(duration);
@@ -83,6 +84,7 @@ public class GifImitation extends AsyncTask<Void, Bitmap, Void> {
                 //e.printStackTrace();
             }
 
+            k++;
 
         }
 
@@ -92,7 +94,9 @@ public class GifImitation extends AsyncTask<Void, Bitmap, Void> {
     @Override
     protected void onProgressUpdate(Bitmap... values) {
         super.onProgressUpdate(values);
-        container.setImageBitmap(values[0]);
+        Bitmap bitmap=values[0];
+
+        container.setImage(bitmap);
 
     }
 

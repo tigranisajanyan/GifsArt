@@ -27,15 +27,15 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 public interface ItemTouchHelperAdapter {
 
     /**
-     * Called when an item has been dragged far enough to trigger a move. This is called every time
-     * an item is shifted, and <strong>not</strong> at the end of a "drop" event.<br/>
+     * Called when an gif_item has been dragged far enough to trigger a move. This is called every time
+     * an gif_item is shifted, and <strong>not</strong> at the end of a "drop" event.<br/>
      * <br/>
      * Implementations should call {@link RecyclerView.Adapter#notifyItemMoved(int, int)} after
      * adjusting the underlying data to reflect this move.
      *
-     * @param fromPosition The start position of the moved item.
-     * @param toPosition   Then resolved position of the moved item.
-     * @return True if the item was moved to the new adapter position.
+     * @param fromPosition The start position of the moved gif_item.
+     * @param toPosition   Then resolved position of the moved gif_item.
+     * @return True if the gif_item was moved to the new adapter position.
      *
      * @see RecyclerView#getAdapterPositionFor(RecyclerView.ViewHolder)
      * @see RecyclerView.ViewHolder#getAdapterPosition()
@@ -44,12 +44,12 @@ public interface ItemTouchHelperAdapter {
 
 
     /**
-     * Called when an item has been dismissed by a swipe.<br/>
+     * Called when an gif_item has been dismissed by a swipe.<br/>
      * <br/>
      * Implementations should call {@link RecyclerView.Adapter#notifyItemRemoved(int)} after
      * adjusting the underlying data to reflect this removal.
      *
-     * @param position The position of the item dismissed.
+     * @param position The position of the gif_item dismissed.
      *
      * @see RecyclerView#getAdapterPositionFor(RecyclerView.ViewHolder)
      * @see RecyclerView.ViewHolder#getAdapterPosition()

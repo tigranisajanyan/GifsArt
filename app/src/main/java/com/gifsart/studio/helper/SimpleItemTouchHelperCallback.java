@@ -23,7 +23,7 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 
 /**
  * An implementation of {@link ItemTouchHelper.Callback} that enables basic drag & drop and
- * swipe-to-dismiss. Drag events are automatically started by an item long-press.<br/>
+ * swipe-to-dismiss. Drag events are automatically started by an gif_item long-press.<br/>
  * </br/>
  * Expects the <code>RecyclerView.Adapter</code> to listen for {@link
  * ItemTouchHelperAdapter} callbacks and the <code>RecyclerView.ViewHolder</code> to implement
@@ -96,10 +96,10 @@ public class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
 
     @Override
     public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState) {
-        // We only want the active item to change
+        // We only want the active gif_item to change
         if (actionState != ItemTouchHelper.ACTION_STATE_IDLE) {
             if (viewHolder instanceof ItemTouchHelperViewHolder) {
-                // Let the view holder know that this item is being moved or dragged
+                // Let the view holder know that this gif_item is being moved or dragged
                 ItemTouchHelperViewHolder itemViewHolder = (ItemTouchHelperViewHolder) viewHolder;
                 itemViewHolder.onItemSelected();
             }
