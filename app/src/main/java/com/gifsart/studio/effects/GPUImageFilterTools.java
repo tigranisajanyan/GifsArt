@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.gifsart.studio.utils;
+package com.gifsart.studio.effects;
 
 import android.app.AlertDialog;
 import android.content.Context;

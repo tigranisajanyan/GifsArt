@@ -36,8 +36,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_toStartOf="@+id/play_button"
-            android:max="2"
-            android:progress="1" />
+            android:max="15"
+            android:progress="5" />
 
         <ImageButton
             android:id="@+id/play_button"

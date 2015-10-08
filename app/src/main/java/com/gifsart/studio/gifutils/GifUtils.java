@@ -2,6 +2,8 @@ package com.gifsart.studio.gifutils;
 
 import android.graphics.Bitmap;
 
+import com.gifsart.studio.utils.Utils;
+
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -21,7 +23,7 @@ public class GifUtils {
             e.printStackTrace();
         }
         for (int i = 0; i < gifDrawable.getNumberOfFrames(); i++) {
-            frameBitmaps.add(gifDrawable.seekToFrameAndGet(i));
+            frameBitmaps.add(Utils.scaleCenterCrop(gifDrawable.seekToFrameAndGet(i),400,400));
         }
         return frameBitmaps;
     }

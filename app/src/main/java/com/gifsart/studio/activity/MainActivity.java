@@ -41,8 +41,8 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView.ItemAnimator itemAnimator;
     private GalleryAdapter galleryAdapter;
     private ArrayList<GalleryItem> customGalleryArrayList = new ArrayList<>();
-    SharedPreferences sharedPreferences;
-    SharedPreferences.Editor editor;
+    private SharedPreferences sharedPreferences;
+    private SharedPreferences.Editor editor;
     int videoCount = 0;
 
     @Override
@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(galleryAdapter);
         recyclerView.addItemDecoration(new SpacesItemDecoration((int) Utils.dpToPixel(2, this)));
 
-        sharedPreferences = getSharedPreferences(GifsArtConst.SHARED_PREFERENCES, MODE_PRIVATE);
+        sharedPreferences = getApplicationContext().getSharedPreferences(GifsArtConst.SHARED_PREFERENCES, MODE_PRIVATE);
         editor = sharedPreferences.edit();
 
         new InitGalleryItems().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
@@ -197,6 +197,18 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 111 && resultCode == RESULT_OK) {
+            Intent intent = new Intent();
+            intent.putExtra(GifsArtConst.INDEX, GifsArtConst.GIPHY_TO_GIF_INDEX);
+            intent.putExtra("gif_path", data.getStringExtra("gif_path"));
+            setResult(RESULT_OK, intent);
+            finish();
+        }
+    }
+
     class InitGalleryItems extends AsyncTask<Void, Void, Void> {
 
         @Override
@@ -230,7 +242,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        editor.clear();
+        editor.putBoolean("is_opened", false);
         editor.commit();
     }
 

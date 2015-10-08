@@ -35,7 +35,7 @@ public class GifImitation extends AsyncTask<Void, Bitmap, Void> {
     public void changeDuration(int duration) {
         this.duration = duration;
         for (int i = 0; i < gifItems.size(); i++) {
-            gifItems.get(i).setDuraton(gifItems.get(i).getDuraton() * duration / 100);
+            gifItems.get(i).setDuraton(gifItems.get(i).getDuraton() * duration / 10);
         }
     }
 
@@ -95,7 +95,7 @@ public class GifImitation extends AsyncTask<Void, Bitmap, Void> {
     protected void onProgressUpdate(Bitmap... values) {
         super.onProgressUpdate(values);
         Bitmap bitmap=values[0];
-
+        container.getGPUImage().deleteImage();
         container.setImage(bitmap);
 
     }

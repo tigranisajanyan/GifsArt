@@ -1,10 +1,8 @@
 package com.gifsart.studio.adapter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.media.ThumbnailUtils;
-import android.provider.MediaStore;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -20,9 +18,9 @@ import com.gifsart.studio.R;
 import com.gifsart.studio.activity.GiphyActivity;
 import com.gifsart.studio.activity.ShootingGifActivity;
 import com.gifsart.studio.item.GalleryItem;
+import com.gifsart.studio.utils.GifsArtConst;
 import com.gifsart.studio.utils.Type;
 import com.gifsart.studio.utils.Utils;
-import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.ArrayList;
 
@@ -30,24 +28,24 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
 
     public static final String FILE_PREFIX = "file://";
     private ArrayList<GalleryItem> array;
-    private Context context;
+    private Activity activity;
     private ActionBar actionBar;
     int count = 0;
 
     private ArrayList<GalleryItem> selected = new ArrayList<>();
     private int imageSize;
 
-    public GalleryAdapter(ArrayList<GalleryItem> arr, Context c, int imageSize, ActionBar actionBar) {
+    public GalleryAdapter(ArrayList<GalleryItem> arr, Activity activity, int imageSize, ActionBar actionBar) {
 
         this.actionBar = actionBar;
         this.array = arr;
-        this.context = c;
+        this.activity = activity;
         this.imageSize = imageSize;
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(context).inflate(R.layout.gallery_item, parent, false);
+        View v = LayoutInflater.from(activity).inflate(R.layout.gallery_item, parent, false);
 
         return new ViewHolder(v);
     }
@@ -66,11 +64,15 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
             holder.mainFrameImageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(context, ShootingGifActivity.class);
-                    context.startActivity(intent);
+                    Intent intent = new Intent(activity, ShootingGifActivity.class);
+                    activity.startActivity(intent);
+                    if (activity.getSharedPreferences(GifsArtConst.SHARED_PREFERENCES, Context.MODE_PRIVATE).getBoolean("is_op", false)) {
+                        activity.finish();
+                    }
                 }
             });
         } else if (position == 1) {
+            activity.setResult(Activity.RESULT_OK);
             Glide.clear(holder.mainFrameImageView);
             array.get(position).setIsSeleted(false);
             holder.fileTypeImageView.setImageBitmap(null);
@@ -81,8 +83,12 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
             holder.mainFrameImageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(context, GiphyActivity.class);
-                    context.startActivity(intent);
+                    Intent intent = new Intent(activity, GiphyActivity.class);
+                    if (activity.getSharedPreferences(GifsArtConst.SHARED_PREFERENCES, Context.MODE_PRIVATE).getBoolean("is_op", false)) {
+                        activity.startActivityForResult(intent, 111);
+                    } else {
+                        activity.startActivity(intent);
+                    }
                 }
             });
 
@@ -114,7 +120,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
             });
 
             try {
-                Glide.with(context).load(array.get(position).getImagePath()).asBitmap().centerCrop().into(holder.mainFrameImageView);
+                Glide.with(activity).load(array.get(position).getImagePath()).asBitmap().centerCrop().into(holder.mainFrameImageView);
                 holder.select
                         .setSelected(array.get(position).isSeleted());
 
@@ -122,10 +128,10 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
                 e.printStackTrace();
             }
             if (Utils.getMimeType(array.get(position).getImagePath()) != null && Utils.getMimeType(array.get(position).getImagePath()) == Type.GIF) {
-                holder.fileTypeImageView.setImageDrawable(context.getResources().getDrawable(R.drawable.gif_icon));
+                holder.fileTypeImageView.setImageDrawable(activity.getResources().getDrawable(R.drawable.gif_icon));
             } else if (Utils.getMimeType(array.get(position).getImagePath()) != null && Utils.getMimeType(array.get(position).getImagePath()) == Type.VIDEO) {
-                Glide.with(context).load(array.get(position).getImagePath()).into(holder.mainFrameImageView);
-                holder.fileTypeImageView.setImageDrawable(context.getResources().getDrawable(R.drawable.video_icon));
+                Glide.with(activity).load(array.get(position).getImagePath()).into(holder.mainFrameImageView);
+                holder.fileTypeImageView.setImageDrawable(activity.getResources().getDrawable(R.drawable.video_icon));
             } else {
                 holder.fileTypeImageView.setImageBitmap(null);
             }

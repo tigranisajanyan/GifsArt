@@ -3,6 +3,7 @@ package com.gifsart.studio.activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -38,12 +39,21 @@ public class SquareFitActivity extends AppCompatActivity {
         switch (square_fit_mode) {
             case 1:
                 squareFitImageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                findViewById(R.id.original_fit_button).setBackgroundColor(Color.BLUE);
+                findViewById(R.id.square_fit_button).setBackgroundColor(Color.DKGRAY);
+                findViewById(R.id.square_button).setBackgroundColor(Color.DKGRAY);
                 break;
             case 2:
                 squareFitImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                findViewById(R.id.square_button).setBackgroundColor(Color.BLUE);
+                findViewById(R.id.square_fit_button).setBackgroundColor(Color.DKGRAY);
+                findViewById(R.id.original_fit_button).setBackgroundColor(Color.DKGRAY);
                 break;
             case 3:
                 squareFitImageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                findViewById(R.id.square_fit_button).setBackgroundColor(Color.BLUE);
+                findViewById(R.id.square_button).setBackgroundColor(Color.DKGRAY);
+                findViewById(R.id.original_fit_button).setBackgroundColor(Color.DKGRAY);
                 break;
 
             default:
@@ -56,6 +66,10 @@ public class SquareFitActivity extends AppCompatActivity {
                 squareFitImageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 squareFitImageView.setImageBitmap(originalBitmap);
                 square_fit_mode = GifsArtConst.MODE_ORIGINAL;
+
+                findViewById(R.id.original_fit_button).setBackgroundColor(Color.BLUE);
+                findViewById(R.id.square_fit_button).setBackgroundColor(Color.DKGRAY);
+                findViewById(R.id.square_button).setBackgroundColor(Color.DKGRAY);
             }
         });
 
@@ -65,6 +79,10 @@ public class SquareFitActivity extends AppCompatActivity {
                 squareFitImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
                 squareFitImageView.setImageBitmap(originalBitmap);
                 square_fit_mode = GifsArtConst.MODE_SQUARE;
+
+                findViewById(R.id.square_button).setBackgroundColor(Color.BLUE);
+                findViewById(R.id.square_fit_button).setBackgroundColor(Color.DKGRAY);
+                findViewById(R.id.original_fit_button).setBackgroundColor(Color.DKGRAY);
             }
         });
 
@@ -74,6 +92,10 @@ public class SquareFitActivity extends AppCompatActivity {
                 squareFitImageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 squareFitImageView.setImageBitmap(originalBitmap);
                 square_fit_mode = GifsArtConst.MODE_SQUARE_FIT;
+
+                findViewById(R.id.square_fit_button).setBackgroundColor(Color.BLUE);
+                findViewById(R.id.square_button).setBackgroundColor(Color.DKGRAY);
+                findViewById(R.id.original_fit_button).setBackgroundColor(Color.DKGRAY);
             }
         });
 

@@ -1,20 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="80dp"
-    android:layout_height="80dp"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="100dp"
+    android:layout_height="100dp"
     android:background="@color/navigation_bar_color"
+    android:gravity="center"
     android:orientation="vertical">
 
-    <ImageView
+    <jp.co.cyberagent.android.gpuimage.GPUImageView
         android:id="@+id/effect_image_view"
-        android:layout_width="match_parent"
-        android:scaleType="centerCrop"
-        android:layout_height="match_parent" />
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_alignParentTop="true"
+        android:scaleType="centerInside" />
 
     <TextView
         android:id="@+id/effect_text_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="grayscale"/>
+        android:layout_alignParentBottom="true"
+        android:layout_below="@+id/effect_image_view"
+        android:text="grayscale" />
 
-</LinearLayout>
+</RelativeLayout>

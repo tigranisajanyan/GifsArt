@@ -1,6 +1,7 @@
 package com.gifsart.studio.activity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Point;
 import android.os.AsyncTask;
 import android.os.Environment;
@@ -31,6 +32,8 @@ public class GiphyActivity extends AppCompatActivity {
     private GridLayoutManager gridLayoutManager;
     private RecyclerView.ItemAnimator itemAnimator;
     private GiphyAdapter giphyAdapter;
+
+    SharedPreferences sharedPreferences;
     private static final String root = Environment.getExternalStorageDirectory().toString();
 
     @Override
@@ -57,66 +60,8 @@ public class GiphyActivity extends AppCompatActivity {
 
         recyclerView.setAdapter(giphyAdapter);
         recyclerView.addItemDecoration(new SpacesItemDecoration(5));
-/*
-        recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
 
-
-               *//* boolean isHide = false;*//*
-                if (!recyclerView.canScrollVertically(1)) {
-                    Log.d("Tag", "end!!!!!");
-
-
-                } else if (dy < 0) {
-                    if (ishide) {
-                        TranslateAnimation translation;
-                        translation = new TranslateAnimation(0, 0, -100, 0);
-                        translation.setStartOffset(0);
-                        translation.setDuration(200);
-                        translation.setFillAfter(true);
-                        translation.setInterpolator(new AccelerateInterpolator());
-                        btn.startAnimation(translation);
-                        ishide = false;
-
-                        Log.d("Tag", "Dovn");
-                        //open       search typing tab
-                        Animation ani = new ShowAnim(searchText, width*//* target layout height *//*);
-                        ani.setStartOffset(200);
-                        ani.setDuration(150*//* animation time *//*);
-                        searchText.startAnimation(ani);
-                        isshown = true;
-                    }
-                   *//* fbtn.setVisibility(View.INVISIBLE);*//*
-
-                } else if (dy > 0) {
-
-                    if (!ishide) {
-
-                        TranslateAnimation translation;
-                        translation = new TranslateAnimation(0, 0, 0, -100);
-                        translation.setStartOffset(0);
-                        translation.setDuration(200);
-                        translation.setFillAfter(true);
-                        translation.setInterpolator(new AccelerateInterpolator());
-                        btn.startAnimation(translation);
-
-                        Log.d("Tag", "Up");
-                        //close search typing tab
-                        ishide = true;
-                        Animation ani = new ShowAnim(searchText, 0*//* target layout height *//*);
-                        ani.setDuration(150*//* animation time *//*);
-                        searchText.startAnimation(ani);
-                    }
-                   *//* fbtn.startAnimation(animBtn);*//*
-
-
-                }
-
-            }
-        });*/
-
+        sharedPreferences = getSharedPreferences(GifsArtConst.SHARED_PREFERENCES, MODE_PRIVATE);
 
         if (Utils.haveNetworkConnection(this)) {
 
@@ -148,21 +93,40 @@ public class GiphyActivity extends AppCompatActivity {
         int id = item.getItemId();
         if (id == R.id.action_done) {
 
-            if (giphyAdapter.getSelectedPosition() > -1) {
+            if (!sharedPreferences.getBoolean("is_op", false)) {
+                if (giphyAdapter.getSelectedPosition() > -1) {
 
-                DownloadFileAsyncTask downloadFileAsyncTask = new DownloadFileAsyncTask(GiphyActivity.this, root + GifsArtConst.SLASH + GifsArtConst.MY_DIR + "/tt.gif", giphyAdapter.getItem(giphyAdapter.getSelectedPosition()));
-                downloadFileAsyncTask.setOnDownloadedListener(new DownloadFileAsyncTask.OnDownloaded() {
-                    @Override
-                    public void onDownloaded(boolean isDownloded) {
-                        Intent intent = new Intent(GiphyActivity.this, MakeGifActivity.class);
-                        intent.putExtra("gif_path", root + GifsArtConst.SLASH + GifsArtConst.MY_DIR + "/tt.gif");
-                        intent.putExtra(GifsArtConst.INDEX, GifsArtConst.GIPHY_TO_GIF_INDEX);
-                        startActivity(intent);
-                        finish();
-                    }
-                });
-                downloadFileAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                    DownloadFileAsyncTask downloadFileAsyncTask = new DownloadFileAsyncTask(GiphyActivity.this, root + GifsArtConst.SLASH + GifsArtConst.MY_DIR + "/tt.gif", giphyAdapter.getItem(giphyAdapter.getSelectedPosition()));
+                    downloadFileAsyncTask.setOnDownloadedListener(new DownloadFileAsyncTask.OnDownloaded() {
+                        @Override
+                        public void onDownloaded(boolean isDownloded) {
+                            Intent intent = new Intent(GiphyActivity.this, MakeGifActivity.class);
+                            intent.putExtra("gif_path", root + GifsArtConst.SLASH + GifsArtConst.MY_DIR + "/tt.gif");
+                            intent.putExtra(GifsArtConst.INDEX, GifsArtConst.GIPHY_TO_GIF_INDEX);
+                            startActivity(intent);
+                            finish();
+                        }
+                    });
+                    downloadFileAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
+                }
+            } else {
+                if (giphyAdapter.getSelectedPosition() > -1) {
+
+                    DownloadFileAsyncTask downloadFileAsyncTask = new DownloadFileAsyncTask(GiphyActivity.this, root + GifsArtConst.SLASH + GifsArtConst.MY_DIR + "/tt.gif", giphyAdapter.getItem(giphyAdapter.getSelectedPosition()));
+                    downloadFileAsyncTask.setOnDownloadedListener(new DownloadFileAsyncTask.OnDownloaded() {
+                        @Override
+                        public void onDownloaded(boolean isDownloded) {
+                            Intent intent = new Intent();
+                            intent.putExtra("gif_path", root + GifsArtConst.SLASH + GifsArtConst.MY_DIR + "/tt.gif");
+                            intent.putExtra(GifsArtConst.INDEX, GifsArtConst.GIPHY_TO_GIF_INDEX);
+                            setResult(RESULT_OK, intent);
+                            finish();
+                        }
+                    });
+                    downloadFileAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
+                }
             }
             return true;
         }

@@ -34,10 +34,12 @@ public class SlideAdapter extends RecyclerView.Adapter<SlideAdapter.ViewHolder> 
 
     private ArrayList<GifItem> array;
     private Activity activity;
+    private Context context;
 
-    public SlideAdapter(ArrayList<GifItem> arr, Activity activity) {
+    public SlideAdapter(ArrayList<GifItem> arr, Activity activity, Context context) {
 
         array = arr;
+        this.context = context;
         this.activity = activity;
     }
 
@@ -71,9 +73,10 @@ public class SlideAdapter extends RecyclerView.Adapter<SlideAdapter.ViewHolder> 
                 public void onClick(View v) {
                     Intent intent = new Intent(activity, MainActivity.class);
                     activity.startActivityForResult(intent, GifsArtConst.MAIN_ACTIVITY_REQUEST_CODE);
-                    SharedPreferences sharedPreferences = activity.getSharedPreferences(GifsArtConst.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+                    SharedPreferences sharedPreferences = context.getSharedPreferences(GifsArtConst.SHARED_PREFERENCES, Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putBoolean("is_opened", true);
+                    editor.putBoolean("is_op", true);
                     editor.commit();
                 }
             });
