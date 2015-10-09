@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -72,11 +71,10 @@ public class SlideAdapter extends RecyclerView.Adapter<SlideAdapter.ViewHolder> 
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(activity, MainActivity.class);
-                    activity.startActivityForResult(intent, GifsArtConst.MAIN_ACTIVITY_REQUEST_CODE);
+                    activity.startActivityForResult(intent, GifsArtConst.REQUEST_CODE_MAIN_ACTIVITY);
                     SharedPreferences sharedPreferences = context.getSharedPreferences(GifsArtConst.SHARED_PREFERENCES, Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putBoolean("is_opened", true);
-                    editor.putBoolean("is_op", true);
                     editor.commit();
                 }
             });
@@ -92,7 +90,7 @@ public class SlideAdapter extends RecyclerView.Adapter<SlideAdapter.ViewHolder> 
 
                     Intent intent = new Intent(activity, EditFrameActivity.class);
                     intent.putExtra("image", byteArray);
-                    activity.startActivityForResult(intent, GifsArtConst.EDIT_FRAME_ACTIVITY_REQUEST_CODE);
+                    activity.startActivityForResult(intent, GifsArtConst.REQUEST_CODE_EDIT_FRAME_ACTIVITY);
                 }
             });
         }

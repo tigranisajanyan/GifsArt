@@ -2,7 +2,6 @@ package com.gifsart.studio.activity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Point;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
@@ -10,7 +9,6 @@ import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -65,7 +63,7 @@ public class GiphyActivity extends AppCompatActivity {
 
         if (Utils.haveNetworkConnection(this)) {
 
-            Giphy giphy = new Giphy(this, "funny", 0, 30);
+            Giphy giphy = new Giphy(this, GifsArtConst.GIPHY_TAG, 0, 30);
             giphy.requestGiphy();
             giphy.setOnDownloadedListener(new Giphy.GiphyListener() {
                 @Override
@@ -93,16 +91,16 @@ public class GiphyActivity extends AppCompatActivity {
         int id = item.getItemId();
         if (id == R.id.action_done) {
 
-            if (!sharedPreferences.getBoolean("is_op", false)) {
+            if (!sharedPreferences.getBoolean(GifsArtConst.SHARED_PREFERENCES_IS_OPENED, false)) {
                 if (giphyAdapter.getSelectedPosition() > -1) {
 
-                    DownloadFileAsyncTask downloadFileAsyncTask = new DownloadFileAsyncTask(GiphyActivity.this, root + GifsArtConst.SLASH + GifsArtConst.MY_DIR + "/tt.gif", giphyAdapter.getItem(giphyAdapter.getSelectedPosition()));
+                    DownloadFileAsyncTask downloadFileAsyncTask = new DownloadFileAsyncTask(GiphyActivity.this, root + GifsArtConst.SLASH + GifsArtConst.MY_DIR + "/giphy/giphy.gif", giphyAdapter.getItem(giphyAdapter.getSelectedPosition()));
                     downloadFileAsyncTask.setOnDownloadedListener(new DownloadFileAsyncTask.OnDownloaded() {
                         @Override
                         public void onDownloaded(boolean isDownloded) {
                             Intent intent = new Intent(GiphyActivity.this, MakeGifActivity.class);
-                            intent.putExtra("gif_path", root + GifsArtConst.SLASH + GifsArtConst.MY_DIR + "/tt.gif");
-                            intent.putExtra(GifsArtConst.INDEX, GifsArtConst.GIPHY_TO_GIF_INDEX);
+                            intent.putExtra(GifsArtConst.INTENT_GIF_PATH, root + GifsArtConst.SLASH + GifsArtConst.MY_DIR + "/giphy/giphy.gif");
+                            intent.putExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, GifsArtConst.INDEX_GIPHY_TO_GIF);
                             startActivity(intent);
                             finish();
                         }
@@ -113,13 +111,13 @@ public class GiphyActivity extends AppCompatActivity {
             } else {
                 if (giphyAdapter.getSelectedPosition() > -1) {
 
-                    DownloadFileAsyncTask downloadFileAsyncTask = new DownloadFileAsyncTask(GiphyActivity.this, root + GifsArtConst.SLASH + GifsArtConst.MY_DIR + "/tt.gif", giphyAdapter.getItem(giphyAdapter.getSelectedPosition()));
+                    DownloadFileAsyncTask downloadFileAsyncTask = new DownloadFileAsyncTask(GiphyActivity.this, root + GifsArtConst.SLASH + GifsArtConst.MY_DIR + "/giphy/giphy.gif", giphyAdapter.getItem(giphyAdapter.getSelectedPosition()));
                     downloadFileAsyncTask.setOnDownloadedListener(new DownloadFileAsyncTask.OnDownloaded() {
                         @Override
                         public void onDownloaded(boolean isDownloded) {
                             Intent intent = new Intent();
-                            intent.putExtra("gif_path", root + GifsArtConst.SLASH + GifsArtConst.MY_DIR + "/tt.gif");
-                            intent.putExtra(GifsArtConst.INDEX, GifsArtConst.GIPHY_TO_GIF_INDEX);
+                            intent.putExtra(GifsArtConst.INTENT_GIF_PATH, root + GifsArtConst.SLASH + GifsArtConst.MY_DIR + "/giphy/giphy.gif");
+                            intent.putExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, GifsArtConst.INDEX_GIPHY_TO_GIF);
                             setResult(RESULT_OK, intent);
                             finish();
                         }

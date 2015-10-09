@@ -10,6 +10,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.gifsart.studio.R;
 import com.gifsart.studio.item.GiphyItem;
 import com.gifsart.studio.utils.GifsArtConst;
 
@@ -53,7 +54,7 @@ public class Giphy {
 
         progressDialog = new ProgressDialog(context);
         progressDialog.setCancelable(false);
-        progressDialog.setMessage("please wait");
+        progressDialog.setMessage(context.getResources().getString(R.string.please_wait));
         progressDialog.show();
         String url = GifsArtConst.GIPHY_URL + tag + GifsArtConst.GIPHY_OFFSET + offset + GifsArtConst.GIPHY_LIMIT + limit + GifsArtConst.GIPHY_API_KEY;
         RequestQueue queue = Volley.newRequestQueue(context);

@@ -6,7 +6,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,13 +14,12 @@ import android.widget.RelativeLayout;
 
 import com.gifsart.studio.R;
 import com.gifsart.studio.utils.GifsArtConst;
-import com.gifsart.studio.utils.Utils;
 
 public class SquareFitActivity extends AppCompatActivity {
 
     private ImageView squareFitImageView;
     private Bitmap originalBitmap;
-    private int square_fit_mode = GifsArtConst.MODE_ORIGINAL;
+    private int square_fit_mode = GifsArtConst.FIT_MODE_ORIGINAL;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,9 +30,9 @@ public class SquareFitActivity extends AppCompatActivity {
         squareFitImageView = (ImageView) findViewById(R.id.square_fit_image_view);
         squareFitImageView.setLayoutParams(layoutParams);
 
-        byte[] byteArray = getIntent().getByteArrayExtra("image");
+        byte[] byteArray = getIntent().getByteArrayExtra(GifsArtConst.INTENT_IMAGE_BITMAP);
         originalBitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
-        square_fit_mode = getIntent().getIntExtra("square_mode", 1);
+        square_fit_mode = getIntent().getIntExtra(GifsArtConst.INTENT_SQUARE_FIT_MODE, 1);
         squareFitImageView.setImageBitmap(originalBitmap);
         switch (square_fit_mode) {
             case 1:
@@ -65,7 +63,7 @@ public class SquareFitActivity extends AppCompatActivity {
             public void onClick(View v) {
                 squareFitImageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 squareFitImageView.setImageBitmap(originalBitmap);
-                square_fit_mode = GifsArtConst.MODE_ORIGINAL;
+                square_fit_mode = GifsArtConst.FIT_MODE_ORIGINAL;
 
                 findViewById(R.id.original_fit_button).setBackgroundColor(Color.BLUE);
                 findViewById(R.id.square_fit_button).setBackgroundColor(Color.DKGRAY);
@@ -78,7 +76,7 @@ public class SquareFitActivity extends AppCompatActivity {
             public void onClick(View v) {
                 squareFitImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
                 squareFitImageView.setImageBitmap(originalBitmap);
-                square_fit_mode = GifsArtConst.MODE_SQUARE;
+                square_fit_mode = GifsArtConst.FIT_MODE_SQUARE;
 
                 findViewById(R.id.square_button).setBackgroundColor(Color.BLUE);
                 findViewById(R.id.square_fit_button).setBackgroundColor(Color.DKGRAY);
@@ -91,7 +89,7 @@ public class SquareFitActivity extends AppCompatActivity {
             public void onClick(View v) {
                 squareFitImageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 squareFitImageView.setImageBitmap(originalBitmap);
-                square_fit_mode = GifsArtConst.MODE_SQUARE_FIT;
+                square_fit_mode = GifsArtConst.FIT_MODE_SQUARE_FIT;
 
                 findViewById(R.id.square_fit_button).setBackgroundColor(Color.BLUE);
                 findViewById(R.id.square_button).setBackgroundColor(Color.DKGRAY);
@@ -112,7 +110,7 @@ public class SquareFitActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         if (id == R.id.action_apply) {
-            Intent data = new Intent().putExtra("square_mode", square_fit_mode);
+            Intent data = new Intent().putExtra(GifsArtConst.INTENT_SQUARE_FIT_MODE, square_fit_mode);
             setResult(RESULT_OK, data);
             finish();
             return true;

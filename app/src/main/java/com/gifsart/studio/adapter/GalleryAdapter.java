@@ -26,11 +26,9 @@ import java.util.ArrayList;
 
 public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder> {
 
-    public static final String FILE_PREFIX = "file://";
     private ArrayList<GalleryItem> array;
     private Activity activity;
     private ActionBar actionBar;
-    int count = 0;
 
     private ArrayList<GalleryItem> selected = new ArrayList<>();
     private int imageSize;
@@ -65,9 +63,10 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(activity, ShootingGifActivity.class);
-                    activity.startActivity(intent);
-                    if (activity.getSharedPreferences(GifsArtConst.SHARED_PREFERENCES, Context.MODE_PRIVATE).getBoolean("is_op", false)) {
-                        activity.finish();
+                    if (activity.getSharedPreferences(GifsArtConst.SHARED_PREFERENCES, Context.MODE_PRIVATE).getBoolean(GifsArtConst.SHARED_PREFERENCES_IS_OPENED, false)) {
+                        activity.startActivityForResult(intent, GifsArtConst.REQUEST_CODE_SHOOTING_GIF_REOPENED);
+                    } else {
+                        activity.startActivity(intent);
                     }
                 }
             });
@@ -84,8 +83,8 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(activity, GiphyActivity.class);
-                    if (activity.getSharedPreferences(GifsArtConst.SHARED_PREFERENCES, Context.MODE_PRIVATE).getBoolean("is_op", false)) {
-                        activity.startActivityForResult(intent, 111);
+                    if (activity.getSharedPreferences(GifsArtConst.SHARED_PREFERENCES, Context.MODE_PRIVATE).getBoolean(GifsArtConst.SHARED_PREFERENCES_IS_OPENED, false)) {
+                        activity.startActivityForResult(intent, GifsArtConst.REQUEST_CODE_GIPHY_REOPENED);
                     } else {
                         activity.startActivity(intent);
                     }
@@ -104,7 +103,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
                         selected.remove(array.get(position));
                         actionBar.setTitle(getSelected().size() + " Selected");
                         if (getSelected().size() < 1) {
-                            actionBar.setTitle("GifTest");
+                            actionBar.setTitle(activity.getResources().getString(R.string.app_name));
                         }
 
                     } else {
@@ -202,7 +201,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
             }
         }
         selected.clear();
-        actionBar.setTitle("GifTest");
+        actionBar.setTitle(activity.getResources().getString(R.string.app_name));
         notifyDataSetChanged();
     }
 

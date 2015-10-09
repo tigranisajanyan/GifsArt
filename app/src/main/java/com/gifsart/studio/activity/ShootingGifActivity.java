@@ -3,15 +3,14 @@ package com.gifsart.studio.activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
-import android.os.AsyncTask;
 import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -28,11 +27,7 @@ import com.gifsart.studio.utils.CameraPreview;
 import com.gifsart.studio.utils.GifsArtConst;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 
 public class ShootingGifActivity extends ActionBarActivity {
@@ -53,6 +48,8 @@ public class ShootingGifActivity extends ActionBarActivity {
     private int capturedTime;
     private Thread myThread = null;
 
+    private SharedPreferences sharedPreferences;
+
     int width;
 
     private Camera.PictureCallback mPicture;
@@ -62,6 +59,8 @@ public class ShootingGifActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_shooting_gif);
         context = this;
+
+        sharedPreferences = getApplicationContext().getSharedPreferences(GifsArtConst.SHARED_PREFERENCES, MODE_PRIVATE);
         init();
     }
 
@@ -190,9 +189,9 @@ public class ShootingGifActivity extends ActionBarActivity {
 
         //mediaRecorder.setVideoFrameRate(2);
 
-        mediaRecorder.setOrientationHint(GifsArtConst.CAMERA_OUTPUT_ORIENTATION);
+        mediaRecorder.setOrientationHint(GifsArtConst.VIDEO_OUTPUT_ORIENTATION);
 
-        File file = new File(root, GifsArtConst.VIDEO_NAME);
+        File file = new File(GifsArtConst.SHOOTING_VIDEO_OUTPUT_DIR, GifsArtConst.VIDEO_NAME);
         mediaRecorder.setOutputFile(file.getAbsolutePath());
         mediaRecorder.setMaxDuration(GifsArtConst.VIDEO_MAX_DURATION); // Set max duration 30 sec.
         mediaRecorder.setMaxFileSize(GifsArtConst.VIDEO_FILE_MAX_SIZE); // Set max file size 40M
@@ -289,24 +288,37 @@ public class ShootingGifActivity extends ActionBarActivity {
                 releaseMediaRecorder(); // release the MediaRecorder object
                 Toast.makeText(ShootingGifActivity.this, "Video captured!", Toast.LENGTH_LONG).show();
                 recording = false;
+
+
                 final ProgressDialog progressDialog = new ProgressDialog(ShootingGifActivity.this);
                 progressDialog.setTitle("Generating Frames");
-                progressDialog.setMessage("Please Wait");
+                progressDialog.setMessage(getApplicationContext().getResources().getString(R.string.please_wait));
                 progressDialog.setCancelable(false);
                 progressDialog.show();
-                VideoDecoder videoDecoder = new VideoDecoder(ShootingGifActivity.this, root + GifsArtConst.SLASH + GifsArtConst.VIDEO_NAME, Integer.MAX_VALUE, 2, root + GifsArtConst.SLASH + GifsArtConst.MY_DIR);
+                VideoDecoder videoDecoder = new VideoDecoder(ShootingGifActivity.this, GifsArtConst.SHOOTING_VIDEO_OUTPUT_DIR + "/" + GifsArtConst.VIDEO_NAME, Integer.MAX_VALUE, GifsArtConst.VIDEO_FRAME_SCALE_SIZE, GifsArtConst.VIDEOS_DECODED_FRAMES_DIR);
                 videoDecoder.extractVideoFrames();
                 videoDecoder.setOnDecodeFinishedListener(new VideoDecoder.OnDecodeFinishedListener() {
                     @Override
                     public void onFinish(boolean isDone) {
-                        Intent intent = new Intent(ShootingGifActivity.this, MakeGifActivity.class);
-                        intent.putExtra(GifsArtConst.FRONT_CAMERA, cameraFront);
-                        intent.putExtra(GifsArtConst.INDEX, GifsArtConst.SHOOT_GIF_INDEX);
-                        intent.putExtra("frame_size", 2);
-                        intent.putExtra(GifsArtConst.VIDEO_PATH, root + GifsArtConst.SLASH + GifsArtConst.VIDEO_NAME);
-                        startActivity(intent);
-                        progressDialog.dismiss();
-                        finish();
+                        if (!sharedPreferences.getBoolean(GifsArtConst.SHARED_PREFERENCES_IS_OPENED, false)) {
+                            Intent intent = new Intent(ShootingGifActivity.this, MakeGifActivity.class);
+                            intent.putExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, GifsArtConst.INDEX_SHOOT_GIF);
+                            intent.putExtra(GifsArtConst.INTENT_FRONT_CAMERA, cameraFront);
+                            intent.putExtra(GifsArtConst.INTENT_VIDEO_FRAME_SCALE_SIZE, GifsArtConst.VIDEO_FRAME_SCALE_SIZE);
+                            intent.putExtra(GifsArtConst.INTENT_VIDEO_PATH, GifsArtConst.SHOOTING_VIDEO_OUTPUT_DIR + "/" + GifsArtConst.VIDEO_NAME);
+                            startActivity(intent);
+                            progressDialog.dismiss();
+                            finish();
+                        } else {
+                            Intent intent = new Intent();
+                            intent.putExtra(GifsArtConst.INTENT_FRONT_CAMERA, cameraFront);
+                            intent.putExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, GifsArtConst.INDEX_SHOOT_GIF);
+                            intent.putExtra(GifsArtConst.INTENT_VIDEO_FRAME_SCALE_SIZE, GifsArtConst.VIDEO_FRAME_SCALE_SIZE);
+                            intent.putExtra(GifsArtConst.INTENT_VIDEO_PATH, GifsArtConst.SHOOTING_VIDEO_OUTPUT_DIR + "/" + GifsArtConst.VIDEO_NAME);
+                            setResult(RESULT_OK, intent);
+                            progressDialog.dismiss();
+                            finish();
+                        }
                     }
                 });
             } else {
@@ -339,7 +351,6 @@ public class ShootingGifActivity extends ActionBarActivity {
         }
     };
 
-
     public void doWork() {
         runOnUiThread(new Runnable() {
             public void run() {
@@ -355,18 +366,18 @@ public class ShootingGifActivity extends ActionBarActivity {
                         recording = false;
                         final ProgressDialog progressDialog = new ProgressDialog(ShootingGifActivity.this);
                         progressDialog.setTitle("Generating Frames");
-                        progressDialog.setMessage("Please Wait");
+                        progressDialog.setMessage(getApplicationContext().getResources().getString(R.string.please_wait));
                         progressDialog.setCancelable(false);
                         progressDialog.show();
-                        VideoDecoder videoDecoder = new VideoDecoder(ShootingGifActivity.this, root + GifsArtConst.SLASH + GifsArtConst.VIDEO_NAME, Integer.MAX_VALUE, 2, root + GifsArtConst.SLASH + GifsArtConst.MY_DIR);
+                        VideoDecoder videoDecoder = new VideoDecoder(ShootingGifActivity.this, GifsArtConst.SHOOTING_VIDEO_OUTPUT_DIR + "/" + GifsArtConst.VIDEO_NAME, Integer.MAX_VALUE, GifsArtConst.VIDEO_FRAME_SCALE_SIZE, GifsArtConst.VIDEOS_DECODED_FRAMES_DIR);
                         videoDecoder.extractVideoFrames();
                         videoDecoder.setOnDecodeFinishedListener(new VideoDecoder.OnDecodeFinishedListener() {
                             @Override
                             public void onFinish(boolean isDone) {
                                 Intent intent = new Intent(ShootingGifActivity.this, MakeGifActivity.class);
-                                intent.putExtra(GifsArtConst.INDEX, GifsArtConst.SHOOT_GIF_INDEX);
-                                intent.putExtra("frame_size", 2);
-                                intent.putExtra(GifsArtConst.VIDEO_PATH, root + GifsArtConst.SLASH + GifsArtConst.VIDEO_NAME);
+                                intent.putExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, GifsArtConst.INDEX_SHOOT_GIF);
+                                intent.putExtra(GifsArtConst.INTENT_VIDEO_FRAME_SCALE_SIZE, GifsArtConst.VIDEO_FRAME_SCALE_SIZE);
+                                intent.putExtra(GifsArtConst.INTENT_VIDEO_PATH, GifsArtConst.SHOOTING_VIDEO_OUTPUT_DIR + "/" + GifsArtConst.VIDEO_NAME);
                                 startActivity(intent);
                                 progressDialog.dismiss();
                                 finish();

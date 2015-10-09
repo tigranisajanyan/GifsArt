@@ -11,8 +11,6 @@ import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -43,7 +41,6 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<GalleryItem> customGalleryArrayList = new ArrayList<>();
     private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor editor;
-    int videoCount = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +55,8 @@ public class MainActivity extends AppCompatActivity {
         ImageLoader.getInstance().clearDiskCache();
 
         Utils.createDir(GifsArtConst.MY_DIR);
+        Utils.createDir("GifsArt/video_frames");
+        Utils.createDir("GifsArt/giphy");
 
         init();
 
@@ -97,34 +96,34 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
 
         if (item.getItemId() == R.id.action_next) {
-            if (!sharedPreferences.getBoolean("is_opened", false)) {
-                if (galleryAdapter.getSelected().size() > 0) {
 
+            if (galleryAdapter.getSelected().size() > 0) {
+
+                // if MainActivity is opened for the first time will do this
+                if (!sharedPreferences.getBoolean(GifsArtConst.SHARED_PREFERENCES_IS_OPENED, false)) {
                     final ProgressDialog progressDialog = new ProgressDialog(MainActivity.this);
-                    progressDialog.setMessage("please wait");
+                    progressDialog.setMessage(getApplicationContext().getResources().getString(R.string.please_wait));
                     progressDialog.setCancelable(false);
                     progressDialog.show();
                     boolean hasVideo = false;
                     ArrayList<String> arrayList = galleryAdapter.getSelected();
                     for (int i = 0; i < arrayList.size(); i++) {
                         if (Utils.getMimeType(arrayList.get(i)) != null && Utils.getMimeType(arrayList.get(i)) == Type.VIDEO) {
-                            File file = new File(Environment.getExternalStorageDirectory() + "/GifsArt/vid");
-                            file.mkdirs();
 
-                            VideoDecoder videoDecoder = new VideoDecoder(MainActivity.this, arrayList.get(i), Integer.MAX_VALUE, 2, Environment.getExternalStorageDirectory() + "/GifsArt/vid");
+                            VideoDecoder videoDecoder = new VideoDecoder(MainActivity.this, arrayList.get(i), Integer.MAX_VALUE, GifsArtConst.VIDEO_FRAME_SCALE_SIZE, GifsArtConst.VIDEOS_DECODED_FRAMES_DIR);
                             videoDecoder.extractVideoFrames();
                             videoDecoder.setOnDecodeFinishedListener(new VideoDecoder.OnDecodeFinishedListener() {
                                 @Override
                                 public void onFinish(boolean isDone) {
                                     Intent intent = new Intent(MainActivity.this, MakeGifActivity.class);
-                                    intent.putExtra(GifsArtConst.INDEX, GifsArtConst.FROM_GALLERY_TO_GIF_INDEX);
-                                    intent.putStringArrayListExtra(GifsArtConst.IMAGE_PATHS, galleryAdapter.getSelected());
-                                    intent.putExtra("output_dir", Environment.getExternalStorageDirectory() + "/GifsArt/vid");
-
+                                    intent.putExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, GifsArtConst.INDEX_FROM_GALLERY_TO_GIF);
+                                    intent.putExtra(GifsArtConst.INTENT_VIDEO_FRAME_SCALE_SIZE, GifsArtConst.VIDEO_FRAME_SCALE_SIZE);
+                                    intent.putStringArrayListExtra(GifsArtConst.INTENT_DECODED_IMAGE_PATHS, galleryAdapter.getSelected());
+                                    intent.putExtra(GifsArtConst.INTENT_DECODED_IMAGES_OUTPUT_DIR, GifsArtConst.VIDEOS_DECODED_FRAMES_DIR);
                                     startActivity(intent);
+
                                     galleryAdapter.deselectAll();
                                     progressDialog.dismiss();
-
                                 }
                             });
                             hasVideo = true;
@@ -132,46 +131,40 @@ public class MainActivity extends AppCompatActivity {
                     }
                     if (!hasVideo) {
                         Intent intent = new Intent(MainActivity.this, MakeGifActivity.class);
-                        intent.putExtra(GifsArtConst.INDEX, GifsArtConst.FROM_GALLERY_TO_GIF_INDEX);
-                        intent.putStringArrayListExtra(GifsArtConst.IMAGE_PATHS, galleryAdapter.getSelected());
-
+                        intent.putExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, GifsArtConst.INDEX_FROM_GALLERY_TO_GIF);
+                        intent.putStringArrayListExtra(GifsArtConst.INTENT_DECODED_IMAGE_PATHS, galleryAdapter.getSelected());
                         startActivity(intent);
+
                         galleryAdapter.deselectAll();
                         progressDialog.dismiss();
-
                     }
-                } else {
-                    Toast.makeText(MainActivity.this, "no images selected", Toast.LENGTH_SHORT).show();
-                }
-            } else {
-
-                if (galleryAdapter.getSelected().size() > 0) {
+                } else {    // if MainActivity is reopened will do this
                     final ProgressDialog progressDialog = new ProgressDialog(MainActivity.this);
-                    progressDialog.setMessage("please wait");
+                    progressDialog.setMessage(getApplicationContext().getResources().getString(R.string.please_wait));
                     progressDialog.setCancelable(false);
                     progressDialog.show();
                     boolean hasVideo = false;
                     ArrayList<String> arrayList = galleryAdapter.getSelected();
                     for (int i = 0; i < arrayList.size(); i++) {
                         if (Utils.getMimeType(arrayList.get(i)) != null && Utils.getMimeType(arrayList.get(i)) == Type.VIDEO) {
-                            File file = new File(Environment.getExternalStorageDirectory() + "/GifsArt/vid");
+                            File file = new File(GifsArtConst.VIDEOS_DECODED_FRAMES_DIR);
                             file.mkdirs();
 
-                            VideoDecoder videoDecoder = new VideoDecoder(MainActivity.this, arrayList.get(i), Integer.MAX_VALUE, 2, Environment.getExternalStorageDirectory() + "/GifsArt/vid");
+                            VideoDecoder videoDecoder = new VideoDecoder(MainActivity.this, arrayList.get(i), Integer.MAX_VALUE, GifsArtConst.VIDEO_FRAME_SCALE_SIZE, GifsArtConst.VIDEOS_DECODED_FRAMES_DIR);
                             videoDecoder.extractVideoFrames();
                             videoDecoder.setOnDecodeFinishedListener(new VideoDecoder.OnDecodeFinishedListener() {
                                 @Override
                                 public void onFinish(boolean isDone) {
                                     Intent intent = new Intent();
-                                    intent.putExtra(GifsArtConst.INDEX, GifsArtConst.FROM_GALLERY_TO_GIF_INDEX);
-                                    intent.putStringArrayListExtra(GifsArtConst.IMAGE_PATHS, galleryAdapter.getSelected());
-                                    intent.putExtra("output_dir", Environment.getExternalStorageDirectory() + "/GifsArt/vid");
-
+                                    intent.putExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, GifsArtConst.INDEX_FROM_GALLERY_TO_GIF);
+                                    intent.putExtra(GifsArtConst.INTENT_VIDEO_FRAME_SCALE_SIZE, GifsArtConst.VIDEO_FRAME_SCALE_SIZE);
+                                    intent.putStringArrayListExtra(GifsArtConst.INTENT_DECODED_IMAGE_PATHS, galleryAdapter.getSelected());
+                                    intent.putExtra(GifsArtConst.INTENT_DECODED_IMAGES_OUTPUT_DIR, GifsArtConst.VIDEOS_DECODED_FRAMES_DIR);
                                     setResult(RESULT_OK, intent);
+
                                     galleryAdapter.deselectAll();
                                     progressDialog.dismiss();
                                     finish();
-
                                 }
                             });
                             hasVideo = true;
@@ -179,36 +172,52 @@ public class MainActivity extends AppCompatActivity {
                     }
                     if (!hasVideo) {
                         Intent intent = new Intent();
-                        intent.putExtra(GifsArtConst.INDEX, GifsArtConst.FROM_GALLERY_TO_GIF_INDEX);
-                        intent.putStringArrayListExtra(GifsArtConst.IMAGE_PATHS, galleryAdapter.getSelected());
-
+                        intent.putExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, GifsArtConst.INDEX_FROM_GALLERY_TO_GIF);
+                        intent.putStringArrayListExtra(GifsArtConst.INTENT_DECODED_IMAGE_PATHS, galleryAdapter.getSelected());
                         setResult(RESULT_OK, intent);
+
                         galleryAdapter.deselectAll();
                         progressDialog.dismiss();
                         finish();
 
                     }
-                } else {
-                    Toast.makeText(MainActivity.this, "no images selected", Toast.LENGTH_SHORT).show();
                 }
+
+            } else {
+                Toast.makeText(MainActivity.this, "no images selected", Toast.LENGTH_SHORT).show();
             }
             return true;
         }
-        return super.onOptionsItemSelected(item);
+
+        return super.
+
+                onOptionsItemSelected(item);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 111 && resultCode == RESULT_OK) {
+        if (requestCode == GifsArtConst.REQUEST_CODE_SHOOTING_GIF_REOPENED && resultCode == RESULT_OK) {
             Intent intent = new Intent();
-            intent.putExtra(GifsArtConst.INDEX, GifsArtConst.GIPHY_TO_GIF_INDEX);
-            intent.putExtra("gif_path", data.getStringExtra("gif_path"));
+            intent.putExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, data.getIntExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, GifsArtConst.INDEX_SHOOT_GIF));
+            intent.putExtra(GifsArtConst.INTENT_VIDEO_FRAME_SCALE_SIZE, GifsArtConst.VIDEO_FRAME_SCALE_SIZE);
+            intent.putExtra(GifsArtConst.INTENT_VIDEO_PATH, data.getStringExtra(GifsArtConst.INTENT_VIDEO_PATH));
+            intent.putExtra(GifsArtConst.INTENT_FRONT_CAMERA, data.getBooleanExtra(GifsArtConst.INTENT_FRONT_CAMERA, false));
+            setResult(RESULT_OK, intent);
+            finish();
+        }
+        if (requestCode == GifsArtConst.REQUEST_CODE_GIPHY_REOPENED && resultCode == RESULT_OK) {
+            Intent intent = new Intent();
+            intent.putExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, GifsArtConst.INDEX_GIPHY_TO_GIF);
+            intent.putExtra(GifsArtConst.INTENT_GIF_PATH, data.getStringExtra(GifsArtConst.INTENT_GIF_PATH));
             setResult(RESULT_OK, intent);
             finish();
         }
     }
 
+    /**
+     * Loading all gallery items to recuclerview with AsyncTask
+     */
     class InitGalleryItems extends AsyncTask<Void, Void, Void> {
 
         @Override
@@ -237,13 +246,20 @@ public class MainActivity extends AppCompatActivity {
             galleryAdapter.notifyDataSetChanged();
             progressBar.setVisibility(View.GONE);
         }
+
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        editor.putBoolean("is_opened", false);
+        editor.clear();
         editor.commit();
+    }
+
+    @Override
+    public void onBackPressed() {
+        setResult(RESULT_CANCELED);
+        super.onBackPressed();
     }
 
 }

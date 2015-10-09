@@ -4,11 +4,13 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,8 +23,11 @@ import com.gifsart.studio.adapter.EffectsAdapter;
 import com.gifsart.studio.effects.GPUEffects;
 import com.gifsart.studio.effects.GPUImageFilterTools;
 import com.gifsart.studio.helper.RecyclerItemClickListener;
+import com.gifsart.studio.utils.GifsArtConst;
 import com.gifsart.studio.utils.SpacesItemDecoration;
 import com.gifsart.studio.utils.Utils;
+
+import java.util.ArrayList;
 
 import jp.co.cyberagent.android.gpuimage.GPUImageFilter;
 import jp.co.cyberagent.android.gpuimage.GPUImageView;
@@ -58,7 +63,7 @@ public class EffectsActivity extends AppCompatActivity implements SeekBar.OnSeek
         filters.addFilter("Emboss", GPUEffects.FilterType.EMBOSS);
         filters.addFilter("Posterize", GPUEffects.FilterType.POSTERIZE);
 
-        originalBitmap = BitmapFactory.decodeByteArray(getIntent().getByteArrayExtra("image"), 0, getIntent().getByteArrayExtra("image").length);
+        originalBitmap = BitmapFactory.decodeByteArray(getIntent().getByteArrayExtra(GifsArtConst.INTENT_IMAGE_BITMAP), 0, getIntent().getByteArrayExtra(GifsArtConst.INTENT_IMAGE_BITMAP).length);
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(getResources().getDisplayMetrics().widthPixels, getResources().getDisplayMetrics().widthPixels);
 
         gpuImageView = (GPUImageView) findViewById(R.id.gpu_image_view);
@@ -110,7 +115,7 @@ public class EffectsActivity extends AppCompatActivity implements SeekBar.OnSeek
         if (id == R.id.action_apply) {
 
             Intent intent = new Intent();
-            intent.putExtra("filter", filterName);
+            intent.putExtra(GifsArtConst.INTENT_EFFECT_FILTER, filterName);
             setResult(RESULT_OK, intent);
             finish();
             return true;

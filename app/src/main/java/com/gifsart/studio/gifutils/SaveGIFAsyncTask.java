@@ -11,6 +11,7 @@ import android.os.Environment;
 import android.util.Log;
 
 import com.gifsart.studio.activity.GifPreviewActivity;
+import com.gifsart.studio.activity.SquareFitActivity;
 import com.gifsart.studio.item.GifItem;
 import com.gifsart.studio.utils.GifsArtConst;
 import com.gifsart.studio.utils.Type;
@@ -36,13 +37,13 @@ public class SaveGIFAsyncTask extends AsyncTask<Void, Integer, Void> {
     private static final String root = Environment.getExternalStorageDirectory().toString();
     int count = 0;
     private boolean doSquareFit = false;
-    private int scaleType = 1;
+    private int squareFitMode = 1;
 
-    public SaveGIFAsyncTask(String outputDir, ArrayList<GifItem> gifItems, int scaleType, Activity activity) {
+    public SaveGIFAsyncTask(String outputDir, ArrayList<GifItem> gifItems, int squareFitMode, Activity activity) {
         this.outputDir = outputDir;
         this.gifItems = gifItems;
         this.activity = activity;
-        this.scaleType = scaleType;
+        this.squareFitMode = squareFitMode;
     }
 
     @Override
@@ -53,11 +54,15 @@ public class SaveGIFAsyncTask extends AsyncTask<Void, Integer, Void> {
         progressDialog.setMax(gifItems.size());
         progressDialog.setCancelable(false);
         progressDialog.show();
-        for (int i = 0; i < gifItems.size(); i++) {
-            for (int j = 0; j < gifItems.size(); j++) {
-                if (gifItems.get(i).getBitmap().getWidth() != gifItems.get(j).getBitmap().getWidth() || gifItems.get(i).getBitmap().getHeight() != gifItems.get(j).getBitmap().getHeight()) {
-                    doSquareFit = true;
-                    break;
+        if (squareFitMode == GifsArtConst.FIT_MODE_SQUARE) {
+            doSquareFit = true;
+        } else {
+            for (int i = 0; i < gifItems.size(); i++) {
+                for (int j = 0; j < gifItems.size(); j++) {
+                    if (gifItems.get(i).getBitmap().getWidth() != gifItems.get(j).getBitmap().getWidth() || gifItems.get(i).getBitmap().getHeight() != gifItems.get(j).getBitmap().getHeight()) {
+                        doSquareFit = true;
+                        break;
+                    }
                 }
             }
         }
@@ -82,7 +87,7 @@ public class SaveGIFAsyncTask extends AsyncTask<Void, Integer, Void> {
                     animatedGifEncoder.setDelay(gifItems.get(i).getDuraton());
                     Bitmap bitmap = gifItems.get(i).getBitmap();
                     if (doSquareFit) {
-                        bitmap = Utils.squareFit(bitmap, GifsArtConst.FRAME_SIZE);
+                        bitmap = Utils.squareFit(bitmap, GifsArtConst.GIF_FRAME_SIZE);
                     }
                     animatedGifEncoder.addFrame(bitmap);
                     publishProgress(i);
@@ -93,7 +98,7 @@ public class SaveGIFAsyncTask extends AsyncTask<Void, Integer, Void> {
                         animatedGifEncoder.setDelay(gifItems.get(i).getDuraton());
                         Bitmap bitmap = gifItems.get(i).getBitmaps().get(j);
                         if (doSquareFit) {
-                            bitmap = Utils.squareFit(bitmap, GifsArtConst.FRAME_SIZE);
+                            bitmap = Utils.squareFit(bitmap, GifsArtConst.GIF_FRAME_SIZE);
                         }
                         animatedGifEncoder.addFrame(bitmap);
                         count++;
@@ -105,7 +110,7 @@ public class SaveGIFAsyncTask extends AsyncTask<Void, Integer, Void> {
                         animatedGifEncoder.setDelay(gifItems.get(i).getDuraton());
                         Bitmap bitmap = gifItems.get(i).getBitmaps().get(j);
                         if (doSquareFit) {
-                            bitmap = Utils.squareFit(bitmap, GifsArtConst.FRAME_SIZE);
+                            bitmap = Utils.squareFit(bitmap, GifsArtConst.GIF_FRAME_SIZE);
                         }
                         animatedGifEncoder.addFrame(bitmap);
                         count++;
