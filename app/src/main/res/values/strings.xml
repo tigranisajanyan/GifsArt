@@ -10,4 +10,5 @@
     <string name="title_activity_edit_frame">EditFrameActivity</string>
     <string name="title_activity_square_fit">SquareFitActivity</string>
     <string name="please_wait">Please Wait!!!</string>
+    <string name="no_images_selected">No Images Selected</string>
 </resources>

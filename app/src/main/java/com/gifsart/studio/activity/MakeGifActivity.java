@@ -8,7 +8,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -29,6 +28,7 @@ import com.gifsart.studio.R;
 import com.gifsart.studio.adapter.SlideAdapter;
 import com.gifsart.studio.clipart.MainView;
 import com.gifsart.studio.effects.GPUEffects;
+import com.gifsart.studio.effects.GPUImageFilterTools;
 import com.gifsart.studio.gifutils.GifUtils;
 import com.gifsart.studio.gifutils.SaveGIFAsyncTask;
 import com.gifsart.studio.helper.SimpleItemTouchHelperCallback;
@@ -83,6 +83,7 @@ public class MakeGifActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_make_gif);
 
+        // Checking index, if selected items are from gallery will enter this scope
         if (getIntent().getIntExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, 0) == GifsArtConst.INDEX_FROM_GALLERY_TO_GIF) {
 
             selectedItemsArrayList = getIntent().getStringArrayListExtra(GifsArtConst.INTENT_DECODED_IMAGE_PATHS);
@@ -130,6 +131,8 @@ public class MakeGifActivity extends ActionBarActivity {
             }
 
         }
+
+        // Checking index, if selected item is from giphy activity will enter this scope
         if (getIntent().getIntExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, 0) == GifsArtConst.INDEX_GIPHY_TO_GIF) {
 
             GifItem gifItem = new GifItem(GifUtils.getGifFrameDuration(getIntent().getStringExtra(GifsArtConst.INTENT_GIF_PATH)), Type.GIF);
@@ -137,6 +140,8 @@ public class MakeGifActivity extends ActionBarActivity {
             gifItem.setBitmaps(GifUtils.getGifFrames(getIntent().getStringExtra(GifsArtConst.INTENT_GIF_PATH)));
             gifItems.add(gifItem);
         }
+
+        // Checking index, if selected item is a video from shooting gif activity will enter this scope
         if (getIntent().getIntExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, 0) == GifsArtConst.INDEX_SHOOT_GIF) {
             int frameSize = getIntent().getIntExtra(GifsArtConst.INTENT_VIDEO_FRAME_SCALE_SIZE, GifsArtConst.VIDEO_FRAME_SCALE_SIZE);
             videoPath = getIntent().getStringExtra(GifsArtConst.INTENT_VIDEO_PATH);
@@ -179,10 +184,31 @@ public class MakeGifActivity extends ActionBarActivity {
 
         if (id == R.id.action_next) {
             gifItems.remove(gifItems.size() - 1);
-            //SaveGIFAsyncTask saveGIFAsyncTask = new SaveGIFAsyncTask(root + GifsArtConst.SLASH + GifsArtConst.GIF_NAME, gifItems, square_fit_mode, MakeGifActivity.this);
-            //saveGIFAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-            ArrayList<Bitmap> bitmaps = gifItems.get(0).getBitmaps();
-            applyEffect(bitmaps, gpuImageFilter);
+            gifImitation.cancel(true);
+            final SaveGIFAsyncTask saveGIFAsyncTask = new SaveGIFAsyncTask(root + GifsArtConst.SLASH + GifsArtConst.GIF_NAME, gifItems, square_fit_mode, imageView, gpuImageFilter, MakeGifActivity.this);
+            saveGIFAsyncTask.setIsDoneListener(new SaveGIFAsyncTask.IsDone() {
+                @Override
+                public void isDone(boolean done) {
+
+                    if (done) {
+                        int num = 0;
+                        File file = new File(Environment.getExternalStorageDirectory() + "/" + GifsArtConst.DIR_GPU_IMAGES);
+                        File[] files = file.listFiles();
+                        for (int k = 0; k < gifItems.size(); k++) {
+                            if (gifItems.get(k).getType() == Type.IMAGE) {
+                                gifItems.get(k).setBitmap(BitmapFactory.decodeFile(files[num].getAbsolutePath()));
+                                num++;
+                            } else {
+                                for (int j = 0; j < gifItems.get(k).getBitmaps().size(); j++) {
+                                    gifItems.get(k).getBitmaps().set(j, BitmapFactory.decodeFile(files[num].getAbsolutePath()));
+                                    num++;
+                                }
+                            }
+                        }
+                        saveGIFAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                    }
+                }
+            });
         }
         return true;
     }
@@ -284,24 +310,6 @@ public class MakeGifActivity extends ActionBarActivity {
         });
     }
 
-    public void applyEffect(final ArrayList<Bitmap> bitmaps, final GPUImageFilter gpuImageFilter) {
-        GPUImageView gpuImageView1 = new GPUImageView(MakeGifActivity.this);
-        gpuImageView1.setFilter(gpuImageFilter);
-        if (bitmaps.size() == 0) {
-            return;
-        } else {
-            Bitmap bitmap = bitmaps.remove(0);
-            gpuImageView1.setImage(bitmap);
-            String fileName = System.currentTimeMillis() + ".jpg";
-            gpuImageView1.saveToPictures("GPUImage", fileName, 500, 500, new GPUImageView.OnPictureSavedListener() {
-                @Override
-                public void onPictureSaved(Uri uri) {
-                    applyEffect(bitmaps, gpuImageFilter);
-                }
-            });
-        }
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -328,9 +336,9 @@ public class MakeGifActivity extends ActionBarActivity {
         }
         if (requestCode == GifsArtConst.REQUEST_CODE_EFFECTS_ACTIVITY && resultCode == RESULT_OK) {
             String filterName = data.getStringExtra(GifsArtConst.INTENT_EFFECT_FILTER);
-            gpuImageFilter = GPUEffects.createFilterForType(MakeGifActivity.this, GPUEffects.FilterType.valueOf(filterName));
+            gpuImageFilter = GPUEffects.createFilterForType(GPUEffects.FilterType.valueOf(filterName));
+            //GPUImageFilterTools.FilterAdjuster mFilterAdjuster = new GPUImageFilterTools.FilterAdjuster(gpuImageFilter);
             imageView.setFilter(gpuImageFilter);
-            imageView.requestRender();
         }
         if (requestCode == GifsArtConst.REQUEST_CODE_MAIN_ACTIVITY && resultCode == RESULT_OK) {
 
@@ -452,6 +460,8 @@ public class MakeGifActivity extends ActionBarActivity {
         }
     }
 
+    //  This method is adding framesRecyclerView last item(button),
+    //  wich type is none and it's for adding new gifitems from gallery, shooting gif and/or giphy activities
     public void addPlusButton() {
         GifItem gifItem = new GifItem();
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(), android.R.drawable.ic_menu_add);
@@ -463,4 +473,5 @@ public class MakeGifActivity extends ActionBarActivity {
     public void onBackPressed() {
         super.onBackPressed();
     }
+
 }

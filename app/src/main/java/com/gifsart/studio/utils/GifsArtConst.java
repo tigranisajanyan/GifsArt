@@ -42,6 +42,11 @@ public class GifsArtConst {
     public static String SHOOTING_VIDEO_OUTPUT_DIR = Environment.getExternalStorageDirectory() + "/" + MY_DIR;
     public static String VIDEOS_DECODED_FRAMES_DIR = Environment.getExternalStorageDirectory() + "/" + MY_DIR + "/video_frames";
 
+    public static String DIR_VIDEO_FRAMES = "GifsArt/video_frames";
+    public static String DIR_GIPHY = "GifsArt/giphy";
+    public static String DIR_GPU_IMAGES = "Pictures/GPUImage";
+
+
     public static int VIDEO_FRAME_SCALE_SIZE = 2;
     public static int VIDEO_MAX_DURATION = 300000; // Set max duration 30 sec.
     public static int VIDEO_FILE_MAX_SIZE = 40000000; // Set max file size 40M

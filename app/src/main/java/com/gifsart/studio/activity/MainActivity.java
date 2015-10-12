@@ -55,8 +55,9 @@ public class MainActivity extends AppCompatActivity {
         ImageLoader.getInstance().clearDiskCache();
 
         Utils.createDir(GifsArtConst.MY_DIR);
-        Utils.createDir("GifsArt/video_frames");
-        Utils.createDir("GifsArt/giphy");
+        Utils.createDir(GifsArtConst.DIR_GIPHY);
+        Utils.createDir(GifsArtConst.DIR_GPU_IMAGES);
+        Utils.createDir(GifsArtConst.DIR_VIDEO_FRAMES);
 
         init();
 
@@ -184,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
             } else {
-                Toast.makeText(MainActivity.this, "no images selected", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, getResources().getString(R.string.no_images_selected), Toast.LENGTH_SHORT).show();
             }
             return true;
         }

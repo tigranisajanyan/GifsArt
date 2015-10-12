@@ -29,6 +29,7 @@ import com.gifsart.studio.utils.Utils;
 
 import java.util.ArrayList;
 
+import jp.co.cyberagent.android.gpuimage.GPUImage;
 import jp.co.cyberagent.android.gpuimage.GPUImageFilter;
 import jp.co.cyberagent.android.gpuimage.GPUImageView;
 
@@ -45,6 +46,9 @@ public class EffectsActivity extends AppCompatActivity implements SeekBar.OnSeek
     private GPUImageFilter mFilter;
     private GPUImageFilterTools.FilterAdjuster mFilterAdjuster;
     private String filterName;
+    private ArrayList<Bitmap> bitmapArrayList = new ArrayList<>();
+
+    int size = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +56,7 @@ public class EffectsActivity extends AppCompatActivity implements SeekBar.OnSeek
         setContentView(R.layout.activity_effects);
 
         final GPUEffects.FilterList filters = new GPUEffects.FilterList();
+        filters.addFilter("None", GPUEffects.FilterType.NONE);
         filters.addFilter("Contrast", GPUEffects.FilterType.CONTRAST);
         filters.addFilter("Invert", GPUEffects.FilterType.INVERT);
         filters.addFilter("Hue", GPUEffects.FilterType.HUE);
@@ -80,7 +85,6 @@ public class EffectsActivity extends AppCompatActivity implements SeekBar.OnSeek
         recyclerView.setItemAnimator(itemAnimator);
         recyclerView.addItemDecoration(new SpacesItemDecoration((int) Utils.dpToPixel(2, this)));
 
-
         effectsAdapter = new EffectsAdapter(originalBitmap, filters, this);
 
         recyclerView.setAdapter(effectsAdapter);
@@ -89,7 +93,9 @@ public class EffectsActivity extends AppCompatActivity implements SeekBar.OnSeek
             public void onItemClick(View view, int position) {
 
                 filterName = filters.filters.get(position).name();
-                gpuImageView.setFilter(GPUEffects.createFilterForType(EffectsActivity.this, filters.filters.get(position)));
+                //gpuImageView.setFilter(GPUEffects.createFilterForType(filters.filters.get(position)));
+                switchFilterTo(GPUEffects.createFilterForType(filters.filters.get(position)));
+
             }
         }));
 
@@ -145,6 +151,18 @@ public class EffectsActivity extends AppCompatActivity implements SeekBar.OnSeek
     @Override
     public void onPictureSaved(Uri uri) {
         Toast.makeText(this, "Saved: " + uri.toString(), Toast.LENGTH_SHORT).show();
+    }
+
+    private void switchFilterTo(final GPUImageFilter filter) {
+        if (mFilter == null
+                || (filter != null && !mFilter.getClass().equals(filter.getClass()))) {
+            mFilter = filter;
+            gpuImageView.setFilter(mFilter);
+            mFilterAdjuster = new GPUImageFilterTools.FilterAdjuster(mFilter);
+
+            findViewById(R.id.opacity_seek_bar).setVisibility(
+                    mFilterAdjuster.canAdjust() ? View.VISIBLE : View.GONE);
+        }
     }
 
 }

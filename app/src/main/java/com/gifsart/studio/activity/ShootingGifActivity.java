@@ -27,6 +27,8 @@ import com.gifsart.studio.utils.CameraPreview;
 import com.gifsart.studio.utils.GifsArtConst;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 
@@ -259,7 +261,7 @@ public class ShootingGifActivity extends ActionBarActivity {
         @Override
         public void onClick(View v) {
             // get the number of cameras
-            if (!recording) {
+            /*if (!recording) {
                 int camerasNumber = Camera.getNumberOfCameras();
                 if (camerasNumber > 1) {
                     // release the old camera instance
@@ -271,10 +273,35 @@ public class ShootingGifActivity extends ActionBarActivity {
                     Toast toast = Toast.makeText(context, "Sorry, your phone has only one camera!", Toast.LENGTH_LONG);
                     toast.show();
                 }
-            }
+            }*/
+            takePic(5);
         }
     };
 
+
+    public void takePic(final int n) {
+        if (n == 0) {
+            return;
+        } else {
+            camera.takePicture(null, null, new Camera.PictureCallback() {
+                @Override
+                public void onPictureTaken(byte[] data, Camera camera) {
+                    try {
+                        FileOutputStream fileOutputStream = new FileOutputStream(new File(root + "/GifsArt", "img" + n + ".jpg"));
+                        fileOutputStream.write(data);
+                        fileOutputStream.close();
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    camera.startPreview();
+                    takePic(n - 1);
+                }
+            });
+        }
+
+    }
 
     boolean recording = false;
     View.OnClickListener captrureListener = new View.OnClickListener() {

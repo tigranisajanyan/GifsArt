@@ -6,6 +6,8 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
@@ -25,6 +27,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import jp.co.cyberagent.android.gpuimage.GPUImage;
+import jp.co.cyberagent.android.gpuimage.GPUImageFilter;
+import jp.co.cyberagent.android.gpuimage.GPUImageView;
+
 /**
  * Created by Tigran on 8/24/15.
  */
@@ -34,26 +40,48 @@ public class SaveGIFAsyncTask extends AsyncTask<Void, Integer, Void> {
     private String outputDir;
     private ArrayList<GifItem> gifItems = new ArrayList<>();
     private ProgressDialog progressDialog;
-    private static final String root = Environment.getExternalStorageDirectory().toString();
+
+    private GPUImageView gpuImageView;
+    private GPUImageFilter gpuImageFilter;
     int count = 0;
+
     private boolean doSquareFit = false;
     private int squareFitMode = 1;
 
-    public SaveGIFAsyncTask(String outputDir, ArrayList<GifItem> gifItems, int squareFitMode, Activity activity) {
+    public IsDone isDone;
+
+    public SaveGIFAsyncTask(String outputDir, ArrayList<GifItem> gifItems, int squareFitMode, GPUImageView gpuImageView, GPUImageFilter gpuImageFilter, Activity activity) {
         this.outputDir = outputDir;
         this.gifItems = gifItems;
+        this.gpuImageView = gpuImageView;
+        this.gpuImageFilter = gpuImageFilter;
         this.activity = activity;
         this.squareFitMode = squareFitMode;
-    }
 
-    @Override
-    protected void onPreExecute() {
-        super.onPreExecute();
         progressDialog = new ProgressDialog(activity);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         progressDialog.setMax(gifItems.size());
         progressDialog.setCancelable(false);
         progressDialog.show();
+
+        final ArrayList<Bitmap> bitmaps = new ArrayList<>();
+
+        for (int i = 0; i < gifItems.size(); i++) {
+            if (gifItems.get(i).getType() == Type.IMAGE) {
+                count++;
+                bitmaps.add(gifItems.get(i).getBitmap());
+            } else {
+                count += gifItems.get(i).getBitmaps().size();
+                bitmaps.addAll(gifItems.get(i).getBitmaps());
+            }
+        }
+        applyEffect(bitmaps, gpuImageFilter, progressDialog);
+
+    }
+
+    @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
         if (squareFitMode == GifsArtConst.FIT_MODE_SQUARE) {
             doSquareFit = true;
         } else {
@@ -91,8 +119,6 @@ public class SaveGIFAsyncTask extends AsyncTask<Void, Integer, Void> {
                     }
                     animatedGifEncoder.addFrame(bitmap);
                     publishProgress(i);
-                    count++;
-                    Log.d("gif_generator", "" + count);
                 } else if (gifItems.get(i).getType() == Type.GIF) {
                     for (int j = 0; j < gifItems.get(i).getBitmaps().size(); j++) {
                         animatedGifEncoder.setDelay(gifItems.get(i).getDuraton());
@@ -101,8 +127,6 @@ public class SaveGIFAsyncTask extends AsyncTask<Void, Integer, Void> {
                             bitmap = Utils.squareFit(bitmap, GifsArtConst.GIF_FRAME_SIZE);
                         }
                         animatedGifEncoder.addFrame(bitmap);
-                        count++;
-                        Log.d("gif_generator", "" + count);
                     }
                     publishProgress(i);
                 } else if (gifItems.get(i).getType() == Type.VIDEO) {
@@ -113,8 +137,6 @@ public class SaveGIFAsyncTask extends AsyncTask<Void, Integer, Void> {
                             bitmap = Utils.squareFit(bitmap, GifsArtConst.GIF_FRAME_SIZE);
                         }
                         animatedGifEncoder.addFrame(bitmap);
-                        count++;
-                        Log.d("gif_generator", "" + count);
                     }
                     publishProgress(i);
                 }
@@ -178,6 +200,34 @@ public class SaveGIFAsyncTask extends AsyncTask<Void, Integer, Void> {
         alertDialog.show();
 
 
+    }
+
+    public void applyEffect(final ArrayList<Bitmap> bitmaps, final GPUImageFilter gpuImageFilter, final ProgressDialog progressDialog) {
+        GPUImage gpuImage = new GPUImage(activity);
+        gpuImage.setFilter(gpuImageFilter);
+        if (bitmaps.size() == 0) {
+            isDone.isDone(true);
+            return;
+        } else {
+            final Bitmap bitmap = bitmaps.remove(0);
+            gpuImage.deleteImage();
+            gpuImage.setImage(bitmap);
+            String fileName = "img_" + (count - bitmaps.size()) + ".jpg";
+            gpuImage.saveToPictures("GPUImage", fileName, new GPUImage.OnPictureSavedListener() {
+                @Override
+                public void onPictureSaved(Uri uri) {
+                    applyEffect(bitmaps, gpuImageFilter, progressDialog);
+                }
+            });
+        }
+    }
+
+    public void setIsDoneListener(IsDone isDone) {
+        this.isDone = isDone;
+    }
+
+    public interface IsDone {
+        public void isDone(boolean done);
     }
 
 }
