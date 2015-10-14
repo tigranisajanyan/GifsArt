@@ -20,7 +20,6 @@ import jp.co.cyberagent.android.gpuimage.GPUImageSharpenFilter;
  */
 public class GPUEffects {
 
-    //gagi
     public enum FilterType {
         NONE, CONTRAST, GRAYSCALE, SHARPEN, SEPIA, EMBOSS, POSTERIZE, GAMMA, BRIGHTNESS, INVERT, HUE
     }

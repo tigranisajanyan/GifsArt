@@ -31,13 +31,45 @@
         android:layout_margin="5dp"
         android:orientation="horizontal">
 
-        <SeekBar
-            android:id="@+id/seek_bar"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_toStartOf="@+id/play_button"
-            android:max="15"
-            android:progress="5" />
+            android:orientation="vertical">
+
+            <SeekBar
+                android:id="@+id/seek_bar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:max="15"
+                android:progress="5" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/speed_turtle" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:text="12 seconds"
+                    android:textColor="@color/font_main_color" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/speed_rabbit" />
+            </RelativeLayout>
+        </LinearLayout>
 
         <ImageButton
             android:id="@+id/play_button"
@@ -45,9 +77,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_marginLeft="5dp"
-            android:background="@android:drawable/ic_media_play" />
+            android:background="@drawable/play_pause_background" />
     </RelativeLayout>
-
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rec_view"
@@ -61,37 +92,50 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:background="@color/item_backgroud"
-        android:gravity="center_horizontal"
+        android:gravity="center"
         android:orientation="horizontal">
 
-        <Button
+        <ImageButton
             android:id="@+id/square_fit_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="fit" />
+            android:layout_weight="1"
+            android:background="@color/navigation_bar_color"
+            android:src="@drawable/fit_icon" />
 
-        <Button
+        <ImageButton
             android:id="@+id/add_effects_button"
             android:layout_width="wrap_content"
-            android:text="eff"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@color/navigation_bar_color"
+            android:src="@drawable/effect_icon" />
 
 
-        <Button
+        <ImageButton
             android:id="@+id/add_clipart_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@color/navigation_bar_color"
+            android:src="@drawable/clipart_icon"
             android:text="clip" />
 
-        <Button
-            android:id="@+id/scroll_button"
+        <ImageButton
+            android:id="@+id/mask_button"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@color/navigation_bar_color"
+            android:src="@drawable/mask_icon" />
 
-        <Button
+        <ImageButton
             android:id="@+id/add_text_button"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@color/navigation_bar_color"
+            android:src="@drawable/text_icon" />
 
     </LinearLayout>
 

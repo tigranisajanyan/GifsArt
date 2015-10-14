@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 import com.gifsart.studio.R;
+import com.gifsart.studio.utils.GifsArtConst;
 
 public class EditFrameActivity extends AppCompatActivity {
 
@@ -26,7 +27,7 @@ public class EditFrameActivity extends AppCompatActivity {
         editImageView = (ImageView) findViewById(R.id.edited_frame_image_view);
         editImageView.setLayoutParams(layoutParams);
 
-        byte[] byteArray = getIntent().getByteArrayExtra("image");
+        byte[] byteArray = getIntent().getByteArrayExtra(GifsArtConst.INTENT_IMAGE_BITMAP);
         originalBitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
         editImageView.setImageBitmap(originalBitmap);
 

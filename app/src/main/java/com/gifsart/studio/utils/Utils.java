@@ -44,6 +44,7 @@ import com.nostra13.universalimageloader.core.process.BitmapProcessor;
 import com.nostra13.universalimageloader.utils.StorageUtils;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -609,5 +610,12 @@ public class Utils {
         mmr.setDataSource(path);
         Bitmap b = mmr.getFrameAtTime(100000, MediaMetadataRetriever.OPTION_CLOSEST); // frame at 100 mls
         return b;
+    }
+
+    public static byte[] bitmapToByteArray(Bitmap bitmap) {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        byte[] byteArray = stream.toByteArray();
+        return byteArray;
     }
 }

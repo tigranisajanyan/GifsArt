@@ -22,6 +22,7 @@ import com.gifsart.studio.clipart.view.MultitouchHandler;
 import com.gifsart.studio.utils.Utils;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -29,7 +30,9 @@ public class MainView extends View {
 
     private Handler handler = new Handler();
     private Bitmap origBitmap;
-//    private Bitmap clipartBitmap;
+
+    private ArrayList<ClipartView> clipartViewArrayList = new ArrayList<>();
+    private int currentPosition;
 
     private ClipartView clipartView;
     private RectF onDrawRect = new RectF();
@@ -248,6 +251,8 @@ public class MainView extends View {
             sizeChangedActioQueue.add(initializePosition);
         }
 
+        clipartViewArrayList.add(clipartView);
+
         invalidate();
         return clipartView;
 //        clipartBitmap = BitmapFactory.decodeResource(getContext().getResources(), clipartResId);
@@ -370,7 +375,6 @@ public class MainView extends View {
                     public void run() {
                         if (!zoomAction) {
                             touchDown(x, y);
-
                             invalidate();
                         }
                     }
@@ -380,6 +384,7 @@ public class MainView extends View {
             case MotionEvent.ACTION_MOVE:
                 if (itemAction && clipartView != null) {
                     clipartView.touch_move(x, y);
+
                 }
                 break;
 

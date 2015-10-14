@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_color"
+    tools:context="com.gifsart.studio.activity.ClipArtActivity">
+
+    <FrameLayout
+        android:id="@+id/clipart_main_view_container"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_alignParentTop="true"
+        android:background="@color/navigation_bar_color">
+
+        <ImageView
+            android:id="@+id/clipart_image_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/clipart_rec_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/clipart_container"
+        android:layout_below="@+id/clipart_main_view_container" />
+
+    <LinearLayout
+        android:id="@+id/clipart_container"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/navigation_bar_color"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/sticker_search_button"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:background="@color/background_color"
+            android:src="@drawable/giphy_search_icon" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/sticker_category_rec_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="5dp" />
+
+    </LinearLayout>
+
+</RelativeLayout>

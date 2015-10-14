@@ -6,14 +6,10 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Environment;
-import android.util.Log;
 
 import com.gifsart.studio.activity.GifPreviewActivity;
-import com.gifsart.studio.activity.SquareFitActivity;
 import com.gifsart.studio.item.GifItem;
 import com.gifsart.studio.utils.GifsArtConst;
 import com.gifsart.studio.utils.Type;
@@ -88,7 +84,7 @@ public class SaveGIFAsyncTask extends AsyncTask<Void, Integer, Void> {
             for (int i = 0; i < gifItems.size(); i++) {
                 for (int j = 0; j < gifItems.size(); j++) {
                     if (gifItems.get(i).getBitmap().getWidth() != gifItems.get(j).getBitmap().getWidth() || gifItems.get(i).getBitmap().getHeight() != gifItems.get(j).getBitmap().getHeight()) {
-                        doSquareFit = true;
+                        squareFitMode = GifsArtConst.FIT_MODE_SQUARE_FIT;
                         break;
                     }
                 }
@@ -112,29 +108,35 @@ public class SaveGIFAsyncTask extends AsyncTask<Void, Integer, Void> {
             for (int i = 0; i < gifItems.size(); i++) {
 
                 if (gifItems.get(i).getType() == Type.IMAGE) {
-                    animatedGifEncoder.setDelay(gifItems.get(i).getDuraton());
+                    animatedGifEncoder.setDelay(gifItems.get(i).getCurrentDuration());
                     Bitmap bitmap = gifItems.get(i).getBitmap();
-                    if (doSquareFit) {
+                    if (squareFitMode == GifsArtConst.FIT_MODE_SQUARE_FIT) {
                         bitmap = Utils.squareFit(bitmap, GifsArtConst.GIF_FRAME_SIZE);
+                    } else if (squareFitMode == GifsArtConst.FIT_MODE_SQUARE) {
+                        bitmap = Utils.scaleCenterCrop(bitmap, GifsArtConst.GIF_FRAME_SIZE, GifsArtConst.GIF_FRAME_SIZE);
                     }
                     animatedGifEncoder.addFrame(bitmap);
                     publishProgress(i);
                 } else if (gifItems.get(i).getType() == Type.GIF) {
                     for (int j = 0; j < gifItems.get(i).getBitmaps().size(); j++) {
-                        animatedGifEncoder.setDelay(gifItems.get(i).getDuraton());
+                        animatedGifEncoder.setDelay(gifItems.get(i).getCurrentDuration());
                         Bitmap bitmap = gifItems.get(i).getBitmaps().get(j);
-                        if (doSquareFit) {
+                        if (squareFitMode == GifsArtConst.FIT_MODE_SQUARE_FIT) {
                             bitmap = Utils.squareFit(bitmap, GifsArtConst.GIF_FRAME_SIZE);
+                        } else if (squareFitMode == GifsArtConst.FIT_MODE_SQUARE) {
+                            bitmap = Utils.scaleCenterCrop(bitmap, GifsArtConst.GIF_FRAME_SIZE, GifsArtConst.GIF_FRAME_SIZE);
                         }
                         animatedGifEncoder.addFrame(bitmap);
                     }
                     publishProgress(i);
                 } else if (gifItems.get(i).getType() == Type.VIDEO) {
                     for (int j = 0; j < gifItems.get(i).getBitmaps().size(); j++) {
-                        animatedGifEncoder.setDelay(gifItems.get(i).getDuraton());
+                        animatedGifEncoder.setDelay(gifItems.get(i).getCurrentDuration());
                         Bitmap bitmap = gifItems.get(i).getBitmaps().get(j);
-                        if (doSquareFit) {
+                        if (squareFitMode == GifsArtConst.FIT_MODE_SQUARE_FIT) {
                             bitmap = Utils.squareFit(bitmap, GifsArtConst.GIF_FRAME_SIZE);
+                        } else if (squareFitMode == GifsArtConst.FIT_MODE_SQUARE) {
+                            bitmap = Utils.scaleCenterCrop(bitmap, GifsArtConst.GIF_FRAME_SIZE, GifsArtConst.GIF_FRAME_SIZE);
                         }
                         animatedGifEncoder.addFrame(bitmap);
                     }

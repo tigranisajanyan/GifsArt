@@ -1,8 +1,0 @@
-<resources>
-    <string name="app_name">Image Chooser LIb</string>
-
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
-    <string name="gen_selected">Selected</string>
-    <string name="gen_edit">Edit</string>
-</resources>

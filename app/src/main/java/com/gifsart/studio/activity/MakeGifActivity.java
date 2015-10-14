@@ -20,6 +20,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 
@@ -28,12 +29,11 @@ import com.gifsart.studio.R;
 import com.gifsart.studio.adapter.SlideAdapter;
 import com.gifsart.studio.clipart.MainView;
 import com.gifsart.studio.effects.GPUEffects;
-import com.gifsart.studio.effects.GPUImageFilterTools;
 import com.gifsart.studio.gifutils.GifUtils;
 import com.gifsart.studio.gifutils.SaveGIFAsyncTask;
 import com.gifsart.studio.helper.SimpleItemTouchHelperCallback;
 import com.gifsart.studio.item.GifItem;
-import com.gifsart.studio.utils.GifImitation;
+import com.gifsart.studio.gifutils.GifImitation;
 import com.gifsart.studio.utils.GifsArtConst;
 import com.gifsart.studio.utils.SpacesItemDecoration;
 import com.gifsart.studio.utils.Type;
@@ -73,7 +73,8 @@ public class MakeGifActivity extends ActionBarActivity {
     private MainView mainView;
     private int square_fit_mode = GifsArtConst.FIT_MODE_ORIGINAL;
 
-    private GPUImageFilter gpuImageFilter;
+    private GPUImageFilter gpuImageFilter = new GPUImageFilter();
+    String filterName = GPUEffects.FilterType.NONE.name();
 
     private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor editor;
@@ -95,12 +96,14 @@ public class MakeGifActivity extends ActionBarActivity {
                     bitmap = Utils.scaleCenterCrop(bitmap, GifsArtConst.GIF_FRAME_SIZE, GifsArtConst.GIF_FRAME_SIZE);
 
                     GifItem gifItem = new GifItem(GifsArtConst.IMAGE_FRAME_DURATION, Type.IMAGE);
+                    gifItem.setCurrentDuration(GifsArtConst.IMAGE_FRAME_DURATION);
                     gifItem.setBitmap(bitmap);
                     gifItems.add(gifItem);
 
                 } else if (Utils.getMimeType(selectedItemsArrayList.get(i)) == Type.GIF) {
 
                     GifItem gifItem = new GifItem(GifUtils.getGifFrameDuration(selectedItemsArrayList.get(i)), Type.GIF);
+                    gifItem.setCurrentDuration(GifUtils.getGifFrameDuration(selectedItemsArrayList.get(i)));
                     gifItem.setBitmap(GifUtils.getGifFrames(selectedItemsArrayList.get(i)).get(0));
                     gifItem.setBitmaps(GifUtils.getGifFrames(selectedItemsArrayList.get(i)));
                     gifItems.add(gifItem);
@@ -123,6 +126,7 @@ public class MakeGifActivity extends ActionBarActivity {
 
                     }
                     GifItem gifItem = new GifItem(Utils.checkVideoFrameDuration(videoPath, bitmaps.size()), Type.VIDEO);
+                    gifItem.setCurrentDuration(Utils.checkVideoFrameDuration(videoPath, bitmaps.size()));
                     gifItem.setBitmap(Utils.getVideoFirstFrame(videoPath));
                     gifItem.setBitmaps(bitmaps);
                     gifItems.add(gifItem);
@@ -136,6 +140,7 @@ public class MakeGifActivity extends ActionBarActivity {
         if (getIntent().getIntExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, 0) == GifsArtConst.INDEX_GIPHY_TO_GIF) {
 
             GifItem gifItem = new GifItem(GifUtils.getGifFrameDuration(getIntent().getStringExtra(GifsArtConst.INTENT_GIF_PATH)), Type.GIF);
+            gifItem.setCurrentDuration(GifUtils.getGifFrameDuration(getIntent().getStringExtra(GifsArtConst.INTENT_GIF_PATH)));
             gifItem.setBitmap(GifUtils.getGifFrames(getIntent().getStringExtra(GifsArtConst.INTENT_GIF_PATH)).get(0));
             gifItem.setBitmaps(GifUtils.getGifFrames(getIntent().getStringExtra(GifsArtConst.INTENT_GIF_PATH)));
             gifItems.add(gifItem);
@@ -160,6 +165,7 @@ public class MakeGifActivity extends ActionBarActivity {
                 }
             }
             GifItem gifItem = new GifItem(Utils.checkVideoFrameDuration(videoPath, bitmaps.size()), Type.VIDEO);
+            gifItem.setCurrentDuration(Utils.checkVideoFrameDuration(videoPath, bitmaps.size()));
             gifItem.setBitmap(Utils.getVideoFirstFrame(videoPath));
 
             gifItem.setBitmaps(bitmaps);
@@ -236,7 +242,7 @@ public class MakeGifActivity extends ActionBarActivity {
         framesRecyclerView.setLayoutManager(staggeredGridLayoutManager);
         framesRecyclerView.setItemAnimator(itemAnimator);
         framesRecyclerView.setAdapter(slideAdapter);
-        framesRecyclerView.addItemDecoration(new SpacesItemDecoration(1));
+        framesRecyclerView.addItemDecoration(new SpacesItemDecoration(2));
         framesRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
         ItemTouchHelper.Callback callback =
@@ -250,7 +256,7 @@ public class MakeGifActivity extends ActionBarActivity {
         speedSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                speed = 5 + progress;
+                speed = (20 - progress);
                 gifImitation.changeDuration(speed);
             }
 
@@ -269,14 +275,10 @@ public class MakeGifActivity extends ActionBarActivity {
             @Override
             public void onClick(View v) {
 
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                Bitmap bitmap = gifItems.get(0).getBitmap();
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                byte[] byteArray = stream.toByteArray();
-
                 Intent intent = new Intent(MakeGifActivity.this, SquareFitActivity.class);
-                intent.putExtra(GifsArtConst.INTENT_IMAGE_BITMAP, byteArray);
+                intent.putExtra(GifsArtConst.INTENT_IMAGE_BITMAP, Utils.bitmapToByteArray(gifItems.get(0).getBitmap()));
                 intent.putExtra(GifsArtConst.INTENT_SQUARE_FIT_MODE, square_fit_mode);
+                intent.putExtra(GifsArtConst.INTENT_EFFECT_FILTER, filterName);
                 startActivityForResult(intent, GifsArtConst.REQUEST_CODE_SQUARE_FIT_ACTIVITY);
             }
         });
@@ -285,14 +287,10 @@ public class MakeGifActivity extends ActionBarActivity {
             @Override
             public void onClick(View v) {
 
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                Bitmap bitmap = gifItems.get(0).getBitmap();
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                byte[] byteArray = stream.toByteArray();
-
                 Intent intent = new Intent(MakeGifActivity.this, EffectsActivity.class);
-                intent.putExtra(GifsArtConst.INTENT_IMAGE_BITMAP, byteArray);
-                //intent.putExtra("path", selectedItemsArrayList.get(0));
+                intent.putExtra(GifsArtConst.INTENT_IMAGE_BITMAP, Utils.bitmapToByteArray(gifItems.get(0).getBitmap()));
+                intent.putExtra(GifsArtConst.INTENT_SQUARE_FIT_MODE, square_fit_mode);
+                intent.putExtra(GifsArtConst.INTENT_EFFECT_FILTER, filterName);
                 startActivityForResult(intent, GifsArtConst.REQUEST_CODE_EFFECTS_ACTIVITY);
             }
         });
@@ -300,12 +298,27 @@ public class MakeGifActivity extends ActionBarActivity {
         findViewById(R.id.add_clipart_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                initMainView();
-                if (mainView != null) {
-                    mainView.addClipart(R.drawable.clipart_1);
-                }
-                container.addView(mainView);
 
+                Intent intent = new Intent(MakeGifActivity.this, ClipArtActivity.class);
+                intent.putExtra(GifsArtConst.INTENT_IMAGE_BITMAP, Utils.bitmapToByteArray(gifItems.get(0).getBitmap()));
+                intent.putExtra(GifsArtConst.INTENT_SQUARE_FIT_MODE, square_fit_mode);
+                intent.putExtra(GifsArtConst.INTENT_EFFECT_FILTER, filterName);
+                startActivityForResult(intent, GifsArtConst.REQUEST_CODE_EFFECTS_ACTIVITY);
+            }
+        });
+
+        final ImageButton button = (ImageButton) findViewById(R.id.play_button);
+        button.setSelected(true);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (button.isSelected()) {
+                    gifImitation.onPause();
+                    button.setSelected(false);
+                } else {
+                    gifImitation.onResume();
+                    button.setSelected(true);
+                }
             }
         });
     }
@@ -335,9 +348,8 @@ public class MakeGifActivity extends ActionBarActivity {
 
         }
         if (requestCode == GifsArtConst.REQUEST_CODE_EFFECTS_ACTIVITY && resultCode == RESULT_OK) {
-            String filterName = data.getStringExtra(GifsArtConst.INTENT_EFFECT_FILTER);
+            filterName = data.getStringExtra(GifsArtConst.INTENT_EFFECT_FILTER);
             gpuImageFilter = GPUEffects.createFilterForType(GPUEffects.FilterType.valueOf(filterName));
-            //GPUImageFilterTools.FilterAdjuster mFilterAdjuster = new GPUImageFilterTools.FilterAdjuster(gpuImageFilter);
             imageView.setFilter(gpuImageFilter);
         }
         if (requestCode == GifsArtConst.REQUEST_CODE_MAIN_ACTIVITY && resultCode == RESULT_OK) {
@@ -354,12 +366,14 @@ public class MakeGifActivity extends ActionBarActivity {
                         bitmap = Utils.scaleCenterCrop(bitmap, GifsArtConst.GIF_FRAME_SIZE, GifsArtConst.GIF_FRAME_SIZE);
 
                         GifItem gifItem = new GifItem(GifsArtConst.IMAGE_FRAME_DURATION, Type.IMAGE);
+                        gifItem.setCurrentDuration(GifsArtConst.IMAGE_FRAME_DURATION);
                         gifItem.setBitmap(bitmap);
                         gifItems.add(gifItem);
 
                     } else if (Utils.getMimeType(addedItemsArray.get(i)) == Type.GIF) {
 
                         GifItem gifItem = new GifItem(GifUtils.getGifFrameDuration(addedItemsArray.get(i)), Type.GIF);
+                        gifItem.setCurrentDuration(GifUtils.getGifFrameDuration(addedItemsArray.get(i)));
                         gifItem.setBitmap(GifUtils.getGifFrames(addedItemsArray.get(i)).get(0));
                         gifItem.setBitmaps(GifUtils.getGifFrames(addedItemsArray.get(i)));
                         gifItems.add(gifItem);
@@ -381,18 +395,18 @@ public class MakeGifActivity extends ActionBarActivity {
 
                         }
                         GifItem gifItem = new GifItem(Utils.checkVideoFrameDuration(videoPath, bitmaps.size()), Type.VIDEO);
+                        gifItem.setCurrentDuration(Utils.checkVideoFrameDuration(videoPath, bitmaps.size()));
                         gifItem.setBitmap(Utils.getVideoFirstFrame(videoPath));
                         gifItem.setBitmaps(bitmaps);
                         gifItems.add(gifItem);
                     }
-
                     selectedItemsArrayList.add(addedItemsArray.get(i));
-
                 }
             }
             if (data.getIntExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, 0) == GifsArtConst.INDEX_GIPHY_TO_GIF) {
 
                 GifItem gifItem = new GifItem(GifUtils.getGifFrameDuration(data.getStringExtra(GifsArtConst.INTENT_GIF_PATH)), Type.GIF);
+                gifItem.setCurrentDuration(GifUtils.getGifFrameDuration(data.getStringExtra(GifsArtConst.INTENT_GIF_PATH)));
                 gifItem.setBitmap(GifUtils.getGifFrames(data.getStringExtra(GifsArtConst.INTENT_GIF_PATH)).get(0));
                 gifItem.setBitmaps(GifUtils.getGifFrames(data.getStringExtra(GifsArtConst.INTENT_GIF_PATH)));
                 gifItems.add(gifItem);
@@ -415,6 +429,7 @@ public class MakeGifActivity extends ActionBarActivity {
                     }
                 }
                 GifItem gifItem = new GifItem(Utils.checkVideoFrameDuration(videoPath, bitmaps.size()), Type.VIDEO);
+                gifItem.setCurrentDuration(Utils.checkVideoFrameDuration(videoPath, bitmaps.size()));
                 gifItem.setBitmap(Utils.getVideoFirstFrame(videoPath));
 
                 gifItem.setBitmaps(bitmaps);
@@ -456,7 +471,7 @@ public class MakeGifActivity extends ActionBarActivity {
             canvas.drawBitmap(resultBitmap, 0, 0, paint);
             canvas.scale((float) Math.max(resultBitmap.getWidth(), resultBitmap.getHeight()) / mainView.getWidth(), (float) Math.max(resultBitmap.getWidth(), resultBitmap.getHeight()) / mainView.getWidth(), 0, 0);
             canvas.drawBitmap(mainView.getClipartItem().getBitmap(), transformMatrix, paint);
-            mainView.removeClipArt();
+            //mainView.removeClipArt();
         }
     }
 
@@ -464,7 +479,7 @@ public class MakeGifActivity extends ActionBarActivity {
     //  wich type is none and it's for adding new gifitems from gallery, shooting gif and/or giphy activities
     public void addPlusButton() {
         GifItem gifItem = new GifItem();
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), android.R.drawable.ic_menu_add);
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.add_icon);
         gifItem.setBitmap(bitmap);
         gifItems.add(gifItem);
     }

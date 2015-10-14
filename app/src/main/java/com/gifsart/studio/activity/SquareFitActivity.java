@@ -13,87 +13,83 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 import com.gifsart.studio.R;
+import com.gifsart.studio.effects.GPUEffects;
+import com.gifsart.studio.effects.GPUImageFilterTools;
 import com.gifsart.studio.utils.GifsArtConst;
+
+import jp.co.cyberagent.android.gpuimage.GPUImage;
+import jp.co.cyberagent.android.gpuimage.GPUImageFilter;
+import jp.co.cyberagent.android.gpuimage.GPUImageView;
 
 public class SquareFitActivity extends AppCompatActivity {
 
-    private ImageView squareFitImageView;
+    private GPUImageView squareFitImageView;
     private Bitmap originalBitmap;
     private int square_fit_mode = GifsArtConst.FIT_MODE_ORIGINAL;
+
+    private GPUImageFilter mFilter;
+    private GPUImageFilterTools.FilterAdjuster mFilterAdjuster;
+
+    String filterName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_square_fit);
 
+        originalBitmap = BitmapFactory.decodeByteArray(getIntent().getByteArrayExtra(GifsArtConst.INTENT_IMAGE_BITMAP), 0, getIntent().getByteArrayExtra(GifsArtConst.INTENT_IMAGE_BITMAP).length);
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(getResources().getDisplayMetrics().widthPixels, getResources().getDisplayMetrics().widthPixels);
-        squareFitImageView = (ImageView) findViewById(R.id.square_fit_image_view);
+
+        square_fit_mode = getIntent().getIntExtra(GifsArtConst.INTENT_SQUARE_FIT_MODE, 1);
+        filterName = getIntent().getStringExtra(GifsArtConst.INTENT_EFFECT_FILTER);
+        mFilter = GPUEffects.createFilterForType(GPUEffects.FilterType.valueOf(filterName));
+        mFilterAdjuster = new GPUImageFilterTools.FilterAdjuster(mFilter);
+
+        squareFitImageView = (GPUImageView) findViewById(R.id.square_fit_image_view);
         squareFitImageView.setLayoutParams(layoutParams);
 
-        byte[] byteArray = getIntent().getByteArrayExtra(GifsArtConst.INTENT_IMAGE_BITMAP);
-        originalBitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
-        square_fit_mode = getIntent().getIntExtra(GifsArtConst.INTENT_SQUARE_FIT_MODE, 1);
-        squareFitImageView.setImageBitmap(originalBitmap);
         switch (square_fit_mode) {
             case 1:
-                squareFitImageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
-                findViewById(R.id.original_fit_button).setBackgroundColor(Color.BLUE);
-                findViewById(R.id.square_fit_button).setBackgroundColor(Color.DKGRAY);
-                findViewById(R.id.square_button).setBackgroundColor(Color.DKGRAY);
+                squareFitImageView.setScaleType(GPUImage.ScaleType.CENTER_INSIDE);
                 break;
             case 2:
-                squareFitImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                findViewById(R.id.square_button).setBackgroundColor(Color.BLUE);
-                findViewById(R.id.square_fit_button).setBackgroundColor(Color.DKGRAY);
-                findViewById(R.id.original_fit_button).setBackgroundColor(Color.DKGRAY);
+                squareFitImageView.setScaleType(GPUImage.ScaleType.CENTER_CROP);
                 break;
             case 3:
-                squareFitImageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
-                findViewById(R.id.square_fit_button).setBackgroundColor(Color.BLUE);
-                findViewById(R.id.square_button).setBackgroundColor(Color.DKGRAY);
-                findViewById(R.id.original_fit_button).setBackgroundColor(Color.DKGRAY);
+                squareFitImageView.setScaleType(GPUImage.ScaleType.CENTER_INSIDE);
                 break;
 
             default:
                 break;
         }
 
+        squareFitImageView.setImage(originalBitmap);
+        squareFitImageView.setFilter(mFilter);
+
         findViewById(R.id.original_fit_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                squareFitImageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
-                squareFitImageView.setImageBitmap(originalBitmap);
+                squareFitImageView.setScaleType(GPUImage.ScaleType.CENTER_INSIDE);
+                squareFitImageView.setImage(originalBitmap);
                 square_fit_mode = GifsArtConst.FIT_MODE_ORIGINAL;
-
-                findViewById(R.id.original_fit_button).setBackgroundColor(Color.BLUE);
-                findViewById(R.id.square_fit_button).setBackgroundColor(Color.DKGRAY);
-                findViewById(R.id.square_button).setBackgroundColor(Color.DKGRAY);
             }
         });
 
         findViewById(R.id.square_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                squareFitImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                squareFitImageView.setImageBitmap(originalBitmap);
+                squareFitImageView.setScaleType(GPUImage.ScaleType.CENTER_CROP);
+                squareFitImageView.setImage(originalBitmap);
                 square_fit_mode = GifsArtConst.FIT_MODE_SQUARE;
-
-                findViewById(R.id.square_button).setBackgroundColor(Color.BLUE);
-                findViewById(R.id.square_fit_button).setBackgroundColor(Color.DKGRAY);
-                findViewById(R.id.original_fit_button).setBackgroundColor(Color.DKGRAY);
             }
         });
 
         findViewById(R.id.square_fit_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                squareFitImageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
-                squareFitImageView.setImageBitmap(originalBitmap);
+                squareFitImageView.setScaleType(GPUImage.ScaleType.CENTER_INSIDE);
+                squareFitImageView.setImage(originalBitmap);
                 square_fit_mode = GifsArtConst.FIT_MODE_SQUARE_FIT;
-
-                findViewById(R.id.square_fit_button).setBackgroundColor(Color.BLUE);
-                findViewById(R.id.square_button).setBackgroundColor(Color.DKGRAY);
-                findViewById(R.id.original_fit_button).setBackgroundColor(Color.DKGRAY);
             }
         });
 

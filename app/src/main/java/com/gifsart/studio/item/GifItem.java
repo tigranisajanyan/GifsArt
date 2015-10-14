@@ -15,6 +15,7 @@ public class GifItem {
     private Bitmap bitmap;
     private ArrayList<Bitmap> bitmaps = new ArrayList<>();
     private int duraton;
+    private int currentDuration;
     private Type type = Type.NONE;
     private ArrayList<Clipart> cliparts;
 
@@ -24,6 +25,12 @@ public class GifItem {
 
     public GifItem(int duraton, Type type) {
         this.duraton = duraton;
+        this.type = type;
+    }
+
+    public GifItem(int duraton, int currentDuration, Type type) {
+        this.duraton = duraton;
+        this.currentDuration = currentDuration;
         this.type = type;
     }
 
@@ -66,6 +73,15 @@ public class GifItem {
 
     public void setClipart(ArrayList<Clipart> cliparts) {
         this.cliparts = cliparts;
+    }
+
+
+    public int getCurrentDuration() {
+        return currentDuration;
+    }
+
+    public void setCurrentDuration(int currentDuration) {
+        this.currentDuration = currentDuration;
     }
 
 }

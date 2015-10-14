@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,6 +22,9 @@ import com.decoder.VideoDecoder;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.gifsart.studio.R;
 import com.gifsart.studio.adapter.GalleryAdapter;
+import com.gifsart.studio.image_picker.ImageData;
+import com.gifsart.studio.image_picker.OnImagesRetrievedListener;
+import com.gifsart.studio.image_picker.PhoneImagesRetriever;
 import com.gifsart.studio.item.GalleryItem;
 import com.gifsart.studio.utils.GifsArtConst;
 import com.gifsart.studio.utils.SpacesItemDecoration;
@@ -85,6 +89,27 @@ public class MainActivity extends AppCompatActivity {
 
         new InitGalleryItems().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
+        /*GalleryItem galleryItem1 = new GalleryItem(BitmapFactory.decodeResource(getResources(), R.drawable.camera_icon));
+        galleryItem1.setIsSeleted(false);
+        GalleryItem galleryItem2 = new GalleryItem(BitmapFactory.decodeResource(getResources(), R.drawable.giphy_icon));
+        galleryItem2.setIsSeleted(false);
+
+        customGalleryArrayList.add(galleryItem1);
+        customGalleryArrayList.add(galleryItem2);
+
+        PhoneImagesRetriever retriever = new PhoneImagesRetriever(getLoaderManager(), getApplicationContext());
+        retriever.retrieveImages(new OnImagesRetrievedListener() {
+            @Override
+            public void onImagesRetrieved(ArrayList<ImageData> data) {
+                for (int i = 0; i < data.size(); i++) {
+
+                    customGalleryArrayList.add(new GalleryItem(data.get(i).getImagePath()));
+                }
+                galleryAdapter.notifyDataSetChanged();
+                progressBar.setVisibility(View.GONE);
+            }
+        });*/
+
     }
 
     @Override
@@ -99,6 +124,8 @@ public class MainActivity extends AppCompatActivity {
         if (item.getItemId() == R.id.action_next) {
 
             if (galleryAdapter.getSelected().size() > 0) {
+
+                galleryAdapter.notifyDataSetChanged();
 
                 // if MainActivity is opened for the first time will do this
                 if (!sharedPreferences.getBoolean(GifsArtConst.SHARED_PREFERENCES_IS_OPENED, false)) {
@@ -231,8 +258,10 @@ public class MainActivity extends AppCompatActivity {
 
             GalleryItem galleryItem1 = new GalleryItem(BitmapFactory.decodeResource(getResources(), R.drawable.camera_icon));
             galleryItem1.setIsSeleted(false);
+            galleryItem1.setType(Type.NONE);
             GalleryItem galleryItem2 = new GalleryItem(BitmapFactory.decodeResource(getResources(), R.drawable.giphy_icon));
             galleryItem2.setIsSeleted(false);
+            galleryItem2.setType(Type.NONE);
 
             customGalleryArrayList.add(galleryItem1);
             customGalleryArrayList.add(galleryItem2);
@@ -263,4 +292,9 @@ public class MainActivity extends AppCompatActivity {
         super.onBackPressed();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        galleryAdapter.notifyDataSetChanged();
+    }
 }

@@ -41,7 +41,6 @@ public class EffectsAdapter extends RecyclerView.Adapter<EffectsAdapter.ViewHold
     public void onBindViewHolder(final ViewHolder holder, final int position) {
 
         holder.effectImageView.setFilter(GPUEffects.createFilterForType(filterList.filters.get(position)));
-        holder.effectImageView.requestRender();
 
         holder.textView.setText(filterList.names.get(position));
 

@@ -19,11 +19,14 @@
         android:layout_marginTop="10dp"
         android:orientation="horizontal">
 
-        <Button
+        <ImageButton
             android:id="@+id/left_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true" />
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="10dp"
+            android:background="@android:color/transparent"
+            android:src="@drawable/left_button" />
 
         <TextView
             android:id="@+id/text_view"
@@ -33,11 +36,14 @@
             android:text="1 of 3"
             android:textColor="@color/font_main_color" />
 
-        <Button
+        <ImageButton
             android:id="@+id/right_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true" />
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="10dp"
+            android:background="@android:color/transparent"
+            android:src="@drawable/right_button" />
     </RelativeLayout>
 
     <LinearLayout
@@ -52,12 +58,16 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
             android:orientation="vertical">
 
-            <Button
+            <ImageButton
                 android:id="@+id/duplicate_frame_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:background="@color/navigation_bar_color"
+                android:src="@drawable/duplicate_icon" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -71,12 +81,16 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
             android:orientation="vertical">
 
-            <Button
+            <ImageButton
                 android:id="@+id/add_text_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:background="@color/navigation_bar_color"
+                android:src="@drawable/text_icon" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -89,12 +103,16 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
             android:orientation="vertical">
 
-            <Button
+            <ImageButton
                 android:id="@+id/add_clipart_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:background="@color/navigation_bar_color"
+                android:src="@drawable/clipart_icon" />
 
             <TextView
                 android:layout_width="wrap_content"

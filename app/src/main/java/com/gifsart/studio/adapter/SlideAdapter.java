@@ -10,12 +10,15 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 
+import com.decoder.PhotoUtils;
 import com.gifsart.studio.R;
 import com.gifsart.studio.activity.EditFrameActivity;
 import com.gifsart.studio.activity.MainActivity;
+import com.gifsart.studio.clipart.util.BitmapManager;
 import com.gifsart.studio.helper.ItemTouchHelperAdapter;
 import com.gifsart.studio.item.GifItem;
 import com.gifsart.studio.utils.GifsArtConst;
@@ -51,22 +54,19 @@ public class SlideAdapter extends RecyclerView.Adapter<SlideAdapter.ViewHolder> 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
 
-
-        try {
-            holder.mainFrameImage.setImageBitmap(Utils.scaleCenterCrop(array.get(position).getBitmap(), 400, 400));
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        holder.mainFrameImage.setImageBitmap(array.get(position).getBitmap());
         if (array.get(position).getType() == Type.GIF) {
             holder.imageType.setImageDrawable(activity.getResources().getDrawable(R.drawable.gif_icon));
-            Log.d("fafaa", position + "");
         } else if (array.get(position).getType() == Type.VIDEO) {
             holder.imageType.setImageDrawable(activity.getResources().getDrawable(R.drawable.video_icon));
-        } else if (array.get(position).getType() == Type.IMAGE) {
+        } else if (array.get(position).getType() == Type.IMAGE || array.get(position).getType() == Type.IMAGE) {
             holder.imageType.setImageBitmap(null);
         }
+
+        //holder.mainFrameImage.setScaleType((position == array.size() - 1) ? ImageView.ScaleType.CENTER_INSIDE : ImageView.ScaleType.CENTER_CROP);
+
         if (position == array.size() - 1) {
+            holder.mainFrameImage.setImageDrawable(activity.getResources().getDrawable(R.drawable.add_icon));
             holder.mainFrameImage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -74,7 +74,7 @@ public class SlideAdapter extends RecyclerView.Adapter<SlideAdapter.ViewHolder> 
                     activity.startActivityForResult(intent, GifsArtConst.REQUEST_CODE_MAIN_ACTIVITY);
                     SharedPreferences sharedPreferences = context.getSharedPreferences(GifsArtConst.SHARED_PREFERENCES, Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putBoolean("is_opened", true);
+                    editor.putBoolean(GifsArtConst.SHARED_PREFERENCES_IS_OPENED, true);
                     editor.commit();
                 }
             });
@@ -82,19 +82,17 @@ public class SlideAdapter extends RecyclerView.Adapter<SlideAdapter.ViewHolder> 
             holder.mainFrameImage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
                     ByteArrayOutputStream stream = new ByteArrayOutputStream();
                     Bitmap bitmap = array.get(position).getBitmap();
                     bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
                     byte[] byteArray = stream.toByteArray();
 
                     Intent intent = new Intent(activity, EditFrameActivity.class);
-                    intent.putExtra("image", byteArray);
+                    intent.putExtra(GifsArtConst.INTENT_IMAGE_BITMAP, byteArray);
                     activity.startActivityForResult(intent, GifsArtConst.REQUEST_CODE_EDIT_FRAME_ACTIVITY);
                 }
             });
         }
-
     }
 
     @Override
@@ -105,25 +103,30 @@ public class SlideAdapter extends RecyclerView.Adapter<SlideAdapter.ViewHolder> 
 
     @Override
     public boolean onItemMove(int fromPosition, int toPosition) {
-        Collections.swap(array, fromPosition, toPosition);
-        notifyItemMoved(fromPosition, toPosition);
+        if (fromPosition != array.size() - 1) {
+            if (toPosition != array.size() - 1) {
+                Collections.swap(array, fromPosition, toPosition);
+                notifyItemMoved(fromPosition, toPosition);
+            }
+        }
         return true;
     }
 
     @Override
     public void onItemDismiss(int position) {
 
-        array.remove(position);
-        //animatrRemoveImpl(position);
-        notifyItemRemoved(position);
-        notifyItemRangeChanged(position, array.size());
+        if (position != array.size() - 1) {
+            array.remove(position);
+            //animatrRemoveImpl(position);
+            notifyItemRemoved(position);
+            notifyItemRangeChanged(position, array.size());
+        }
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
 
         private ImageView mainFrameImage;
         private ImageView imageType;
-        private ImageView selected;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -138,6 +141,5 @@ public class SlideAdapter extends RecyclerView.Adapter<SlideAdapter.ViewHolder> 
     public GifItem getItem(int i) {
         return array.get(i);
     }
-
 
 }

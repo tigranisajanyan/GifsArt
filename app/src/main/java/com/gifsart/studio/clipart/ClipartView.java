@@ -433,6 +433,8 @@ public class ClipartView extends AbstractItem implements GestureDetector.Gesture
         if (currentAction == Graphics.ACTION_DRAG) {
             centerX += dx;
             centerY += dy;
+
+
         }
 
         if (currentAction == Graphics.ACTION_ROTATE) {
@@ -688,7 +690,6 @@ public class ClipartView extends AbstractItem implements GestureDetector.Gesture
         crectTrimmed.set(crectOrig);
     }
 
-
     public void initSizeParams(int viewWidth, int viewHeight) {
         final float minInitSize = Utils.convertDpToPixel(32, context);
         final float maxPhotoSize = Math.max(origWidth, origHeight);
@@ -720,10 +721,6 @@ public class ClipartView extends AbstractItem implements GestureDetector.Gesture
         centerY = viewHeight * 0.5f;
         //}
     }
-
-
-    //////////////////////
-
 
     @Override
     public void onPanStart(PointF p) {
@@ -909,4 +906,5 @@ public class ClipartView extends AbstractItem implements GestureDetector.Gesture
     public void writeToParcel(Parcel dest, int flags) {
 
     }
+
 }
