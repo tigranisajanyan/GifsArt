@@ -6,27 +6,28 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.gifsart.studio.R;
 import com.gifsart.studio.effects.GPUEffects;
 
-import jp.co.cyberagent.android.gpuimage.GPUImageView;
+import java.util.ArrayList;
 
 /**
  * Created by Tigran on 10/7/15.
  */
 public class EffectsAdapter extends RecyclerView.Adapter<EffectsAdapter.ViewHolder> {
 
-    GPUEffects.FilterList filterList = new GPUEffects.FilterList();
-    private Bitmap bitmap;
+    private GPUEffects.FilterList filters;
+    private ArrayList<Bitmap> imagePath = new ArrayList<>();
     private LayoutInflater inflater = null;
     private Context context;
 
-    public EffectsAdapter(Bitmap bitmap, GPUEffects.FilterList filterList, Context context) {
-        this.filterList = filterList;
-        this.bitmap = bitmap;
+    public EffectsAdapter(GPUEffects.FilterList filters, Context context) {
         this.context = context;
+        this.filters = filters;
     }
 
     @Override
@@ -40,31 +41,41 @@ public class EffectsAdapter extends RecyclerView.Adapter<EffectsAdapter.ViewHold
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
 
-        holder.effectImageView.setFilter(GPUEffects.createFilterForType(filterList.filters.get(position)));
+        holder.effectImageView.setImageBitmap(imagePath.get(position));
+        //Glide.with(context).load(imagePath.get(position)).asBitmap().into(holder.effectImageView);
+        holder.textView.setText(filters.names.get(position));
 
-        holder.textView.setText(filterList.names.get(position));
+    }
 
+    public void addItem(Bitmap path) {
+        imagePath.add(path);
+        notifyDataSetChanged();
+    }
+
+    public void addAll(ArrayList<Bitmap> bitmaps) {
+        imagePath.addAll(bitmaps);
+        notifyDataSetChanged();
     }
 
     @Override
     public int getItemCount() {
-        return filterList.names.size();
+        return imagePath.size();
     }
 
-    public GPUEffects.FilterType getItem(int position) {
-        return filterList.filters.get(position);
+    public Bitmap getItem(int position) {
+        return imagePath.get(position);
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
 
-        public GPUImageView effectImageView;
+        public ImageView effectImageView;
         public TextView textView;
 
         public ViewHolder(View itemView) {
             super(itemView);
 
-            effectImageView = (GPUImageView) itemView.findViewById(R.id.effect_image_view);
-            effectImageView.setImage(bitmap);
+            effectImageView = (ImageView) itemView.findViewById(R.id.effect_image_view);
+            //effectImageView.setImage(bitmap);
 
             textView = (TextView) itemView.findViewById(R.id.effect_text_view);
         }

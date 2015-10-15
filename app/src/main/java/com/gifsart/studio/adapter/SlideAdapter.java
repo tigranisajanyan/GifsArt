@@ -115,7 +115,7 @@ public class SlideAdapter extends RecyclerView.Adapter<SlideAdapter.ViewHolder> 
     @Override
     public void onItemDismiss(int position) {
 
-        if (position != array.size() - 1) {
+        if (position != array.size() - 1 && array.size() > 2) {
             array.remove(position);
             //animatrRemoveImpl(position);
             notifyItemRemoved(position);

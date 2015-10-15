@@ -297,4 +297,5 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         galleryAdapter.notifyDataSetChanged();
     }
+
 }

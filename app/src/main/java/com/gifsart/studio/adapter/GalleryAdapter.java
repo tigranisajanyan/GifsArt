@@ -113,14 +113,14 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
                         notifyItemChanged(position);
                     }
 
-                    holder.select.setSelected(array
+                    holder.textView.setSelected(array
                             .get(position).isSeleted());
                 }
             });
 
             try {
                 Glide.with(activity).load(array.get(position).getImagePath()).asBitmap().centerCrop().into(holder.mainFrameImageView);
-                holder.select
+                holder.textView
                         .setSelected(array.get(position).isSeleted());
 
             } catch (Exception e) {
@@ -155,7 +155,6 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
         private ViewGroup viewGroup;
         private ImageView mainFrameImageView;
         private ImageView fileTypeImageView;
-        private ImageView select;
         private TextView textView;
 
         public ViewHolder(View itemView) {
@@ -169,9 +168,6 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
             mainFrameImageView = (ImageView) itemView.findViewById(R.id.gallery_image_item);
 
             fileTypeImageView = (ImageView) itemView.findViewById(R.id.file_type_image_view);
-
-            select = (ImageView) itemView.findViewById(R.id.gallery_item_selected);
-            select.setVisibility(View.VISIBLE);
 
             textView = (TextView) itemView.findViewById(R.id.txt);
             textView.setVisibility(View.GONE);

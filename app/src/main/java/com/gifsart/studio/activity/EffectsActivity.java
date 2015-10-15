@@ -3,6 +3,8 @@ package com.gifsart.studio.activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -41,6 +43,8 @@ public class EffectsActivity extends AppCompatActivity implements SeekBar.OnSeek
     private GPUImageFilterTools.FilterAdjuster mFilterAdjuster;
     private String filterName;
     private int square_fit_mode = GifsArtConst.FIT_MODE_ORIGINAL;
+
+    int counter = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,7 +103,7 @@ public class EffectsActivity extends AppCompatActivity implements SeekBar.OnSeek
         recyclerView.setItemAnimator(itemAnimator);
         recyclerView.addItemDecoration(new SpacesItemDecoration((int) Utils.dpToPixel(2, this)));
 
-        effectsAdapter = new EffectsAdapter(originalBitmap, filters, this);
+        effectsAdapter = new EffectsAdapter(filters, this);
 
         recyclerView.setAdapter(effectsAdapter);
         recyclerView.addOnItemTouchListener(new RecyclerItemClickListener(getApplicationContext(), new RecyclerItemClickListener.OnItemClickListener() {
@@ -115,6 +119,8 @@ public class EffectsActivity extends AppCompatActivity implements SeekBar.OnSeek
         findViewById(R.id.opacity_seek_bar).setVisibility(
                 mFilterAdjuster.canAdjust() ? View.VISIBLE : View.GONE);
         ((SeekBar) findViewById(R.id.opacity_seek_bar)).setOnSeekBarChangeListener(this);
+
+        //apply(filters);
 
     }
 
@@ -167,6 +173,26 @@ public class EffectsActivity extends AppCompatActivity implements SeekBar.OnSeek
 
             findViewById(R.id.opacity_seek_bar).setVisibility(
                     mFilterAdjuster.canAdjust() ? View.VISIBLE : View.GONE);
+        }
+    }
+
+    public void apply(final GPUEffects.FilterList filters) {
+
+        if (counter == filters.filters.size()) {
+            return;
+        } else {
+            GPUImage gpuImage = new GPUImage(this);
+            gpuImage.setFilter(GPUEffects.createFilterForType(filters.filters.get(counter)));
+            gpuImage.setImage(originalBitmap);
+            final String fileName = "img_" + counter + ".jpg";
+            gpuImage.saveToPictures("GPUImage", fileName, new GPUImage.OnPictureSavedListener() {
+                @Override
+                public void onPictureSaved(Uri uri) {
+                    //effectsAdapter.addItem(Environment.getExternalStorageDirectory() + "/Pictures/GPUImage/" + fileName);
+                    counter++;
+                    apply(filters);
+                }
+            });
         }
     }
 

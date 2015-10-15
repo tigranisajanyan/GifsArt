@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="100dp"
     android:layout_height="100dp"
     android:background="@color/navigation_bar_color"
-    android:gravity="center"
+    android:gravity="center_horizontal"
     android:orientation="vertical">
 
-    <jp.co.cyberagent.android.gpuimage.GPUImageView
+    <ImageView
         android:id="@+id/effect_image_view"
         android:layout_width="80dp"
         android:layout_height="80dp"
@@ -19,6 +19,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_below="@+id/effect_image_view"
-        android:text="grayscale" />
+        android:gravity="center"
+        android:text="grayscale"
+        android:textColor="@color/font_main_color" />
 
-</RelativeLayout>
+</LinearLayout>

@@ -4,7 +4,6 @@
     android:layout_height="match_parent"
     android:background="@color/background_color"
     android:orientation="vertical"
-
     tools:context=".MainActivity">
 
     <FrameLayout
@@ -93,6 +92,7 @@
         android:layout_alignParentBottom="true"
         android:background="@color/item_backgroud"
         android:gravity="center"
+        android:id="@+id/ttt"
         android:orientation="horizontal">
 
         <ImageButton
@@ -140,16 +140,11 @@
     </LinearLayout>
 
     <LinearLayout
+        android:layout_alignParentBottom="true"
         android:id="@+id/container"
         android:layout_width="match_parent"
-        android:layout_height="70dp"
-        android:layout_alignParentBottom="true"
-        android:orientation="vertical">
-
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/clipart_rec_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-    </LinearLayout>
+        android:layout_height="200dp"
+        android:background="@color/pink"
+        android:orientation="vertical" />
 
 </RelativeLayout>

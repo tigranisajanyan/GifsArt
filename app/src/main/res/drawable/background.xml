@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/someDraw"
+        android:bottom="100dp"
+        android:left="90dp">
+        <shape android:shape="rectangle">
+            <size
+                android:width="20dp"
+                android:height="20dp" />
+            <solid android:color="@color/pink" />
+            <stroke
+                android:width="2dp"
+                android:color="@color/pink" />
+        </shape>
+    </item>
+
+    <item android:id="@+id/someDrawable">
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/transparent" />
+            <stroke
+                android:width="2dp"
+                android:color="@color/pink" />
+        </shape>
+    </item>
+
+</layer-list>
