@@ -2,59 +2,69 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_color"
+    android:background="@color/navigation_bar_color"
     android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <!--<android.support.v7.widget.Toolbar
-        android:id="@+id/navigation_toolbar"
+    <android.support.v7.widget.Toolbar xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/maic_activity_toolbar"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:background="@color/navigation_bar_color">
+        android:layout_height="wrap_content"
+        android:background="@color/navigation_bar_color"
+        app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
             <Button
+                android:id="@+id/maic_activity_toolbar_cancel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:background="@android:color/transparent"
                 android:gravity="center"
-                android:text="deselect"
+                android:text="Cancel"
+                android:textAllCaps="false"
                 android:textColor="@color/pink" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
+                android:gravity="center"
                 android:orientation="vertical">
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="cameraroll"
-                    android:textSize="10dp" />
+                    android:background="@android:color/transparent"
+                    android:text="Gallery"
+                    android:textAllCaps="false"
+                    android:textColor="@color/font_main_color" />
 
                 <TextView
+                    android:id="@+id/maic_activity_toolbar_selected_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="4 selected" />
-
+                    android:text=""
+                    android:textColor="@color/font_main_color"
+                    android:textSize="10dp" />
             </LinearLayout>
 
             <Button
+                android:id="@+id/maic_activity_toolbar_done"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:background="@android:color/transparent"
                 android:gravity="center"
-                android:text="next"
-                android:textColor="@color/pink" />
+                android:text="Done"
+                android:textAllCaps="false"
+                android:textColor="@color/font_main_color" />
         </RelativeLayout>
     </android.support.v7.widget.Toolbar>
--->
+
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

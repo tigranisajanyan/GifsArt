@@ -1,5 +1,6 @@
 package com.gifsart.studio.gifutils;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 
 import com.gifsart.studio.utils.GifsArtConst;
@@ -38,5 +39,25 @@ public class GifUtils {
         }
 
         return gifDrawable.getFrameDuration(0);
+    }
+
+    public static ArrayList<Bitmap> getGifFramesFromResources(Context context, int resId) {
+
+        GifDrawable gifDrawable = null;
+        try {
+            gifDrawable = new GifDrawable(context.getResources(), resId);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        ArrayList<Bitmap> bitmaps = new ArrayList<>();
+
+
+        for (int i = 0; i < gifDrawable.getNumberOfFrames(); i++) {
+            Bitmap bitmap = gifDrawable.seekToFrameAndGet(i);
+            bitmaps.add(bitmap);
+
+        }
+        return bitmaps;
     }
 }

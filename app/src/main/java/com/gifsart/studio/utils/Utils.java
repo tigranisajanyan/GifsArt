@@ -252,77 +252,6 @@ public class Utils {
         return galleryList;
     }
 
-    public static ArrayList<GalleryItem> getGalleryVideos(Activity activity) {
-        ArrayList<GalleryItem> galleryList = new ArrayList();
-        DisplayMetrics metrics = activity.getResources().getDisplayMetrics();
-        try {
-            final String[] columns = {MediaStore.Video.Media.DATA,
-                    MediaStore.Video.Media._ID};
-            final String orderBy = MediaStore.Video.Media._ID;
-
-            Cursor imagecursor = activity.managedQuery(
-                    MediaStore.Video.Media.EXTERNAL_CONTENT_URI, columns,
-                    null, null, orderBy);
-
-            if (imagecursor != null && imagecursor.getCount() > 0) {
-
-                while (imagecursor.moveToNext()) {
-                    GalleryItem item = new GalleryItem();
-
-                    int dataColumnIndex = imagecursor
-                            .getColumnIndex(MediaStore.Video.Media.DATA);
-
-                    String path = imagecursor.getString(dataColumnIndex);
-
-                    File file = new File(path);
-                    if (file.exists()) {
-
-                        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-                        retriever.setDataSource(path);
-
-                        int orientation = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION));
-                        int w = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
-                        int h = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
-
-                        int width;
-                        int height;
-
-                        if (orientation == 0 || orientation == 180) {
-                            width = w > h ? w : h;
-                            height = w < h ? w : h;
-                        } else {
-                            width = w > h ? h : w;
-                            height = w < h ? h : w;
-                        }
-
-                        double halfWidth = metrics.widthPixels / 3;
-                        double a = width / halfWidth;
-                        double halfHeight = height / a;
-
-                        item.setImagePath(imagecursor.getString(dataColumnIndex));
-                        item.setHeight((int) halfHeight);
-                        item.setWidth((int) halfWidth);
-
-                        Bitmap thumb = ThumbnailUtils.createVideoThumbnail(imagecursor.getString(dataColumnIndex),
-                                MediaStore.Images.Thumbnails.MINI_KIND);
-
-                        Bitmap mutableBitmap = thumb.copy(Bitmap.Config.ARGB_8888, true);
-                        Canvas canvas = new Canvas(mutableBitmap);
-
-                        item.setBitmap(mutableBitmap);
-                        galleryList.add(item);
-                        retriever.release();
-                    }
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        // show newest photo at beginning of the list
-        Collections.reverse(galleryList);
-        return galleryList;
-    }
-
 
     public static void clearDir(File dir) {
         try {
@@ -400,41 +329,6 @@ public class Utils {
         return bytes;
     }
 
-    public static ArrayList<Bitmap> getGifFramesPath(String path) {
-        ArrayList<Bitmap> bitmaps = new ArrayList<>();
-        byte[] bytes = Utils.fileToByteArray(path);
-        GifDecoder gifDecoder = new GifDecoder();
-        gifDecoder.read(bytes);
-        gifDecoder.advance();
-
-        for (int i = 0; i < gifDecoder.getFrameCount(); i++) {
-            Bitmap bitmap = gifDecoder.getNextFrame();
-            bitmaps.add(bitmap);
-            gifDecoder.advance();
-        }
-        return bitmaps;
-    }
-
-    public static ArrayList<Bitmap> getGifFramesFromResources(Context context, int resId) {
-
-        GifDrawable gifDrawable = null;
-        try {
-            gifDrawable = new GifDrawable(context.getResources(), resId);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        ArrayList<Bitmap> bitmaps = new ArrayList<>();
-
-
-        for (int i = 0; i < gifDrawable.getNumberOfFrames(); i++) {
-            Bitmap bitmap = gifDrawable.seekToFrameAndGet(i);
-            bitmaps.add(bitmap);
-
-        }
-        return bitmaps;
-    }
-
     public static float dpToPixel(float dp, Context context) {
         Resources resources = context.getResources();
         DisplayMetrics metrics = resources.getDisplayMetrics();
@@ -480,44 +374,6 @@ public class Utils {
             return PhotoUtils.fromBufferToBitmap(width, height, buffer);
         }
         return null;
-    }
-
-    public static boolean downloadFile(String outputFile, String fileUrl) {
-        try {
-            URL url = new URL(fileUrl);
-
-            URLConnection ucon = url.openConnection();
-            ucon.setReadTimeout(5000);
-            ucon.setConnectTimeout(10000);
-
-            InputStream is = ucon.getInputStream();
-            BufferedInputStream inStream = new BufferedInputStream(is, 1024 * 5);
-
-            File file = new File(outputFile);
-
-            if (file.exists()) {
-                file.delete();
-            }
-            file.createNewFile();
-
-            FileOutputStream outStream = new FileOutputStream(file);
-            byte[] buff = new byte[5 * 1024];
-
-            int len;
-            while ((len = inStream.read(buff)) != -1) {
-                outStream.write(buff, 0, len);
-            }
-
-            outStream.flush();
-            outStream.close();
-            inStream.close();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-
-        return true;
     }
 
     public static void shareImage(Activity activity, String outputDir) {
@@ -618,4 +474,5 @@ public class Utils {
         byte[] byteArray = stream.toByteArray();
         return byteArray;
     }
+
 }

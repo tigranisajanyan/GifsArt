@@ -63,7 +63,7 @@ public class SlideAdapter extends RecyclerView.Adapter<SlideAdapter.ViewHolder> 
             holder.imageType.setImageBitmap(null);
         }
 
-        //holder.mainFrameImage.setScaleType((position == array.size() - 1) ? ImageView.ScaleType.CENTER_INSIDE : ImageView.ScaleType.CENTER_CROP);
+        holder.mainFrameImage.setScaleType((position == array.size() - 1) ? ImageView.ScaleType.CENTER_INSIDE : ImageView.ScaleType.CENTER_CROP);
 
         if (position == array.size() - 1) {
             holder.mainFrameImage.setImageDrawable(activity.getResources().getDrawable(R.drawable.add_icon));
@@ -100,7 +100,6 @@ public class SlideAdapter extends RecyclerView.Adapter<SlideAdapter.ViewHolder> 
         return array.size();
     }
 
-
     @Override
     public boolean onItemMove(int fromPosition, int toPosition) {
         if (fromPosition != array.size() - 1) {
@@ -132,7 +131,6 @@ public class SlideAdapter extends RecyclerView.Adapter<SlideAdapter.ViewHolder> 
             super(itemView);
 
             mainFrameImage = (ImageView) itemView.findViewById(R.id.image_item);
-            mainFrameImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
             imageType = (ImageView) itemView.findViewById(R.id.gif_item_type);
         }

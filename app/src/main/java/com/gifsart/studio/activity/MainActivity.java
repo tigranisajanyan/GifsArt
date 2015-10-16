@@ -5,15 +5,11 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
-import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -22,9 +18,6 @@ import com.decoder.VideoDecoder;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.gifsart.studio.R;
 import com.gifsart.studio.adapter.GalleryAdapter;
-import com.gifsart.studio.image_picker.ImageData;
-import com.gifsart.studio.image_picker.OnImagesRetrievedListener;
-import com.gifsart.studio.image_picker.PhoneImagesRetriever;
 import com.gifsart.studio.item.GalleryItem;
 import com.gifsart.studio.utils.GifsArtConst;
 import com.gifsart.studio.utils.SpacesItemDecoration;
@@ -69,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void init() {
 
-        galleryAdapter = new GalleryAdapter(customGalleryArrayList, this, (int) Utils.getBitmapWidth(this), getSupportActionBar());
+        galleryAdapter = new GalleryAdapter(customGalleryArrayList, this, (int) Utils.getBitmapWidth(this));
 
         recyclerView = (RecyclerView) findViewById(R.id.gallery_rec_view);
         progressBar = (ProgressBar) findViewById(R.id.progress_bar);
@@ -88,6 +81,110 @@ public class MainActivity extends AppCompatActivity {
         editor = sharedPreferences.edit();
 
         new InitGalleryItems().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
+        findViewById(R.id.maic_activity_toolbar_cancel).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                galleryAdapter.deselectAll();
+            }
+        });
+
+        findViewById(R.id.maic_activity_toolbar_done).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (galleryAdapter.getSelected().size() > 0) {
+
+                    galleryAdapter.notifyDataSetChanged();
+
+                    // if MainActivity is opened for the first time will do this
+                    if (!sharedPreferences.getBoolean(GifsArtConst.SHARED_PREFERENCES_IS_OPENED, false)) {
+                        final ProgressDialog progressDialog = new ProgressDialog(MainActivity.this);
+                        progressDialog.setMessage(getApplicationContext().getResources().getString(R.string.please_wait));
+                        progressDialog.setCancelable(false);
+                        progressDialog.show();
+                        boolean hasVideo = false;
+                        ArrayList<String> arrayList = galleryAdapter.getSelected();
+                        for (int i = 0; i < arrayList.size(); i++) {
+                            if (Utils.getMimeType(arrayList.get(i)) != null && Utils.getMimeType(arrayList.get(i)) == Type.VIDEO) {
+
+                                VideoDecoder videoDecoder = new VideoDecoder(MainActivity.this, arrayList.get(i), Integer.MAX_VALUE, GifsArtConst.VIDEO_FRAME_SCALE_SIZE, GifsArtConst.VIDEOS_DECODED_FRAMES_DIR);
+                                videoDecoder.extractVideoFrames();
+                                videoDecoder.setOnDecodeFinishedListener(new VideoDecoder.OnDecodeFinishedListener() {
+                                    @Override
+                                    public void onFinish(boolean isDone) {
+                                        Intent intent = new Intent(MainActivity.this, MakeGifActivity.class);
+                                        intent.putExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, GifsArtConst.INDEX_FROM_GALLERY_TO_GIF);
+                                        intent.putExtra(GifsArtConst.INTENT_VIDEO_FRAME_SCALE_SIZE, GifsArtConst.VIDEO_FRAME_SCALE_SIZE);
+                                        intent.putStringArrayListExtra(GifsArtConst.INTENT_DECODED_IMAGE_PATHS, galleryAdapter.getSelected());
+                                        intent.putExtra(GifsArtConst.INTENT_DECODED_IMAGES_OUTPUT_DIR, GifsArtConst.VIDEOS_DECODED_FRAMES_DIR);
+                                        startActivity(intent);
+
+                                        galleryAdapter.deselectAll();
+                                        progressDialog.dismiss();
+                                    }
+                                });
+                                hasVideo = true;
+                            }
+                        }
+                        if (!hasVideo) {
+                            Intent intent = new Intent(MainActivity.this, MakeGifActivity.class);
+                            intent.putExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, GifsArtConst.INDEX_FROM_GALLERY_TO_GIF);
+                            intent.putStringArrayListExtra(GifsArtConst.INTENT_DECODED_IMAGE_PATHS, galleryAdapter.getSelected());
+                            startActivity(intent);
+
+                            galleryAdapter.deselectAll();
+                            progressDialog.dismiss();
+                        }
+                    } else {    // if MainActivity is reopened will do this
+                        final ProgressDialog progressDialog = new ProgressDialog(MainActivity.this);
+                        progressDialog.setMessage(getApplicationContext().getResources().getString(R.string.please_wait));
+                        progressDialog.setCancelable(false);
+                        progressDialog.show();
+                        boolean hasVideo = false;
+                        ArrayList<String> arrayList = galleryAdapter.getSelected();
+                        for (int i = 0; i < arrayList.size(); i++) {
+                            if (Utils.getMimeType(arrayList.get(i)) != null && Utils.getMimeType(arrayList.get(i)) == Type.VIDEO) {
+                                File file = new File(GifsArtConst.VIDEOS_DECODED_FRAMES_DIR);
+                                file.mkdirs();
+
+                                VideoDecoder videoDecoder = new VideoDecoder(MainActivity.this, arrayList.get(i), Integer.MAX_VALUE, GifsArtConst.VIDEO_FRAME_SCALE_SIZE, GifsArtConst.VIDEOS_DECODED_FRAMES_DIR);
+                                videoDecoder.extractVideoFrames();
+                                videoDecoder.setOnDecodeFinishedListener(new VideoDecoder.OnDecodeFinishedListener() {
+                                    @Override
+                                    public void onFinish(boolean isDone) {
+                                        Intent intent = new Intent();
+                                        intent.putExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, GifsArtConst.INDEX_FROM_GALLERY_TO_GIF);
+                                        intent.putExtra(GifsArtConst.INTENT_VIDEO_FRAME_SCALE_SIZE, GifsArtConst.VIDEO_FRAME_SCALE_SIZE);
+                                        intent.putStringArrayListExtra(GifsArtConst.INTENT_DECODED_IMAGE_PATHS, galleryAdapter.getSelected());
+                                        intent.putExtra(GifsArtConst.INTENT_DECODED_IMAGES_OUTPUT_DIR, GifsArtConst.VIDEOS_DECODED_FRAMES_DIR);
+                                        setResult(RESULT_OK, intent);
+
+                                        galleryAdapter.deselectAll();
+                                        progressDialog.dismiss();
+                                        finish();
+                                    }
+                                });
+                                hasVideo = true;
+                            }
+                        }
+                        if (!hasVideo) {
+                            Intent intent = new Intent();
+                            intent.putExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, GifsArtConst.INDEX_FROM_GALLERY_TO_GIF);
+                            intent.putStringArrayListExtra(GifsArtConst.INTENT_DECODED_IMAGE_PATHS, galleryAdapter.getSelected());
+                            setResult(RESULT_OK, intent);
+
+                            galleryAdapter.deselectAll();
+                            progressDialog.dismiss();
+                            finish();
+
+                        }
+                    }
+
+                } else {
+                    Toast.makeText(MainActivity.this, getResources().getString(R.string.no_images_selected), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
 
         /*GalleryItem galleryItem1 = new GalleryItem(BitmapFactory.decodeResource(getResources(), R.drawable.camera_icon));
         galleryItem1.setIsSeleted(false);
@@ -110,116 +207,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });*/
 
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-
-        if (item.getItemId() == R.id.action_next) {
-
-            if (galleryAdapter.getSelected().size() > 0) {
-
-                galleryAdapter.notifyDataSetChanged();
-
-                // if MainActivity is opened for the first time will do this
-                if (!sharedPreferences.getBoolean(GifsArtConst.SHARED_PREFERENCES_IS_OPENED, false)) {
-                    final ProgressDialog progressDialog = new ProgressDialog(MainActivity.this);
-                    progressDialog.setMessage(getApplicationContext().getResources().getString(R.string.please_wait));
-                    progressDialog.setCancelable(false);
-                    progressDialog.show();
-                    boolean hasVideo = false;
-                    ArrayList<String> arrayList = galleryAdapter.getSelected();
-                    for (int i = 0; i < arrayList.size(); i++) {
-                        if (Utils.getMimeType(arrayList.get(i)) != null && Utils.getMimeType(arrayList.get(i)) == Type.VIDEO) {
-
-                            VideoDecoder videoDecoder = new VideoDecoder(MainActivity.this, arrayList.get(i), Integer.MAX_VALUE, GifsArtConst.VIDEO_FRAME_SCALE_SIZE, GifsArtConst.VIDEOS_DECODED_FRAMES_DIR);
-                            videoDecoder.extractVideoFrames();
-                            videoDecoder.setOnDecodeFinishedListener(new VideoDecoder.OnDecodeFinishedListener() {
-                                @Override
-                                public void onFinish(boolean isDone) {
-                                    Intent intent = new Intent(MainActivity.this, MakeGifActivity.class);
-                                    intent.putExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, GifsArtConst.INDEX_FROM_GALLERY_TO_GIF);
-                                    intent.putExtra(GifsArtConst.INTENT_VIDEO_FRAME_SCALE_SIZE, GifsArtConst.VIDEO_FRAME_SCALE_SIZE);
-                                    intent.putStringArrayListExtra(GifsArtConst.INTENT_DECODED_IMAGE_PATHS, galleryAdapter.getSelected());
-                                    intent.putExtra(GifsArtConst.INTENT_DECODED_IMAGES_OUTPUT_DIR, GifsArtConst.VIDEOS_DECODED_FRAMES_DIR);
-                                    startActivity(intent);
-
-                                    galleryAdapter.deselectAll();
-                                    progressDialog.dismiss();
-                                }
-                            });
-                            hasVideo = true;
-                        }
-                    }
-                    if (!hasVideo) {
-                        Intent intent = new Intent(MainActivity.this, MakeGifActivity.class);
-                        intent.putExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, GifsArtConst.INDEX_FROM_GALLERY_TO_GIF);
-                        intent.putStringArrayListExtra(GifsArtConst.INTENT_DECODED_IMAGE_PATHS, galleryAdapter.getSelected());
-                        startActivity(intent);
-
-                        galleryAdapter.deselectAll();
-                        progressDialog.dismiss();
-                    }
-                } else {    // if MainActivity is reopened will do this
-                    final ProgressDialog progressDialog = new ProgressDialog(MainActivity.this);
-                    progressDialog.setMessage(getApplicationContext().getResources().getString(R.string.please_wait));
-                    progressDialog.setCancelable(false);
-                    progressDialog.show();
-                    boolean hasVideo = false;
-                    ArrayList<String> arrayList = galleryAdapter.getSelected();
-                    for (int i = 0; i < arrayList.size(); i++) {
-                        if (Utils.getMimeType(arrayList.get(i)) != null && Utils.getMimeType(arrayList.get(i)) == Type.VIDEO) {
-                            File file = new File(GifsArtConst.VIDEOS_DECODED_FRAMES_DIR);
-                            file.mkdirs();
-
-                            VideoDecoder videoDecoder = new VideoDecoder(MainActivity.this, arrayList.get(i), Integer.MAX_VALUE, GifsArtConst.VIDEO_FRAME_SCALE_SIZE, GifsArtConst.VIDEOS_DECODED_FRAMES_DIR);
-                            videoDecoder.extractVideoFrames();
-                            videoDecoder.setOnDecodeFinishedListener(new VideoDecoder.OnDecodeFinishedListener() {
-                                @Override
-                                public void onFinish(boolean isDone) {
-                                    Intent intent = new Intent();
-                                    intent.putExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, GifsArtConst.INDEX_FROM_GALLERY_TO_GIF);
-                                    intent.putExtra(GifsArtConst.INTENT_VIDEO_FRAME_SCALE_SIZE, GifsArtConst.VIDEO_FRAME_SCALE_SIZE);
-                                    intent.putStringArrayListExtra(GifsArtConst.INTENT_DECODED_IMAGE_PATHS, galleryAdapter.getSelected());
-                                    intent.putExtra(GifsArtConst.INTENT_DECODED_IMAGES_OUTPUT_DIR, GifsArtConst.VIDEOS_DECODED_FRAMES_DIR);
-                                    setResult(RESULT_OK, intent);
-
-                                    galleryAdapter.deselectAll();
-                                    progressDialog.dismiss();
-                                    finish();
-                                }
-                            });
-                            hasVideo = true;
-                        }
-                    }
-                    if (!hasVideo) {
-                        Intent intent = new Intent();
-                        intent.putExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, GifsArtConst.INDEX_FROM_GALLERY_TO_GIF);
-                        intent.putStringArrayListExtra(GifsArtConst.INTENT_DECODED_IMAGE_PATHS, galleryAdapter.getSelected());
-                        setResult(RESULT_OK, intent);
-
-                        galleryAdapter.deselectAll();
-                        progressDialog.dismiss();
-                        finish();
-
-                    }
-                }
-
-            } else {
-                Toast.makeText(MainActivity.this, getResources().getString(R.string.no_images_selected), Toast.LENGTH_SHORT).show();
-            }
-            return true;
-        }
-
-        return super.
-
-                onOptionsItemSelected(item);
     }
 
     @Override

@@ -6,27 +6,63 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <FrameLayout
-        android:id="@+id/main_view_container"
+    <android.support.v7.widget.Toolbar xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/make_gif_activity_toolbar"
         android:layout_width="match_parent"
-        android:layout_height="1dp"
+        android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:background="@color/navigation_bar_color"
-        android:padding="0dp">
+        app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
-        <jp.co.cyberagent.android.gpuimage.GPUImageView
-            android:id="@+id/image_view"
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:adjustViewBounds="true" />
+            android:padding="0dp">
 
-    </FrameLayout>
+            <Button
+                android:id="@+id/make_gif_activity_toolbar_cancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:background="@android:color/transparent"
+                android:text="Cancel"
+                android:textAllCaps="false"
+                android:textColor="@color/pink" />
+
+            <TextView
+                android:id="@+id/make_gif_activity_toolbar_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="Preview"
+                android:textColor="@color/font_main_color" />
+
+            <Button
+                android:id="@+id/make_gif_activity_toolbar_next"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:background="@android:color/transparent"
+                android:text="Next"
+                android:textAllCaps="false"
+                android:textColor="@color/pink" />
+        </RelativeLayout>
+    </android.support.v7.widget.Toolbar>
+
+    <jp.co.cyberagent.android.gpuimage.GPUImageView
+        android:id="@+id/image_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/make_gif_activity_toolbar"
+        android:layout_marginTop="5dp"
+        android:adjustViewBounds="true" />
+
 
     <RelativeLayout
         android:id="@+id/seek_bar_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/main_view_container"
+        android:layout_below="@+id/image_view"
         android:layout_margin="5dp"
         android:orientation="horizontal">
 
@@ -87,12 +123,12 @@
         android:layout_marginTop="5dp" />
 
     <LinearLayout
+        android:id="@+id/ttt"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:background="@color/item_backgroud"
         android:gravity="center"
-        android:id="@+id/ttt"
         android:orientation="horizontal">
 
         <ImageButton
@@ -140,11 +176,13 @@
     </LinearLayout>
 
     <LinearLayout
-        android:layout_alignParentBottom="true"
         android:id="@+id/container"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="100dp"
+        android:layout_alignParentBottom="true"
         android:background="@color/pink"
+        android:gravity="center"
+        android:visibility="gone"
         android:orientation="vertical" />
 
 </RelativeLayout>

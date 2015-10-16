@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -28,14 +29,12 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
 
     private ArrayList<GalleryItem> array;
     private Activity activity;
-    private ActionBar actionBar;
 
     private ArrayList<GalleryItem> selected = new ArrayList<>();
     private int imageSize;
 
-    public GalleryAdapter(ArrayList<GalleryItem> arr, Activity activity, int imageSize, ActionBar actionBar) {
+    public GalleryAdapter(ArrayList<GalleryItem> arr, Activity activity, int imageSize) {
 
-        this.actionBar = actionBar;
         this.array = arr;
         this.activity = activity;
         this.imageSize = imageSize;
@@ -56,7 +55,6 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
             array.get(position).setIsSeleted(false);
             holder.fileTypeImageView.setImageBitmap(null);
             holder.textView.setVisibility(View.GONE);
-            //holder.select.setVisibility(View.GONE);
             holder.mainFrameImageView.setScaleType(ImageView.ScaleType.CENTER);
             holder.mainFrameImageView.setImageBitmap(array.get(0).getBitmap());
             holder.mainFrameImageView.setOnClickListener(new View.OnClickListener() {
@@ -76,7 +74,6 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
             array.get(position).setIsSeleted(false);
             holder.fileTypeImageView.setImageBitmap(null);
             holder.textView.setVisibility(View.GONE);
-            //holder.select.setVisibility(View.GONE);
             holder.mainFrameImageView.setScaleType(ImageView.ScaleType.CENTER);
             holder.mainFrameImageView.setImageBitmap(array.get(1).getBitmap());
             holder.mainFrameImageView.setOnClickListener(new View.OnClickListener() {
@@ -91,7 +88,6 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
                 }
             });
 
-
         } else {
             holder.mainFrameImageView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -101,15 +97,17 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
                         array.get(position).setIsSeleted(false);
                         updateSelecetedItems(position);
                         selected.remove(array.get(position));
-                        actionBar.setTitle(getSelected().size() + " Selected");
+                        ((TextView) activity.findViewById(R.id.maic_activity_toolbar_selected_text)).setText(getSelected().size() + " Selected");
                         if (getSelected().size() < 1) {
-                            actionBar.setTitle(activity.getResources().getString(R.string.app_name));
+                            ((TextView) activity.findViewById(R.id.maic_activity_toolbar_selected_text)).setText("");
+                            ((TextView) activity.findViewById(R.id.maic_activity_toolbar_cancel)).setText("Cancel");
+                            ((Button) activity.findViewById(R.id.maic_activity_toolbar_done)).setTextColor(activity.getResources().getColor(R.color.font_main_color));
                         }
 
                     } else {
                         array.get(position).setIsSeleted(true);
                         selected.add(array.get(position));
-                        actionBar.setTitle(getSelected().size() + " Selected");
+                        ((TextView) activity.findViewById(R.id.maic_activity_toolbar_selected_text)).setText(getSelected().size() + " Selected");
                         notifyItemChanged(position);
                     }
 
@@ -117,6 +115,9 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
                             .get(position).isSeleted());
                 }
             });
+
+            ((Button) activity.findViewById(R.id.maic_activity_toolbar_done)).setTextColor(((selected.size() > 0) ? activity.getResources().getColor(R.color.pink) : activity.getResources().getColor(R.color.font_main_color)));
+            ((Button) activity.findViewById(R.id.maic_activity_toolbar_cancel)).setText(((selected.size() > 0) ? "Deselect" : "Cancel"));
 
             try {
                 Glide.with(activity).load(array.get(position).getImagePath()).asBitmap().centerCrop().into(holder.mainFrameImageView);
@@ -135,13 +136,13 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
                 holder.fileTypeImageView.setImageBitmap(null);
             }
 
+
             if (array.get(position).isSeleted()) {
                 holder.textView.setVisibility(View.VISIBLE);
                 holder.textView.setText(selected.indexOf(array.get(position)) + 1 + "");
             } else {
                 holder.textView.setVisibility(View.GONE);
             }
-
         }
     }
 
@@ -166,7 +167,6 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
             viewGroup.setLayoutParams(layoutParams);
 
             mainFrameImageView = (ImageView) itemView.findViewById(R.id.gallery_image_item);
-
             fileTypeImageView = (ImageView) itemView.findViewById(R.id.file_type_image_view);
 
             textView = (TextView) itemView.findViewById(R.id.txt);
@@ -197,7 +197,8 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
             }
         }
         selected.clear();
-        actionBar.setTitle(activity.getResources().getString(R.string.app_name));
+        ((TextView) activity.findViewById(R.id.maic_activity_toolbar_selected_text)).setText("");
+        ((TextView) activity.findViewById(R.id.maic_activity_toolbar_cancel)).setText("Cancel");
         notifyDataSetChanged();
     }
 

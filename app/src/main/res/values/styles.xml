@@ -6,7 +6,7 @@
     </style>
 
     <style name="AppThemeNoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="android:colorPrimaryDark">@color/navigation_bar_color</item>
+        <item name="android:statusBarColor">@color/navigation_bar_color</item>
     </style>
 
 </resources>

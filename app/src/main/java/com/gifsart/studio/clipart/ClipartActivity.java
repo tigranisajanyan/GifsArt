@@ -71,9 +71,9 @@ public class ClipartActivity extends ActionBarActivity implements OnVideoActionF
     private void initView(String path) {
         mainView = new MainView(this, path, false);
         mainView.setId(R.id.mainViewId);
-        ViewGroup container = (ViewGroup) findViewById(R.id.main_view_container);
-        container.removeAllViews();
-        container.addView(mainView);
+        //ViewGroup container = (ViewGroup) findViewById(R.id.main_view_container);
+        //container.removeAllViews();
+        //container.addView(mainView);
     }
 
     private void intiCliparts() {
