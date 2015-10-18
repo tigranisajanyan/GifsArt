@@ -178,11 +178,11 @@
     <LinearLayout
         android:id="@+id/container"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="150dp"
         android:layout_alignParentBottom="true"
         android:background="@color/pink"
         android:gravity="center"
-        android:visibility="gone"
-        android:orientation="vertical" />
+        android:orientation="vertical"
+        android:visibility="gone" />
 
 </RelativeLayout>

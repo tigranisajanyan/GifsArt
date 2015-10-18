@@ -6,6 +6,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 
@@ -39,12 +40,10 @@ public class SaveGIFAsyncTask extends AsyncTask<Void, Integer, Void> {
 
     private GPUImageView gpuImageView;
     private GPUImageFilter gpuImageFilter;
-    int count = 0;
 
-    private boolean doSquareFit = false;
+    int num = 0;
+
     private int squareFitMode = 1;
-
-    public IsDone isDone;
 
     public SaveGIFAsyncTask(String outputDir, ArrayList<GifItem> gifItems, int squareFitMode, GPUImageView gpuImageView, GPUImageFilter gpuImageFilter, Activity activity) {
         this.outputDir = outputDir;
@@ -56,40 +55,17 @@ public class SaveGIFAsyncTask extends AsyncTask<Void, Integer, Void> {
 
         progressDialog = new ProgressDialog(activity);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        progressDialog.setMax(gifItems.size());
+        progressDialog.setMax(checkGifItemsFramesCount());
         progressDialog.setCancelable(false);
         progressDialog.show();
-
-        final ArrayList<Bitmap> bitmaps = new ArrayList<>();
-
-        for (int i = 0; i < gifItems.size(); i++) {
-            if (gifItems.get(i).getType() == Type.IMAGE) {
-                count++;
-                bitmaps.add(gifItems.get(i).getBitmap());
-            } else {
-                count += gifItems.get(i).getBitmaps().size();
-                bitmaps.addAll(gifItems.get(i).getBitmaps());
-            }
-        }
-        applyEffect(bitmaps, gpuImageFilter, progressDialog);
-
     }
 
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-        if (squareFitMode == GifsArtConst.FIT_MODE_SQUARE) {
-            doSquareFit = true;
-        } else {
-            for (int i = 0; i < gifItems.size(); i++) {
-                for (int j = 0; j < gifItems.size(); j++) {
-                    if (gifItems.get(i).getBitmap().getWidth() != gifItems.get(j).getBitmap().getWidth() || gifItems.get(i).getBitmap().getHeight() != gifItems.get(j).getBitmap().getHeight()) {
-                        squareFitMode = GifsArtConst.FIT_MODE_SQUARE_FIT;
-                        break;
-                    }
-                }
-            }
-        }
+
+        applyEffect(gpuImageFilter);
+        checkSquareFitMode();
     }
 
     @Override
@@ -108,42 +84,23 @@ public class SaveGIFAsyncTask extends AsyncTask<Void, Integer, Void> {
             for (int i = 0; i < gifItems.size(); i++) {
 
                 if (gifItems.get(i).getType() == Type.IMAGE) {
-                    animatedGifEncoder.setDelay(gifItems.get(i).getCurrentDuration());
-                    Bitmap bitmap = gifItems.get(i).getBitmap();
-                    if (squareFitMode == GifsArtConst.FIT_MODE_SQUARE_FIT) {
-                        bitmap = Utils.squareFit(bitmap, GifsArtConst.GIF_FRAME_SIZE);
-                    } else if (squareFitMode == GifsArtConst.FIT_MODE_SQUARE) {
-                        bitmap = Utils.scaleCenterCrop(bitmap, GifsArtConst.GIF_FRAME_SIZE, GifsArtConst.GIF_FRAME_SIZE);
-                    }
-                    animatedGifEncoder.addFrame(bitmap);
-                    publishProgress(i);
+                    addGifFrame(animatedGifEncoder, gifItems.get(i).getBitmap(), squareFitMode, gifItems.get(i).getCurrentDuration());
+                    publishProgress(num);
+                    num++;
                 } else if (gifItems.get(i).getType() == Type.GIF) {
                     for (int j = 0; j < gifItems.get(i).getBitmaps().size(); j++) {
-                        animatedGifEncoder.setDelay(gifItems.get(i).getCurrentDuration());
-                        Bitmap bitmap = gifItems.get(i).getBitmaps().get(j);
-                        if (squareFitMode == GifsArtConst.FIT_MODE_SQUARE_FIT) {
-                            bitmap = Utils.squareFit(bitmap, GifsArtConst.GIF_FRAME_SIZE);
-                        } else if (squareFitMode == GifsArtConst.FIT_MODE_SQUARE) {
-                            bitmap = Utils.scaleCenterCrop(bitmap, GifsArtConst.GIF_FRAME_SIZE, GifsArtConst.GIF_FRAME_SIZE);
-                        }
-                        animatedGifEncoder.addFrame(bitmap);
+                        addGifFrame(animatedGifEncoder, gifItems.get(i).getBitmaps().get(j), squareFitMode, gifItems.get(i).getCurrentDuration());
+                        publishProgress(num);
+                        num++;
                     }
-                    publishProgress(i);
                 } else if (gifItems.get(i).getType() == Type.VIDEO) {
                     for (int j = 0; j < gifItems.get(i).getBitmaps().size(); j++) {
-                        animatedGifEncoder.setDelay(gifItems.get(i).getCurrentDuration());
-                        Bitmap bitmap = gifItems.get(i).getBitmaps().get(j);
-                        if (squareFitMode == GifsArtConst.FIT_MODE_SQUARE_FIT) {
-                            bitmap = Utils.squareFit(bitmap, GifsArtConst.GIF_FRAME_SIZE);
-                        } else if (squareFitMode == GifsArtConst.FIT_MODE_SQUARE) {
-                            bitmap = Utils.scaleCenterCrop(bitmap, GifsArtConst.GIF_FRAME_SIZE, GifsArtConst.GIF_FRAME_SIZE);
-                        }
-                        animatedGifEncoder.addFrame(bitmap);
+                        addGifFrame(animatedGifEncoder, gifItems.get(i).getBitmaps().get(j), squareFitMode, gifItems.get(i).getCurrentDuration());
+                        publishProgress(num);
+                        num++;
                     }
-                    publishProgress(i);
                 }
             }
-
             animatedGifEncoder.finish();
             bufferedOutputStream.write(bos.toByteArray());
             bufferedOutputStream.flush();
@@ -151,10 +108,8 @@ public class SaveGIFAsyncTask extends AsyncTask<Void, Integer, Void> {
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-
         } catch (IOException e) {
             e.printStackTrace();
-
         }
         return null;
     }
@@ -163,7 +118,7 @@ public class SaveGIFAsyncTask extends AsyncTask<Void, Integer, Void> {
     protected void onProgressUpdate(Integer... values) {
         super.onProgressUpdate(values);
         if (progressDialog != null) {
-            progressDialog.setProgress(values[0] + 1);
+            progressDialog.setProgress(values[0]);
         }
     }
 
@@ -200,36 +155,58 @@ public class SaveGIFAsyncTask extends AsyncTask<Void, Integer, Void> {
         });
         AlertDialog alertDialog = gifSavedDialogBuilder.create();
         alertDialog.show();
-
-
     }
 
-    public void applyEffect(final ArrayList<Bitmap> bitmaps, final GPUImageFilter gpuImageFilter, final ProgressDialog progressDialog) {
+    public void applyEffect(final GPUImageFilter gpuImageFilter) {
         GPUImage gpuImage = new GPUImage(activity);
         gpuImage.setFilter(gpuImageFilter);
-        if (bitmaps.size() == 0) {
-            isDone.isDone(true);
-            return;
-        } else {
-            final Bitmap bitmap = bitmaps.remove(0);
-            gpuImage.deleteImage();
-            gpuImage.setImage(bitmap);
-            String fileName = "img_" + (count - bitmaps.size()) + ".jpg";
-            gpuImage.saveToPictures("GPUImage", fileName, new GPUImage.OnPictureSavedListener() {
-                @Override
-                public void onPictureSaved(Uri uri) {
-                    applyEffect(bitmaps, gpuImageFilter, progressDialog);
+        for (int i = 0; i < gifItems.size(); i++) {
+            if (gifItems.get(i).getType() == Type.IMAGE) {
+                gpuImage.setImage(gifItems.get(i).getBitmap());
+                gifItems.get(i).setBitmap(gpuImage.getBitmapWithFilterApplied());
+            } else {
+                for (int j = 0; j < gifItems.get(i).getBitmaps().size(); j++) {
+                    gpuImage.setImage(gifItems.get(i).getBitmaps().get(j));
+                    gifItems.get(i).getBitmaps().set(j, gpuImage.getBitmapWithFilterApplied());
                 }
-            });
+            }
         }
     }
 
-    public void setIsDoneListener(IsDone isDone) {
-        this.isDone = isDone;
+    public int checkGifItemsFramesCount() {
+        int count = 0;
+        for (int i = 0; i < gifItems.size(); i++) {
+            if (gifItems.get(i).getType() == Type.IMAGE) {
+                count++;
+            } else {
+                count += gifItems.get(i).getBitmaps().size();
+            }
+        }
+        return count;
     }
 
-    public interface IsDone {
-        public void isDone(boolean done);
+    // if all gif items doesn't have same width and height , square fit mode will be square fit
+    public void checkSquareFitMode() {
+        if (squareFitMode == GifsArtConst.FIT_MODE_ORIGINAL) {
+            for (int i = 0; i < gifItems.size(); i++) {
+                for (int j = 0; j < gifItems.size(); j++) {
+                    if (gifItems.get(i).getBitmap().getWidth() != gifItems.get(j).getBitmap().getWidth() || gifItems.get(i).getBitmap().getHeight() != gifItems.get(j).getBitmap().getHeight()) {
+                        squareFitMode = GifsArtConst.FIT_MODE_SQUARE_FIT;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    public void addGifFrame(AnimatedGifEncoder animatedGifEncoder, Bitmap bitmap, int squareFitMode, int duration) {
+        animatedGifEncoder.setDelay(duration);
+        if (squareFitMode == GifsArtConst.FIT_MODE_SQUARE_FIT) {
+            bitmap = Utils.squareFit(bitmap, GifsArtConst.GIF_FRAME_SIZE);
+        } else if (squareFitMode == GifsArtConst.FIT_MODE_SQUARE) {
+            bitmap = Utils.scaleCenterCrop(bitmap, GifsArtConst.GIF_FRAME_SIZE, GifsArtConst.GIF_FRAME_SIZE);
+        }
+        animatedGifEncoder.addFrame(bitmap);
     }
 
 }
