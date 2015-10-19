@@ -265,8 +265,6 @@ public class Utils {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        dir.delete();
-
     }
 
     public static void createDir(String fileName) {

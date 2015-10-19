@@ -1,27 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background_color"
-    tools:context="com.gifsart.studio.activity.ClipArtActivity">
-
-    <FrameLayout
-        android:id="@+id/clipart_main_view_container"
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:layout_alignParentTop="true"
-        android:background="@color/navigation_bar_color">
-
-        <ImageView
-            android:id="@+id/clipart_image_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-    </FrameLayout>
+    android:orientation="vertical">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/clipart_rec_view"
         android:layout_width="match_parent"
+        android:layout_alignParentTop="true"
         android:layout_height="wrap_content"
         android:layout_above="@+id/clipart_container"
         android:layout_below="@+id/clipart_main_view_container" />

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.gifsart.studio" >
+    package="com.gifsart.studio">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -21,11 +21,11 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:largeHeap="true"
-        android:theme="@style/AppThemeNoActionBar" >
+        android:theme="@style/AppThemeNoActionBar">
         <activity
             android:name=".activity.MainActivity"
             android:configChanges="orientation|screenSize"
-            android:label="@string/app_name" >
+            android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -46,15 +46,6 @@
         <activity
             android:name=".activity.GifPreviewActivity"
             android:label="@string/title_activity_gif_preview" />
-        <activity
-            android:name=".activity.EditFrameActivity"
-            android:label="@string/title_activity_edit_frame" />
-        <activity
-            android:name=".activity.SquareFitActivity"
-            android:label="@string/title_activity_square_fit" />
-        <activity android:name=".activity.EffectsActivity" />
-        <activity android:name=".activity.ClipArtActivity" >
-        </activity>
     </application>
 
 </manifest>

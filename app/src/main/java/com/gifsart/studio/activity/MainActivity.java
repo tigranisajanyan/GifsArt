@@ -181,9 +181,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Loading all gallery items to recuclerview with AsyncTask
-     */
+    //Loading all gallery items to recyclerview with AsyncTask
     class InitGalleryItems extends AsyncTask<Void, Void, Void> {
 
         @Override

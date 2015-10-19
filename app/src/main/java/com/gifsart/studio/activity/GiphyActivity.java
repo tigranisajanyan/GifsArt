@@ -9,8 +9,12 @@ import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.gifsart.studio.R;
@@ -30,6 +34,8 @@ public class GiphyActivity extends AppCompatActivity {
     private GridLayoutManager gridLayoutManager;
     private RecyclerView.ItemAnimator itemAnimator;
     private GiphyAdapter giphyAdapter;
+
+    private EditText searchGifEditText;
 
     SharedPreferences sharedPreferences;
     private static final String root = Environment.getExternalStorageDirectory().toString();
@@ -76,59 +82,64 @@ public class GiphyActivity extends AppCompatActivity {
             finish();
         }
 
-    }
+        searchGifEditText = (EditText) findViewById(R.id.search_giphy_edit_text);
+        searchGifEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
+            }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_giphy, menu);
-        return true;
-    }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
 
-    @Override
-    public boolean onOptionsItemSelected(final MenuItem item) {
+            }
 
-        int id = item.getItemId();
-        if (id == R.id.action_done) {
+            @Override
+            public void afterTextChanged(Editable s) {
 
-            if (!sharedPreferences.getBoolean(GifsArtConst.SHARED_PREFERENCES_IS_OPENED, false)) {
-                if (giphyAdapter.getSelectedPosition() > -1) {
+            }
+        });
 
-                    DownloadFileAsyncTask downloadFileAsyncTask = new DownloadFileAsyncTask(GiphyActivity.this, root + GifsArtConst.SLASH + GifsArtConst.MY_DIR + "/giphy/giphy.gif", giphyAdapter.getItem(giphyAdapter.getSelectedPosition()));
-                    downloadFileAsyncTask.setOnDownloadedListener(new DownloadFileAsyncTask.OnDownloaded() {
-                        @Override
-                        public void onDownloaded(boolean isDownloded) {
-                            Intent intent = new Intent(GiphyActivity.this, MakeGifActivity.class);
-                            intent.putExtra(GifsArtConst.INTENT_GIF_PATH, root + GifsArtConst.SLASH + GifsArtConst.MY_DIR + "/giphy/giphy.gif");
-                            intent.putExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, GifsArtConst.INDEX_GIPHY_TO_GIF);
-                            startActivity(intent);
-                            finish();
-                        }
-                    });
-                    downloadFileAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        findViewById(R.id.giphy_next_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!sharedPreferences.getBoolean(GifsArtConst.SHARED_PREFERENCES_IS_OPENED, false)) {
+                    if (giphyAdapter.getSelectedPosition() > -1) {
 
-                }
-            } else {
-                if (giphyAdapter.getSelectedPosition() > -1) {
+                        DownloadFileAsyncTask downloadFileAsyncTask = new DownloadFileAsyncTask(GiphyActivity.this, root + GifsArtConst.SLASH + GifsArtConst.MY_DIR + "/giphy/giphy.gif", giphyAdapter.getItem(giphyAdapter.getSelectedPosition()));
+                        downloadFileAsyncTask.setOnDownloadedListener(new DownloadFileAsyncTask.OnDownloaded() {
+                            @Override
+                            public void onDownloaded(boolean isDownloded) {
+                                Intent intent = new Intent(GiphyActivity.this, MakeGifActivity.class);
+                                intent.putExtra(GifsArtConst.INTENT_GIF_PATH, root + GifsArtConst.SLASH + GifsArtConst.MY_DIR + "/giphy/giphy.gif");
+                                intent.putExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, GifsArtConst.INDEX_GIPHY_TO_GIF);
+                                startActivity(intent);
+                                finish();
+                            }
+                        });
+                        downloadFileAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
-                    DownloadFileAsyncTask downloadFileAsyncTask = new DownloadFileAsyncTask(GiphyActivity.this, root + GifsArtConst.SLASH + GifsArtConst.MY_DIR + "/giphy/giphy.gif", giphyAdapter.getItem(giphyAdapter.getSelectedPosition()));
-                    downloadFileAsyncTask.setOnDownloadedListener(new DownloadFileAsyncTask.OnDownloaded() {
-                        @Override
-                        public void onDownloaded(boolean isDownloded) {
-                            Intent intent = new Intent();
-                            intent.putExtra(GifsArtConst.INTENT_GIF_PATH, root + GifsArtConst.SLASH + GifsArtConst.MY_DIR + "/giphy/giphy.gif");
-                            intent.putExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, GifsArtConst.INDEX_GIPHY_TO_GIF);
-                            setResult(RESULT_OK, intent);
-                            finish();
-                        }
-                    });
-                    downloadFileAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                    }
+                } else {
+                    if (giphyAdapter.getSelectedPosition() > -1) {
 
+                        DownloadFileAsyncTask downloadFileAsyncTask = new DownloadFileAsyncTask(GiphyActivity.this, root + GifsArtConst.SLASH + GifsArtConst.MY_DIR + "/giphy/giphy.gif", giphyAdapter.getItem(giphyAdapter.getSelectedPosition()));
+                        downloadFileAsyncTask.setOnDownloadedListener(new DownloadFileAsyncTask.OnDownloaded() {
+                            @Override
+                            public void onDownloaded(boolean isDownloded) {
+                                Intent intent = new Intent();
+                                intent.putExtra(GifsArtConst.INTENT_GIF_PATH, root + GifsArtConst.SLASH + GifsArtConst.MY_DIR + "/giphy/giphy.gif");
+                                intent.putExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, GifsArtConst.INDEX_GIPHY_TO_GIF);
+                                setResult(RESULT_OK, intent);
+                                finish();
+                            }
+                        });
+                        downloadFileAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
+                    }
                 }
             }
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+        });
     }
 
 }

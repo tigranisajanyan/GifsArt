@@ -1,21 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_color"
-    tools:context="com.gifsart.studio.activity.EditFrameActivity">
-
-    <ImageView
-        android:id="@+id/edited_frame_image_view"
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:background="@color/navigation_bar_color" />
+    android:orientation="vertical">
 
     <RelativeLayout
         android:id="@+id/edit_frame_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/edited_frame_image_view"
+        android:layout_alignParentTop="true"
         android:layout_marginTop="10dp"
         android:orientation="horizontal">
 
@@ -51,7 +44,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_below="@+id/edit_frame_container"
-        android:layout_marginTop="10dp"
         android:gravity="center"
         android:orientation="horizontal">
 

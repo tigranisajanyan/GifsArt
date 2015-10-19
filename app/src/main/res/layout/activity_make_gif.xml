@@ -57,7 +57,6 @@
         android:layout_marginTop="5dp"
         android:adjustViewBounds="true" />
 
-
     <RelativeLayout
         android:id="@+id/seek_bar_container"
         android:layout_width="match_parent"
@@ -123,7 +122,7 @@
         android:layout_marginTop="5dp" />
 
     <LinearLayout
-        android:id="@+id/ttt"
+        android:id="@+id/buttons_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -178,9 +177,9 @@
     <LinearLayout
         android:id="@+id/container"
         android:layout_width="match_parent"
-        android:layout_height="150dp"
+        android:layout_height="match_parent"
         android:layout_alignParentBottom="true"
-        android:background="@color/pink"
+        android:background="@color/background_color"
         android:gravity="center"
         android:orientation="vertical"
         android:visibility="gone" />

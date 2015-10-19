@@ -16,7 +16,6 @@ import android.widget.ImageView;
 
 import com.decoder.PhotoUtils;
 import com.gifsart.studio.R;
-import com.gifsart.studio.activity.EditFrameActivity;
 import com.gifsart.studio.activity.MainActivity;
 import com.gifsart.studio.clipart.util.BitmapManager;
 import com.gifsart.studio.helper.ItemTouchHelperAdapter;
@@ -87,9 +86,9 @@ public class SlideAdapter extends RecyclerView.Adapter<SlideAdapter.ViewHolder> 
                     bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
                     byte[] byteArray = stream.toByteArray();
 
-                    Intent intent = new Intent(activity, EditFrameActivity.class);
-                    intent.putExtra(GifsArtConst.INTENT_IMAGE_BITMAP, byteArray);
-                    activity.startActivityForResult(intent, GifsArtConst.REQUEST_CODE_EDIT_FRAME_ACTIVITY);
+                    //Intent intent = new Intent(activity, EditFrameActivity.class);
+                    //intent.putExtra(GifsArtConst.INTENT_IMAGE_BITMAP, byteArray);
+                    //activity.startActivityForResult(intent, GifsArtConst.REQUEST_CODE_EDIT_FRAME_ACTIVITY);
                 }
             });
         }

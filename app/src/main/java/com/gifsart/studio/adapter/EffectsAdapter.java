@@ -42,7 +42,6 @@ public class EffectsAdapter extends RecyclerView.Adapter<EffectsAdapter.ViewHold
     public void onBindViewHolder(final ViewHolder holder, final int position) {
 
         holder.effectImageView.setImageBitmap(imagePath.get(position));
-        //Glide.with(context).load(imagePath.get(position)).asBitmap().into(holder.effectImageView);
         holder.textView.setText(filters.names.get(position));
 
     }
@@ -75,7 +74,6 @@ public class EffectsAdapter extends RecyclerView.Adapter<EffectsAdapter.ViewHold
             super(itemView);
 
             effectImageView = (ImageView) itemView.findViewById(R.id.effect_image_view);
-            //effectImageView.setImage(bitmap);
 
             textView = (TextView) itemView.findViewById(R.id.effect_text_view);
         }
