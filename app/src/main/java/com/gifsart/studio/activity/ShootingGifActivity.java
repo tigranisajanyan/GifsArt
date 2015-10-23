@@ -11,17 +11,17 @@ import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
+import android.os.CountDownTimer;
 import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.view.Display;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
-import android.widget.CheckBox;
+import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,33 +30,30 @@ import com.gifsart.studio.R;
 import com.gifsart.studio.utils.CameraPreview;
 import com.gifsart.studio.utils.GifsArtConst;
 import com.gifsart.studio.utils.Utils;
-import com.socialin.android.photo.imgop.ImageOp;
-import com.socialin.android.photo.imgop.ImageOpCommon;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 
 public class ShootingGifActivity extends ActionBarActivity {
 
     private Context context;
-
     private Camera camera;
     private CameraPreview cameraPreview;
     private MediaRecorder mediaRecorder;
 
-    private ImageButton capture;
-    private ImageButton switchCamera;
+    private ImageButton capture, flashlightswitcher, screenModeBtn, switchCamera;
+
+    private Button cancelBtn;
 
     private LinearLayout cameraPreviewLayout;
     private boolean cameraFront = false;
 
     private int currentCapturedTime;
-    private int capturedTime;
+
     private Thread myThread = null;
 
     ArrayList<Integer> burstModeCounts = new ArrayList();
@@ -64,6 +61,15 @@ public class ShootingGifActivity extends ActionBarActivity {
     int burstMode = 5;
 
     private SharedPreferences sharedPreferences;
+
+    public ProgressBar mProgress;
+    public int pinkbarCount = 0;
+
+    public CountDownTimer dotimerForPinkAnim;
+    public CountDownTimer dotimerForVideoTime;
+    private final long pinkanimTime = 6000;
+    private final long startOffsetRecording = 1000;
+    private final long interval = 55;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,7 +101,6 @@ public class ShootingGifActivity extends ActionBarActivity {
             }
             camera = Camera.open(findBackFacingCamera());
             cameraPreview.refreshCamera(camera);
-
         }
     }
 
@@ -109,22 +114,70 @@ public class ShootingGifActivity extends ActionBarActivity {
         cameraPreviewLayout = (LinearLayout) findViewById(R.id.camera_preview);
         cameraPreview = new CameraPreview(context, camera);
 
+
         capture = (ImageButton) findViewById(R.id.button_capture);
-        capture.setOnClickListener(captrureListener);
+
+        capture.setOnTouchListener(captrureListener);
         capture.setOnLongClickListener(onLongClickListener);
+
 
         switchCamera = (ImageButton) findViewById(R.id.button_ChangeCamera);
         switchCamera.setOnClickListener(switchCameraListener);
 
         cameraPreviewLayout.addView(cameraPreview);
 
+        mProgress = (ProgressBar) findViewById(R.id.circle_progress_bar);
+        flashlightswitcher = (ImageButton) findViewById(R.id.flashlightButton);
+
+        screenModeBtn = (ImageButton) findViewById(R.id.screen_mode);
+        cancelBtn = (Button) findViewById(R.id.cancel_btn);
+        //puting resources for flashligth
+       /* final Map<String, Integer> map = new HashMap<String, Integer>();
+        map.put("flashlightON", R.drawable.car);*/
+        //TODO add 3 reusorces for flashligs button position
+
+
         findViewById(R.id.burst_mode_image).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 burstMode = burstModeCounts.get((burstModeCounts.indexOf(burstMode) + 1) % burstModeCounts.size());
                 ((TextView) findViewById(R.id.burst_mode_count)).setText("x" + burstMode);
+
             }
         });
+
+
+        findViewById(R.id.flashlightButton).setOnClickListener(new View.OnClickListener() {
+            int count;
+
+            @Override
+            public void onClick(View v) {
+                Camera.Parameters cameraParams = camera.getParameters();
+                count++;
+                switch (count) {
+                    case 1:
+                        cameraParams.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+                        camera.setParameters(cameraParams);
+                       /* flashlightswitcher.setImageResource(map.get("flashlightON"));*/   //TODO Add 1 of 3 picts.
+                        break;
+                    case 2:
+                        cameraParams.setFlashMode(Camera.Parameters.FLASH_MODE_AUTO);
+                        camera.setParameters(cameraParams);
+                        break;
+                    case 3:
+                        //TODO flashlight off/deafault mode
+                        cameraParams.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+                        camera.setParameters(cameraParams);
+                        count = 0;
+                        break;
+                }
+            }
+        });
+
+
+        dotimerForPinkAnim = new PinkAnimCountDownTimer(pinkanimTime, interval);
+        dotimerForVideoTime = new StartoffSetCounterTimer(startOffsetRecording, 1000);
+
     }
 
     private int findFrontFacingCamera() {
@@ -162,7 +215,8 @@ public class ShootingGifActivity extends ActionBarActivity {
     }
 
     private void releaseMediaRecorder() {
-        if (mediaRecorder != null) {
+
+        if (mediaRecorder != null) {//TODO add other expression (&&)
             mediaRecorder.reset(); // clear recorder configuration
             mediaRecorder.release(); // release the recorder object
             mediaRecorder = null;
@@ -173,13 +227,20 @@ public class ShootingGifActivity extends ActionBarActivity {
     private boolean prepareMediaRecorder() {
 
         mediaRecorder = new MediaRecorder();
-
         camera.unlock();
         mediaRecorder.setCamera(camera);
 
+
         mediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
         mediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
-        mediaRecorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_720P));
+
+
+        CamcorderProfile profile = CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH);
+        if (profile.videoFrameHeight > 720) {
+            mediaRecorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_720P));
+        } else {
+            mediaRecorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH));
+        }
 
         //mediaRecorder.setVideoFrameRate(2);
 
@@ -328,63 +389,93 @@ public class ShootingGifActivity extends ActionBarActivity {
         return Bitmap.createBitmap(bitmap, 0, 0, w, h, mtx, true);
     }
 
+
     boolean recording = false;
-    View.OnClickListener captrureListener = new View.OnClickListener() {
+
+
+    View.OnTouchListener captrureListener = new View.OnTouchListener() {
         @Override
-        public void onClick(View v) {
-            if (recording) {
-                // stop recording and release camera
-                myThread.interrupt();
+        public boolean onTouch(View v, MotionEvent event) {
+            switch (event.getActionMasked()) {
+                case MotionEvent.ACTION_DOWN:
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    break;
+                case MotionEvent.ACTION_UP:
+                    boolean finish = false;
+                    if (recording) {
+                        capture.setOnTouchListener(null);
+                        capture.setOnLongClickListener(null);
+                        dotimerForVideoTime.cancel();
+                        dotimerForPinkAnim.cancel();         //  end and hide the animation
+                        pinkbarCount = 0;
+                        mProgress.setProgress(pinkbarCount);
 
-                mediaRecorder.stop(); // stop the recording
-                releaseMediaRecorder(); // release the MediaRecorder object
-                Toast.makeText(ShootingGifActivity.this, "Video captured!", Toast.LENGTH_LONG).show();
-                recording = false;
+                        // stop recording and release camera
+                        myThread.interrupt();
 
-                saveCapturedVideoFrames();
+                        try {
+                            mediaRecorder.stop(); // stop the recording
+                        } catch (Exception e) {
+                            finish = true;
+                            recording = false;
+                            cameraPreview.refreshCamera(camera);
+                            findViewById(R.id.capture_time).setVisibility(View.INVISIBLE);
+                            findViewById(R.id.burst_mode_image).setVisibility(View.VISIBLE);
+                            findViewById(R.id.burst_count).setVisibility(View.VISIBLE);
+                        }
 
-            } else {
-                findViewById(R.id.burst_mode_image).setVisibility(View.VISIBLE);
-                findViewById(R.id.capture_time).setVisibility(View.INVISIBLE);
-                findViewById(R.id.burst_count).setVisibility(View.VISIBLE);
-                int n = burstMode;
-                takePic(n);
+                        if (!finish) {
+                            releaseMediaRecorder(); // release the MediaRecorder object
+                            Toast.makeText(ShootingGifActivity.this, "Video captured!", Toast.LENGTH_LONG).show();
+                            recording = false;
+                            saveCapturedVideoFrames();
+                        }
+
+                    } else {
+                        findViewById(R.id.burst_mode_image).setOnClickListener(null);
+                        capture.setOnTouchListener(null);
+                        capture.setOnLongClickListener(null);
+                        visibleSwitcher(View.INVISIBLE);
+                        findViewById(R.id.burst_mode_image).setVisibility(View.VISIBLE);
+                        findViewById(R.id.capture_time).setVisibility(View.INVISIBLE);
+                        findViewById(R.id.burst_count).setVisibility(View.VISIBLE);
+                        int n = burstMode;
+                        takePic(n);
+                    }
+                default:
+                    return false;
             }
+            return false;
         }
     };
+
 
     View.OnLongClickListener onLongClickListener = new View.OnLongClickListener() {
         @Override
         public boolean onLongClick(View v) {
-
-            findViewById(R.id.burst_mode_image).setVisibility(View.INVISIBLE);
-            findViewById(R.id.capture_time).setVisibility(View.VISIBLE);
             if (!prepareMediaRecorder()) {
                 Toast.makeText(ShootingGifActivity.this, "Fail in prepareMediaRecorder()!\n - Ended -", Toast.LENGTH_LONG).show();
                 finish();
             }
-
-            currentCapturedTime = 0;
-
+            currentCapturedTime = 60;
             Runnable myRunnableThread = new CountDownRunner();
             myThread = new Thread(myRunnableThread);
-            myThread.start();
 
             // work on UiThread for better performance
             runOnUiThread(new Runnable() {
                 public void run() {
                     // If there are stories, add them to the table
                     try {
+                        dotimerForVideoTime.start();     //start Pink Animation and time counter with video recording
                         mediaRecorder.start();
-
                     } catch (final Exception ex) {
                         // Log.i("---","Exception in thread");
                     }
                 }
             });
-
             recording = true;
-            return true;
+            return false;
         }
     };
 
@@ -393,23 +484,23 @@ public class ShootingGifActivity extends ActionBarActivity {
             public void run() {
                 try {
 
-                    ((TextView) findViewById(R.id.capture_time)).setText(currentCapturedTime / 10.0 + "");
-                    if (currentCapturedTime / 10.0 > 6) {
+                    ((TextView) findViewById(R.id.capture_time)).setText(currentCapturedTime / 10.0 + " s");
+                    if (currentCapturedTime / 10.0 == 0) {
                         // stop recording and release camera
                         myThread.interrupt();
-
                         mediaRecorder.stop(); // stop the recording
                         releaseMediaRecorder(); // release the MediaRecorder object
                         Toast.makeText(ShootingGifActivity.this, "Video captured!", Toast.LENGTH_LONG).show();
-                        recording = false;
-
                         saveCapturedVideoFrames();
+
+                        visibleSwitcher(View.VISIBLE);
                     }
 
-                    currentCapturedTime++;
-                    if (currentCapturedTime == capturedTime) {
-                        captrureListener.onClick(capture);
-                    }
+                    currentCapturedTime--;
+                    /*if (currentCapturedTime == capturedTime) {
+                        captrureListener.onTouch(  ,MotionEvent.ACTION_UP);
+
+                    }*/
 
                 } catch (Exception e) {
                 }
@@ -466,4 +557,48 @@ public class ShootingGifActivity extends ActionBarActivity {
         });
     }
 
+    public void visibleSwitcher(int visibility) {
+        flashlightswitcher.setVisibility(visibility);
+        switchCamera.setVisibility(visibility);
+        cancelBtn.setVisibility(visibility);
+        screenModeBtn.setVisibility(visibility);
+
+    }
+
+    public class StartoffSetCounterTimer extends CountDownTimer {
+
+        public StartoffSetCounterTimer(long startTime, long interval) {
+            super(startTime, interval);
+        }
+
+        @Override
+        public void onFinish() {
+            visibleSwitcher(View.INVISIBLE);
+
+            findViewById(R.id.burst_mode_image).setVisibility(View.INVISIBLE);
+            findViewById(R.id.capture_time).setVisibility(View.VISIBLE);
+            myThread.start();
+            dotimerForPinkAnim.start();
+        }
+
+        @Override
+        public void onTick(long millisUntilFinished) {
+        }
+    }
+
+    public class PinkAnimCountDownTimer extends CountDownTimer {
+        public PinkAnimCountDownTimer(long startTime, long interval) {
+            super(startTime, interval);
+        }
+
+        @Override
+        public void onFinish() {
+
+        }
+
+        @Override
+        public void onTick(long millisUntilFinished) {
+            mProgress.setProgress(pinkbarCount++);
+        }
+    }
 }
