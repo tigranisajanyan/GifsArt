@@ -23,7 +23,6 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:23.0.1'
     compile 'com.android.support:recyclerview-v7:23.0.1'
-    compile files('libs/universal-image-loader-1.9.3.jar')
     compile 'com.facebook.fresco:fresco:0.7.0+'
     compile project(':picsart_video_encoder')
     compile project(':android-gif-drawable-master')

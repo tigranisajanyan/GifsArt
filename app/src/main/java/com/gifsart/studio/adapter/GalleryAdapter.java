@@ -3,7 +3,6 @@ package com.gifsart.studio.adapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.support.v7.app.ActionBar;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +11,7 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import com.bumptech.glide.Glide;
@@ -19,6 +19,7 @@ import com.gifsart.studio.R;
 import com.gifsart.studio.activity.GiphyActivity;
 import com.gifsart.studio.activity.ShootingGifActivity;
 import com.gifsart.studio.item.GalleryItem;
+import com.gifsart.studio.utils.CheckSpaceSingleton;
 import com.gifsart.studio.utils.GifsArtConst;
 import com.gifsart.studio.utils.Type;
 import com.gifsart.studio.utils.Utils;
@@ -34,7 +35,6 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
     private int imageSize;
 
     public GalleryAdapter(ArrayList<GalleryItem> arr, Activity activity, int imageSize) {
-
         this.array = arr;
         this.activity = activity;
         this.imageSize = imageSize;
@@ -43,7 +43,6 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(activity).inflate(R.layout.gallery_item, parent, false);
-
         return new ViewHolder(v);
     }
 
@@ -79,6 +78,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
             holder.mainFrameImageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    deselectAll();
                     Intent intent = new Intent(activity, GiphyActivity.class);
                     if (activity.getSharedPreferences(GifsArtConst.SHARED_PREFERENCES, Context.MODE_PRIVATE).getBoolean(GifsArtConst.SHARED_PREFERENCES_IS_OPENED, false)) {
                         activity.startActivityForResult(intent, GifsArtConst.REQUEST_CODE_GIPHY_REOPENED);
@@ -94,6 +94,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
                 public void onClick(View v) {
 
                     if (array.get(position).isSeleted()) {
+                        CheckSpaceSingleton.getInstance().removeAllocatedSpace(array.get(position).getFilePath());
                         array.get(position).setIsSeleted(false);
                         updateSelecetedItems(position);
                         selected.remove(array.get(position));
@@ -105,10 +106,15 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
                         }
 
                     } else {
-                        array.get(position).setIsSeleted(true);
-                        selected.add(array.get(position));
-                        ((TextView) activity.findViewById(R.id.maic_activity_toolbar_selected_text)).setText(getSelected().size() + " Selected");
-                        notifyItemChanged(position);
+                        if (CheckSpaceSingleton.getInstance().haveEnoughSpace(array.get(position).getFilePath())) {
+                            CheckSpaceSingleton.getInstance().addAllocatedSpace(array.get(position).getFilePath());
+                            array.get(position).setIsSeleted(true);
+                            selected.add(array.get(position));
+                            ((TextView) activity.findViewById(R.id.maic_activity_toolbar_selected_text)).setText(getSelected().size() + " Selected");
+                            notifyItemChanged(position);
+                        } else {
+                            Toast.makeText(activity, "No Enough Space", Toast.LENGTH_SHORT).show();
+                        }
                     }
 
                     holder.textView.setSelected(array
@@ -120,17 +126,17 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
             ((Button) activity.findViewById(R.id.maic_activity_toolbar_cancel)).setText(((selected.size() > 0) ? "Deselect" : "Cancel"));
 
             try {
-                Glide.with(activity).load(array.get(position).getImagePath()).asBitmap().centerCrop().into(holder.mainFrameImageView);
+                Glide.with(activity).load(array.get(position).getFilePath()).asBitmap().centerCrop().into(holder.mainFrameImageView);
                 holder.textView
                         .setSelected(array.get(position).isSeleted());
 
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            if (Utils.getMimeType(array.get(position).getImagePath()) != null && Utils.getMimeType(array.get(position).getImagePath()) == Type.GIF) {
+            if (Utils.getMimeType(array.get(position).getFilePath()) != null && Utils.getMimeType(array.get(position).getFilePath()) == Type.GIF) {
                 holder.fileTypeImageView.setImageDrawable(activity.getResources().getDrawable(R.drawable.gif_icon));
-            } else if (Utils.getMimeType(array.get(position).getImagePath()) != null && Utils.getMimeType(array.get(position).getImagePath()) == Type.VIDEO) {
-                Glide.with(activity).load(array.get(position).getImagePath()).into(holder.mainFrameImageView);
+            } else if (Utils.getMimeType(array.get(position).getFilePath()) != null && Utils.getMimeType(array.get(position).getFilePath()) == Type.VIDEO) {
+                Glide.with(activity).load(array.get(position).getFilePath()).into(holder.mainFrameImageView);
                 holder.fileTypeImageView.setImageDrawable(activity.getResources().getDrawable(R.drawable.video_icon));
             } else {
                 holder.fileTypeImageView.setImageBitmap(null);
@@ -183,7 +189,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
         ArrayList<String> arrayList = new ArrayList<>();
         for (int i = 0; i < selected.size(); i++) {
             if (selected.get(i).isSeleted()) {
-                arrayList.add(selected.get(i).getImagePath());
+                arrayList.add(selected.get(i).getFilePath());
             }
         }
 
@@ -191,15 +197,17 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
     }
 
     public void deselectAll() {
-        for (int i = 0; i < array.size(); i++) {
-            if (array.get(i).isSeleted() == true) {
-                array.get(i).setIsSeleted(false);
+        if (selected.size() > 0) {
+            for (int i = 0; i < array.size(); i++) {
+                if (array.get(i).isSeleted() == true) {
+                    array.get(i).setIsSeleted(false);
+                }
             }
+            selected.clear();
+            ((TextView) activity.findViewById(R.id.maic_activity_toolbar_selected_text)).setText("");
+            ((TextView) activity.findViewById(R.id.maic_activity_toolbar_cancel)).setText("Cancel");
+            notifyDataSetChanged();
         }
-        selected.clear();
-        ((TextView) activity.findViewById(R.id.maic_activity_toolbar_selected_text)).setText("");
-        ((TextView) activity.findViewById(R.id.maic_activity_toolbar_cancel)).setText("Cancel");
-        notifyDataSetChanged();
     }
 
     public void updateSelecetedItems(int deselectedItemPos) {

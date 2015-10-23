@@ -32,11 +32,13 @@
                 android:id="@+id/burst_mode_image"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/corner"
+                android:background="@drawable/burst_mode_corner"
                 android:gravity="center"
                 android:orientation="horizontal"
+                android:paddingBottom="2dp"
                 android:paddingLeft="10dp"
-                android:paddingRight="10dp">
+                android:paddingRight="10dp"
+                android:paddingTop="2dp">
 
                 <ImageView
                     android:layout_width="wrap_content"
@@ -89,7 +91,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:gravity="center"
-            android:textColor="@color/font_main_color" />
+            android:textColor="@color/font_main_color"
+            android:textSize="40dp" />
     </FrameLayout>
 
 

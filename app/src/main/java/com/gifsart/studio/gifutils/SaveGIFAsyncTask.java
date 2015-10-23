@@ -157,6 +157,25 @@ public class SaveGIFAsyncTask extends AsyncTask<Void, Integer, Void> {
         alertDialog.show();
     }
 
+    public class ApplyEffects extends AsyncTask<Void,Void,Void>{
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+
+        }
+    }
+
     public void applyEffect(final GPUImageFilter gpuImageFilter) {
         GPUImage gpuImage = new GPUImage(activity);
         gpuImage.setFilter(gpuImageFilter);

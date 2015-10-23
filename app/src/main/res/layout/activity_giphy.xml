@@ -23,7 +23,9 @@
                 <ImageButton
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true" />
+                    android:layout_alignParentLeft="true"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/back_icon" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -43,16 +45,19 @@
             </RelativeLayout>
 
             <LinearLayout
+                android:id="@+id/search_giphy"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:orientation="horizontal">
 
-                <EditText
-                    android:id="@+id/search_giphy_edit_text"
+                <SearchView
+                    android:id="@+id/search_giphy_search_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:imeOptions="actionSearch" />
+                    android:closeIcon="@drawable/giphy_clear_icon"
+                    android:searchIcon="@drawable/giphy_search_icon" />
 
                 <Button
                     android:id="@+id/giphy_search_cancel_button"
@@ -63,7 +68,8 @@
                     android:background="@android:color/transparent"
                     android:singleLine="true"
                     android:text="Cancel"
-                    android:textColor="@color/pink" />
+                    android:textColor="@color/pink"
+                    android:visibility="gone" />
             </LinearLayout>
 
         </LinearLayout>

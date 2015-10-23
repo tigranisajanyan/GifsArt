@@ -252,6 +252,7 @@ public class MainView extends View {
         }
 
         clipartViewArrayList.add(clipartView);
+        Log.d("gagaga", clipartViewArrayList.size() + "");
 
         invalidate();
         return clipartView;

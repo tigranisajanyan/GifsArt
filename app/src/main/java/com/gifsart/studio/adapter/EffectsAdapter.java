@@ -21,7 +21,7 @@ import java.util.ArrayList;
 public class EffectsAdapter extends RecyclerView.Adapter<EffectsAdapter.ViewHolder> {
 
     private GPUEffects.FilterList filters;
-    private ArrayList<Bitmap> imagePath = new ArrayList<>();
+    private ArrayList<Bitmap> imageBitmaps = new ArrayList<>();
     private LayoutInflater inflater = null;
     private Context context;
 
@@ -41,28 +41,28 @@ public class EffectsAdapter extends RecyclerView.Adapter<EffectsAdapter.ViewHold
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
 
-        holder.effectImageView.setImageBitmap(imagePath.get(position));
+        holder.effectImageView.setImageBitmap(imageBitmaps.get(position));
         holder.textView.setText(filters.names.get(position));
 
     }
 
-    public void addItem(Bitmap path) {
-        imagePath.add(path);
+    public void addItem(Bitmap bitmap) {
+        imageBitmaps.add(bitmap);
         notifyDataSetChanged();
     }
 
     public void addAll(ArrayList<Bitmap> bitmaps) {
-        imagePath.addAll(bitmaps);
+        imageBitmaps.addAll(bitmaps);
         notifyDataSetChanged();
     }
 
     @Override
     public int getItemCount() {
-        return imagePath.size();
+        return imageBitmaps.size();
     }
 
     public Bitmap getItem(int position) {
-        return imagePath.get(position);
+        return imageBitmaps.get(position);
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {

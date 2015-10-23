@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.gifsart.studio.R;
@@ -13,17 +14,17 @@ import com.gifsart.studio.R;
 import java.util.ArrayList;
 
 /**
- * Created by Tigran on 10/14/15.
+ * Created by Tigran on 10/22/15.
  */
-public class StickerCategoryAdapter extends RecyclerView.Adapter<StickerCategoryAdapter.ViewHolder> {
+public class MasksAdapter extends RecyclerView.Adapter<MasksAdapter.ViewHolder> {
 
-    private ArrayList<Integer> resourceIds = new ArrayList<>();
+    private ArrayList<Integer> maskResourceIds = new ArrayList<>();
     private LayoutInflater inflater = null;
     private Context context;
 
-    public StickerCategoryAdapter(ArrayList<Integer> resourceIds, Context context) {
-        this.resourceIds = resourceIds;
+    public MasksAdapter(ArrayList<Integer> maskResourceIds, Context context) {
         this.context = context;
+        this.maskResourceIds = maskResourceIds;
     }
 
     @Override
@@ -31,32 +32,41 @@ public class StickerCategoryAdapter extends RecyclerView.Adapter<StickerCategory
         if (inflater == null) {
             inflater = LayoutInflater.from(parent.getContext());
         }
-        return new ViewHolder(inflater.inflate(R.layout.sticker_category_item, parent, false));
+        return new ViewHolder(inflater.inflate(R.layout.effects_item, parent, false));
     }
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
-        holder.stickerImageView.setImageResource(resourceIds.get(position));
+
+        Glide.with(context).load(maskResourceIds.get(position)).thumbnail(0.1f).into(holder.maskImageView);
+
+    }
+
+    public void addItem(int resourceId) {
+        notifyDataSetChanged();
     }
 
     @Override
     public int getItemCount() {
-        return resourceIds.size();
+        return maskResourceIds.size();
     }
 
     public int getItem(int position) {
-        return resourceIds.get(position);
+        return maskResourceIds.get(position);
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
 
-        public ImageView stickerImageView;
+        public ImageView maskImageView;
+        public TextView textView;
 
         public ViewHolder(View itemView) {
             super(itemView);
 
-            stickerImageView = (ImageView) itemView.findViewById(R.id.stiker_category_image_view);
-            stickerImageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            maskImageView = (ImageView) itemView.findViewById(R.id.effect_image_view);
+
+            textView = (TextView) itemView.findViewById(R.id.effect_text_view);
+            textView.setVisibility(View.INVISIBLE);
         }
     }
 

@@ -28,6 +28,7 @@ import android.widget.Toast;
 import com.decoder.VideoDecoder;
 import com.gifsart.studio.R;
 import com.gifsart.studio.utils.CameraPreview;
+import com.gifsart.studio.utils.CheckSpaceSingleton;
 import com.gifsart.studio.utils.GifsArtConst;
 import com.gifsart.studio.utils.Utils;
 import com.socialin.android.photo.imgop.ImageOp;
@@ -298,11 +299,25 @@ public class ShootingGifActivity extends ActionBarActivity {
                 @Override
                 public void onPictureTaken(byte[] data, Camera camera) {
 
+                    /*File pictureFile = new File(Environment.getExternalStorageDirectory() + "/GifsArt/video_frames/", "img" + n + ".jpg");
+
+                    if (pictureFile == null) {
+                        return;
+                    }
+                    try {
+                        //write the file
+                        FileOutputStream fos = new FileOutputStream(pictureFile);
+                        fos.write(data);
+                        fos.close();
+
+                    } catch (FileNotFoundException e) {
+                    } catch (IOException e) {
+                    }*/
                     Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
                     try {
                         FileOutputStream fileOutputStream = new FileOutputStream(new File(Environment.getExternalStorageDirectory() + "/GifsArt/video_frames/", "img" + n + ".jpg"));
                         bitmap = rotate(bitmap, 90);
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 80, fileOutputStream);
                         fileOutputStream.close();
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
@@ -341,7 +356,12 @@ public class ShootingGifActivity extends ActionBarActivity {
                 Toast.makeText(ShootingGifActivity.this, "Video captured!", Toast.LENGTH_LONG).show();
                 recording = false;
 
-                saveCapturedVideoFrames();
+                if (CheckSpaceSingleton.getInstance().haveEnoughSpace(GifsArtConst.SHOOTING_VIDEO_OUTPUT_DIR + "/" + GifsArtConst.VIDEO_NAME)) {
+                    saveCapturedVideoFrames();
+                } else {
+                    finish();
+                    Toast.makeText(context, "No enough space", Toast.LENGTH_SHORT).show();
+                }
 
             } else {
                 findViewById(R.id.burst_mode_image).setVisibility(View.VISIBLE);
@@ -450,8 +470,6 @@ public class ShootingGifActivity extends ActionBarActivity {
                     intent.putExtra(GifsArtConst.INTENT_VIDEO_FRAME_SCALE_SIZE, GifsArtConst.VIDEO_FRAME_SCALE_SIZE);
                     intent.putExtra(GifsArtConst.INTENT_VIDEO_PATH, GifsArtConst.SHOOTING_VIDEO_OUTPUT_DIR + "/" + GifsArtConst.VIDEO_NAME);
                     startActivity(intent);
-                    progressDialog.dismiss();
-                    finish();
                 } else {
                     Intent intent = new Intent();
                     intent.putExtra(GifsArtConst.INTENT_FRONT_CAMERA, cameraFront);
@@ -459,9 +477,11 @@ public class ShootingGifActivity extends ActionBarActivity {
                     intent.putExtra(GifsArtConst.INTENT_VIDEO_FRAME_SCALE_SIZE, GifsArtConst.VIDEO_FRAME_SCALE_SIZE);
                     intent.putExtra(GifsArtConst.INTENT_VIDEO_PATH, GifsArtConst.SHOOTING_VIDEO_OUTPUT_DIR + "/" + GifsArtConst.VIDEO_NAME);
                     setResult(RESULT_OK, intent);
-                    progressDialog.dismiss();
-                    finish();
                 }
+                CheckSpaceSingleton.getInstance().addAllocatedSpace(GifsArtConst.SHOOTING_VIDEO_OUTPUT_DIR + "/" + GifsArtConst.VIDEO_NAME);
+                progressDialog.dismiss();
+                finish();
+
             }
         });
     }

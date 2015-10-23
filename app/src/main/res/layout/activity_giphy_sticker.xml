@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_color"
+    tools:context="com.gifsart.studio.activity.GiphyStickerActivity">
+
+    <RelativeLayout
+        android:id="@+id/giphy_sticker_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:background="@color/navigation_bar_color">
+
+        <SearchView
+            android:id="@+id/giphy_sticker_search"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true" />
+
+        <Button
+            android:id="@+id/giphy_sticker_cancel_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_toLeftOf="@+id/giphy_sticker_search"
+            android:background="@android:color/transparent"
+            android:text="Cancel"
+            android:textColor="@color/font_main_color" />
+    </RelativeLayout>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/giphy_sticker_rec_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/giphy_sticker_toolbar"
+        android:layout_marginTop="5dp" />
+
+</RelativeLayout>

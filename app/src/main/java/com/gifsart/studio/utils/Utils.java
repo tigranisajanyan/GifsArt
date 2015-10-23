@@ -10,14 +10,11 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PointF;
-import android.graphics.Rect;
 import android.graphics.RectF;
 import android.media.ExifInterface;
 import android.media.MediaMetadataRetriever;
-import android.media.ThumbnailUtils;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -25,66 +22,23 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.webkit.MimeTypeMap;
 
-import com.decoder.BitmapManager;
 import com.decoder.PhotoUtils;
-import com.gifsart.studio.gifutils.GifDecoder;
 import com.gifsart.studio.item.GalleryItem;
-import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiscCache;
-import com.nostra13.universalimageloader.cache.disc.naming.HashCodeFileNameGenerator;
-import com.nostra13.universalimageloader.cache.memory.impl.UsingFreqLimitedMemoryCache;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
-import com.nostra13.universalimageloader.core.assist.ImageScaleType;
-import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
-import com.nostra13.universalimageloader.core.process.BitmapProcessor;
-import com.nostra13.universalimageloader.utils.StorageUtils;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import pl.droidsonroids.gif.GifDrawable;
-
 
 public class Utils {
-
-    public static int calculateInSampleSize(
-            BitmapFactory.Options options, int reqWidth, int reqHeight) {
-
-        final int height = options.outHeight;
-        final int width = options.outWidth;
-        int inSampleSize = 1;
-        if (height > reqHeight || width > reqWidth) {
-            final int heightRatio = Math.round((float) height / (float) reqHeight);
-            final int widthRatio = Math.round((float) width / (float) reqWidth);
-            inSampleSize = heightRatio < widthRatio ? heightRatio : widthRatio;
-        }
-        return inSampleSize;
-    }
-
-    public static Bitmap decodeSampledBitmapFromResource(File file1,
-                                                         int reqWidth, int reqHeight) {
-        final BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(file1.toString(), options);
-        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
-        options.inJustDecodeBounds = false;
-        return BitmapFactory.decodeFile(file1.toString(), options);
-    }
 
     public static double getBitmapWidth(Context context) {
 
@@ -163,50 +117,6 @@ public class Utils {
         return dest;
     }
 
-
-    public static void initImageLoader(Context context) {
-        try {
-            String CACHE_DIR = Environment.getExternalStorageDirectory()
-                    .getAbsolutePath() + "/.temp_tmp";
-            new File(CACHE_DIR).mkdirs();
-
-            File cacheDir = StorageUtils.getOwnCacheDirectory(context,
-                    CACHE_DIR);
-
-            DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
-                    .cacheOnDisc(true)
-                    .imageScaleType(ImageScaleType.IN_SAMPLE_POWER_OF_2)
-                    .considerExifParams(true)
-                    .cacheOnDisk(true)
-                    .cacheInMemory(true)
-                    .considerExifParams(true)
-                    .decodingOptions(new BitmapFactory.Options())
-                    .bitmapConfig(Bitmap.Config.RGB_565).build();
-
-            ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(context)
-                    /*.memoryCacheExtraOptions(1024, 1024) // width, height
-                    .diskCacheExtraOptions(1024, 1024, new BitmapProcessor() {
-                        @Override
-                        public Bitmap process(Bitmap bitmap) {
-                            return null;
-                        }
-                    })
-                    .threadPoolSize(3)
-                    .threadPriority(Thread.MIN_PRIORITY + 2)*/
-                    .denyCacheImageMultipleSizesInMemory()
-                    .memoryCache(new UsingFreqLimitedMemoryCache(10 * 1024 * 1024)) // 3 Mb
-                    .diskCache(new UnlimitedDiscCache(cacheDir))
-                    .diskCacheFileNameGenerator(new HashCodeFileNameGenerator())
-                    .imageDownloader(new BaseImageDownloader(context)) // connectTimeout (5 s), readTimeout (30 s)
-                    .defaultDisplayImageOptions(defaultOptions)
-                    .build();
-
-            ImageLoader.getInstance().init(config);
-
-        } catch (Exception e) {
-        }
-    }
-
     public static ArrayList<GalleryItem> getGalleryPhotos(Activity activity) {
         ArrayList<GalleryItem> galleryList = new ArrayList();
 
@@ -229,11 +139,11 @@ public class Utils {
 
                     File file = new File(imagecursor.getString(dataColumnIndex));
                     if (file.exists()) {
-                        item.setImagePath(imagecursor.getString(dataColumnIndex));
-                        /*if (Utils.getMimeType(gif_item.getImagePath()).toString().toLowerCase().contains("gif")) {
+                        item.setFilePath(imagecursor.getString(dataColumnIndex));
+                        /*if (Utils.getMimeType(gif_item.getFilePath()).toString().toLowerCase().contains("gif")) {
                             type = GalleryItem.Type.GIF;
                         }*/
-                        //gif_item.setHeight((int) Utils.getBitmapHeight(activity, gif_item.getImagePath()));
+                        //gif_item.setHeight((int) Utils.getBitmapHeight(activity, gif_item.getFilePath()));
                         //gif_item.setWidth((int) Utils.getBitmapWidth(activity));
                         galleryList.add(item);
                     }

@@ -206,6 +206,21 @@ public class ClipartView extends AbstractItem implements GestureDetector.Gesture
     }
 
 
+    public void cleanBitmaps() {
+        BitmapManager.recycle(bitmap);
+        bitmap = null;
+
+        BitmapManager.recycle(handleCorner);
+        handleCorner = null;
+
+        BitmapManager.recycle(handleRotate);
+        handleRotate = null;
+
+        BitmapManager.recycle(handleSide);
+        handleSide = null;
+    }
+
+
     public void draw(Canvas c) {
         if (isActive) {
             float xUnscaled = centerX - origWidth * 0.5f;
@@ -654,22 +669,6 @@ public class ClipartView extends AbstractItem implements GestureDetector.Gesture
 
         scaleX /= scale;
         scaleY /= scale;
-    }
-
-
-    public void cleanBitmaps() {
-        BitmapManager.recycle(bitmap);
-        bitmap = null;
-
-        BitmapManager.recycle(handleCorner);
-        handleCorner = null;
-
-        BitmapManager.recycle(handleRotate);
-        handleRotate = null;
-
-        BitmapManager.recycle(handleSide);
-        handleSide = null;
-
     }
 
     private void refreshClipartProperties() {

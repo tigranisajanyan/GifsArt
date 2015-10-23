@@ -41,6 +41,16 @@ public class GifUtils {
         return gifDrawable.getFrameDuration(0);
     }
 
+    public static int getGifFramesCount(String gifPath) {
+        GifDrawable gifDrawable = null;
+        try {
+            gifDrawable = new GifDrawable(gifPath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return gifDrawable.getNumberOfFrames();
+    }
+
     public static ArrayList<Bitmap> getGifFramesFromResources(Context context, int resId) {
 
         GifDrawable gifDrawable = null;

@@ -47,10 +47,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Utils.initImageLoader(getApplicationContext());
-        ImageLoader.getInstance().clearMemoryCache();
-        ImageLoader.getInstance().clearDiskCache();
-
         Utils.createDir(GifsArtConst.MY_DIR);
         Utils.createDir(GifsArtConst.DIR_GIPHY);
         Utils.createDir(GifsArtConst.DIR_GPU_IMAGES);
@@ -96,14 +92,15 @@ public class MainActivity extends AppCompatActivity {
 
                     galleryAdapter.notifyDataSetChanged();
 
+                    final ProgressDialog progressDialog = new ProgressDialog(MainActivity.this);
+                    progressDialog.setMessage(getApplicationContext().getResources().getString(R.string.please_wait));
+                    progressDialog.setCancelable(false);
+                    progressDialog.show();
+                    boolean hasVideo = false;
+                    ArrayList<String> arrayList = galleryAdapter.getSelected();
+
                     // if MainActivity is opened for the first time will do this
                     if (!sharedPreferences.getBoolean(GifsArtConst.SHARED_PREFERENCES_IS_OPENED, false)) {
-                        final ProgressDialog progressDialog = new ProgressDialog(MainActivity.this);
-                        progressDialog.setMessage(getApplicationContext().getResources().getString(R.string.please_wait));
-                        progressDialog.setCancelable(false);
-                        progressDialog.show();
-                        boolean hasVideo = false;
-                        ArrayList<String> arrayList = galleryAdapter.getSelected();
                         for (int i = 0; i < arrayList.size(); i++) {
                             if (Utils.getMimeType(arrayList.get(i)) != null && Utils.getMimeType(arrayList.get(i)) == Type.VIDEO) {
                                 sendIntentWithVideo(new Intent(MainActivity.this, MakeGifActivity.class), arrayList.get(i), galleryAdapter, progressDialog, false);
@@ -113,13 +110,8 @@ public class MainActivity extends AppCompatActivity {
                         if (!hasVideo) {
                             sendIntentWithoutVideo(new Intent(MainActivity.this, MakeGifActivity.class), galleryAdapter, progressDialog, false);
                         }
-                    } else {    // if MainActivity is reopened will do this
-                        final ProgressDialog progressDialog = new ProgressDialog(MainActivity.this);
-                        progressDialog.setMessage(getApplicationContext().getResources().getString(R.string.please_wait));
-                        progressDialog.setCancelable(false);
-                        progressDialog.show();
-                        boolean hasVideo = false;
-                        ArrayList<String> arrayList = galleryAdapter.getSelected();
+                    } else {
+                        // if MainActivity is reopened will do this
                         for (int i = 0; i < arrayList.size(); i++) {
                             if (Utils.getMimeType(arrayList.get(i)) != null && Utils.getMimeType(arrayList.get(i)) == Type.VIDEO) {
                                 sendIntentWithVideo(new Intent(), arrayList.get(i), galleryAdapter, progressDialog, true);
@@ -151,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
             public void onImagesRetrieved(ArrayList<ImageData> data) {
                 for (int i = 0; i < data.size(); i++) {
 
-                    customGalleryArrayList.add(new GalleryItem(data.get(i).getImagePath()));
+                    customGalleryArrayList.add(new GalleryItem(data.get(i).getFilePath()));
                 }
                 galleryAdapter.notifyDataSetChanged();
                 progressBar.setVisibility(View.GONE);

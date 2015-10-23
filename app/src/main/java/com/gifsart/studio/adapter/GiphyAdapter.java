@@ -17,6 +17,8 @@ import com.facebook.drawee.view.SimpleDraweeView;
 import com.gifsart.studio.R;
 import com.gifsart.studio.gifutils.Giphy;
 import com.gifsart.studio.item.GiphyItem;
+import com.gifsart.studio.utils.CheckSpaceSingleton;
+import com.gifsart.studio.utils.GifsArtConst;
 import com.gifsart.studio.utils.Utils;
 
 import java.util.ArrayList;
@@ -31,13 +33,16 @@ public class GiphyAdapter extends RecyclerView.Adapter<GiphyAdapter.ViewHolder> 
     private ArrayList<Integer> colors = new ArrayList<>();
     private LayoutInflater inflater = null;
     private Context context;
-    private int limit = 30;
+    private int limit = GifsArtConst.GIPHY_LIMIT_COUNT;
     private int offset = 0;
     private String tag;
     private int selectedPosition = -1;
+    private boolean isSticker = false;
     Random random = new Random();
 
-    public GiphyAdapter(Context context) {
+    public GiphyAdapter(String tag, boolean isSticker, Context context) {
+        this.tag = tag;
+        this.isSticker = isSticker;
         this.context = context;
     }
 
@@ -66,7 +71,7 @@ public class GiphyAdapter extends RecyclerView.Adapter<GiphyAdapter.ViewHolder> 
             if (Utils.haveNetworkConnection(context)) {
                 offset = offset + limit;
 
-                Giphy giphy = new Giphy(context, "funny", offset, limit);
+                Giphy giphy = new Giphy(context, tag, isSticker, offset, limit);
                 giphy.requestGiphy();
                 giphy.setOnDownloadedListener(new Giphy.GiphyListener() {
                     @Override
@@ -87,10 +92,15 @@ public class GiphyAdapter extends RecyclerView.Adapter<GiphyAdapter.ViewHolder> 
                     giphyItems.get(selectedPosition).setIsSelected(false);
                 }
                 if (selectedPosition != position) {
-                    giphyItems.get(position).setIsSelected(true);
-                    notifyItemChanged(selectedPosition);
-                    notifyItemChanged(position);
-                    selectedPosition = position;
+                    if (GifsArtConst.GIF_MAX_FRAMES_COUNT - CheckSpaceSingleton.getInstance().getAllocatedSpace() - 5 > giphyItems.get(position).getFramesCount()) {
+                        CheckSpaceSingleton.getInstance().setAllocatedSpace(giphyItems.get(position).getFramesCount());
+                        giphyItems.get(position).setIsSelected(true);
+                        notifyItemChanged(selectedPosition);
+                        notifyItemChanged(position);
+                        selectedPosition = position;
+                    } else {
+                        Toast.makeText(context, "No enough space", Toast.LENGTH_SHORT).show();
+                    }
                 } else {
                     notifyItemChanged(selectedPosition);
                     notifyItemChanged(position);
@@ -108,7 +118,6 @@ public class GiphyAdapter extends RecyclerView.Adapter<GiphyAdapter.ViewHolder> 
 
     }
 
-
     @Override
     public int getItemCount() {
         return giphyItems.size();
@@ -125,8 +134,14 @@ public class GiphyAdapter extends RecyclerView.Adapter<GiphyAdapter.ViewHolder> 
     }
 
     public void clear() {
+        limit = GifsArtConst.GIPHY_LIMIT_COUNT;
+        offset = 0;
         giphyItems.clear();
         notifyDataSetChanged();
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
     }
 
     public GiphyItem getItem(int position) {

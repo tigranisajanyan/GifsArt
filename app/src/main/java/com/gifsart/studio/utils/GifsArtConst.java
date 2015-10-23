@@ -25,6 +25,8 @@ public class GifsArtConst {
     public static String GIPHY_SIZE_DOWNSAMPLED = "fixed_width_downsampled";
     public static String GIPHY_LIMIT = "&limit=";
 
+    public static String GIPHY_STICKER = "http://api.giphy.com/v1/stickers/search?q=";
+
     public static String INTENT_VIDEO_PATH = "video_path";
     public static String INTENT_VIDEO_FRAME_SCALE_SIZE = "frame_scale_size";
     public static String INTENT_DECODED_IMAGE_PATHS = "image_paths";
@@ -69,5 +71,8 @@ public class GifsArtConst {
 
     public static int GIF_FRAME_SIZE = 500;
     public static int IMAGE_FRAME_DURATION = 200;   // 200 mls
+
+    public static int GIPHY_LIMIT_COUNT = 30;
+    public static int GIF_MAX_FRAMES_COUNT = 100;
 
 }

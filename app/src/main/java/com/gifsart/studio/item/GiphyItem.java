@@ -9,6 +9,8 @@ public class GiphyItem {
     private String originalGifUrl;
     private int gifWidth;
     private int gifHeight;
+    private int framesCount;
+
     private boolean isSelected;
 
     public GiphyItem() {
@@ -60,6 +62,14 @@ public class GiphyItem {
 
     public void setOriginalGifUrl(String originalGifUrl) {
         this.originalGifUrl = originalGifUrl;
+    }
+
+    public int getFramesCount() {
+        return framesCount;
+    }
+
+    public void setFramesCount(int framesCount) {
+        this.framesCount = framesCount;
     }
 
 }

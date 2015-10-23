@@ -29,15 +29,16 @@ public class Giphy {
     private Context context;
     private String tag = GifsArtConst.GIPHY_TAG;
     private int offset;
-    private int limit = 30;
+    private int limit = GifsArtConst.GIPHY_LIMIT_COUNT;
     private ArrayList<GiphyItem> giphyItems = new ArrayList<>();
     private GiphyListener giphyListener;
+    private boolean isSticker;
 
     public Giphy() {
 
     }
 
-    public Giphy(Context context, String tag, int offset, int limit) {
+    public Giphy(Context context, String tag, boolean isSticker, int offset, int limit) {
 
         this.context = context;
         if (tag != "" || tag != null) {
@@ -47,6 +48,7 @@ public class Giphy {
         if (limit > 0) {
             this.limit = limit;
         }
+        this.isSticker = isSticker;
 
     }
 
@@ -56,11 +58,14 @@ public class Giphy {
         progressDialog.setCancelable(false);
         progressDialog.setMessage(context.getResources().getString(R.string.please_wait));
         progressDialog.show();
-        String url = GifsArtConst.GIPHY_URL + tag + GifsArtConst.GIPHY_OFFSET + offset + GifsArtConst.GIPHY_LIMIT + limit + GifsArtConst.GIPHY_API_KEY;
+        String urlId = GifsArtConst.GIPHY_URL;
+        if (isSticker) {
+            urlId = GifsArtConst.GIPHY_STICKER;
+        }
+        String url = urlId + tag + GifsArtConst.GIPHY_OFFSET + offset + GifsArtConst.GIPHY_LIMIT + limit + GifsArtConst.GIPHY_API_KEY;
         RequestQueue queue = Volley.newRequestQueue(context);
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
-
                     @Override
                     public void onResponse(String response) {
                         JSONObject jsonObject = null;
@@ -78,6 +83,7 @@ public class Giphy {
                                 giphyItem.setOriginalGifUrl(jsonArray.getJSONObject(i).getJSONObject("images").getJSONObject(GifsArtConst.GIPHY_SIZE_ORIGINAL).getString("url"));
                                 giphyItem.setGifHeight(jsonArray.getJSONObject(i).getJSONObject("images").getJSONObject(GifsArtConst.GIPHY_SIZE_DOWNSAMPLED).getInt("height"));
                                 giphyItem.setGifWidth(jsonArray.getJSONObject(i).getJSONObject("images").getJSONObject(GifsArtConst.GIPHY_SIZE_DOWNSAMPLED).getInt("width"));
+                                giphyItem.setFramesCount(jsonArray.getJSONObject(i).getJSONObject("images").getJSONObject(GifsArtConst.GIPHY_SIZE_ORIGINAL).getInt("frames"));
                                 giphyItems.add(giphyItem);
                             }
 
@@ -90,7 +96,8 @@ public class Giphy {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d(GifsArtConst.GIFSART_LOG, error + "");
+                error.printStackTrace();
+                //Log.d(GifsArtConst.GIFSART_LOG, error + "");
             }
         });
         queue.add(stringRequest);
@@ -99,7 +106,6 @@ public class Giphy {
     public void setOnDownloadedListener(GiphyListener l) {
         giphyListener = l;
     }
-
 
     public interface GiphyListener {
         void onGiphyDownloadFinished(ArrayList<GiphyItem> items);

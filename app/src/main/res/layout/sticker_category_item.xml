@@ -1,10 +1,10 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="50dp"
-    android:layout_height="50dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:layout_margin="5dp">
 
-    <com.facebook.drawee.view.SimpleDraweeView
-        android:id="@+id/stiker_image_view"
+    <ImageView
+        android:id="@+id/stiker_category_image_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

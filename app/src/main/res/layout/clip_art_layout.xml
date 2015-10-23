@@ -10,8 +10,7 @@
         android:layout_width="match_parent"
         android:layout_alignParentTop="true"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/clipart_container"
-        android:layout_below="@+id/clipart_main_view_container" />
+        android:layout_above="@+id/clipart_container" />
 
     <LinearLayout
         android:id="@+id/clipart_container"

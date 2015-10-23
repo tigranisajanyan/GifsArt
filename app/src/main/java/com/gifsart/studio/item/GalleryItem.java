@@ -7,7 +7,7 @@ import com.gifsart.studio.utils.Type;
 public class GalleryItem {
 
     private Bitmap bitmap = null;
-    private String imagePath = null;
+    private String filePath = null;
     private boolean isSeleted = false;
     private int width = 0;
     private int height = 0;
@@ -19,18 +19,18 @@ public class GalleryItem {
 
     }
 
-    public GalleryItem(String imagePath) {
-        this.imagePath = imagePath;
+    public GalleryItem(String filePath) {
+        this.filePath = filePath;
     }
 
     public GalleryItem(Bitmap bitmap) {
         this.bitmap = bitmap;
     }
 
-    public GalleryItem(Bitmap bitmap, String imagePath, boolean isSeleted, boolean isFile, int width, int height) {
+    public GalleryItem(Bitmap bitmap, String filePath, boolean isSeleted, boolean isFile, int width, int height) {
 
         this.bitmap = bitmap;
-        this.imagePath = imagePath;
+        this.filePath = filePath;
         this.isSeleted = isSeleted;
         this.isFile = isFile;
         this.width = width;
@@ -38,10 +38,10 @@ public class GalleryItem {
 
     }
 
-    public GalleryItem(Bitmap bitmap, String imagePath, boolean isSeleted, boolean isFile, int width, int height, Type type) {
+    public GalleryItem(Bitmap bitmap, String filePath, boolean isSeleted, boolean isFile, int width, int height, Type type) {
 
         this.bitmap = bitmap;
-        this.imagePath = imagePath;
+        this.filePath = filePath;
         this.isSeleted = isSeleted;
         this.isFile = isFile;
         this.width = width;
@@ -66,12 +66,12 @@ public class GalleryItem {
         this.bitmap = bitmap;
     }
 
-    public String getImagePath() {
-        return imagePath;
+    public String getFilePath() {
+        return filePath;
     }
 
-    public void setImagePath(String imagePath) {
-        this.imagePath = imagePath;
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
     }
 
     public boolean isSeleted() {
