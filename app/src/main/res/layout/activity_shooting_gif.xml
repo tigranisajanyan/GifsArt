@@ -16,6 +16,7 @@
         android:gravity="center">
 
         <Button
+            android:id="@+id/cancel_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
@@ -55,15 +56,17 @@
             </LinearLayout>
 
             <TextView
+                android:layout_marginLeft="20dp"
                 android:id="@+id/capture_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="00"
+                android:text="6"
                 android:textColor="@color/font_main_color"
                 android:visibility="invisible" />
         </FrameLayout>
 
         <ImageButton
+            android:id="@+id/screen_mode"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
@@ -76,7 +79,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/ttt"
         android:layout_gravity="center"
-        android:gravity="center">
+        android:gravity="center"
+        android:id="@+id/frameLayout">
 
         <LinearLayout
             android:id="@+id/camera_preview"
@@ -96,37 +100,70 @@
     </FrameLayout>
 
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:background="@color/navigation_bar_color"
-        android:gravity="center">
+        android:gravity="center"
+        android:id="@+id/relativeLayout">
+
 
         <ImageButton
+            android:layout_weight="2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:background="@android:color/transparent"
-            android:src="@drawable/flash_light_on" />
+            android:src="@drawable/flash_light_on"
+            android:layout_centerVertical="true"
+            android:id="@+id/flashlightButton" />
 
-        <ImageButton
-            android:id="@+id/button_capture"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:background="@android:color/transparent"
-            android:src="@drawable/capture" />
+
+<RelativeLayout
+    android:layout_weight="2"
+    android:layout_marginLeft="10dp"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+
+    <ImageButton
+
+        android:id="@+id/button_capture"
+        android:layout_width="120dp"
+        android:layout_height="100dp"
+        android:background="@android:color/transparent"
+        android:src="@drawable/capture"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+
+    <ProgressBar
+        android:id="@+id/circle_progress_bar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="120dp"
+        android:layout_height="100dp"
+        android:max="100"
+        android:rotation="-90"
+        android:indeterminate="false"
+        android:progressDrawable="@drawable/circle_progress_foreground"
+        android:layout_alignBottom="@+id/button_capture"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"/>
+
+</RelativeLayout>
 
         <ImageButton
             android:id="@+id/button_ChangeCamera"
             android:layout_width="wrap_content"
+            android:layout_weight="2"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:layout_marginRight="16dp"
             android:background="@android:color/transparent"
+            android:layout_centerVertical="true"
             android:src="@drawable/camera_rotate" />
 
-    </RelativeLayout>
+    </LinearLayout>
+
+
 
 </RelativeLayout>
