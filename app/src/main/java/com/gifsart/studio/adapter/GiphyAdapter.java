@@ -61,12 +61,14 @@ public class GiphyAdapter extends RecyclerView.Adapter<GiphyAdapter.ViewHolder> 
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
+
         holder.simpleDraweeView.setBackgroundColor(colors.get(random.nextInt(colors.size())));
         Uri uri = Uri.parse(giphyItems.get(position).getGifUrl());
         DraweeController controller = Fresco.newDraweeControllerBuilder()
                 .setUri(uri)
                 .setAutoPlayAnimations(true).build();
         holder.simpleDraweeView.setController(controller);
+        // Giphy paging duaring giphy activity scralling
         if (position + 1 == limit + offset) {
             if (Utils.haveNetworkConnection(context)) {
                 offset = offset + limit;
@@ -84,31 +86,6 @@ public class GiphyAdapter extends RecyclerView.Adapter<GiphyAdapter.ViewHolder> 
                 Toast.makeText(context, "No Wifi Connection", Toast.LENGTH_SHORT).show();
             }
         }
-        holder.simpleDraweeView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                if (selectedPosition > -1) {
-                    giphyItems.get(selectedPosition).setIsSelected(false);
-                }
-                if (selectedPosition != position) {
-                    if (GifsArtConst.GIF_MAX_FRAMES_COUNT - CheckSpaceSingleton.getInstance().getAllocatedSpace() - 5 > giphyItems.get(position).getFramesCount()) {
-                        CheckSpaceSingleton.getInstance().setAllocatedSpace(giphyItems.get(position).getFramesCount());
-                        giphyItems.get(position).setIsSelected(true);
-                        notifyItemChanged(selectedPosition);
-                        notifyItemChanged(position);
-                        selectedPosition = position;
-                    } else {
-                        Toast.makeText(context, "No enough space", Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    notifyItemChanged(selectedPosition);
-                    notifyItemChanged(position);
-                    selectedPosition = position;
-                    selectedPosition = -1;
-                }
-            }
-        });
 
         if (giphyItems.get(position).isSelected() == true) {
             holder.corner.setVisibility(View.VISIBLE);
@@ -161,10 +138,6 @@ public class GiphyAdapter extends RecyclerView.Adapter<GiphyAdapter.ViewHolder> 
             corner.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, context.getResources().getDisplayMetrics().widthPixels / 2));
             corner.setVisibility(View.GONE);
         }
-    }
-
-    public int getSelectedPosition() {
-        return selectedPosition;
     }
 
 }

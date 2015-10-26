@@ -1,6 +1,7 @@
 package com.gifsart.studio.activity;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -27,6 +28,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.decoder.PhotoUtils;
@@ -44,7 +46,6 @@ import com.gifsart.studio.gifutils.GifUtils;
 import com.gifsart.studio.gifutils.Giphy;
 import com.gifsart.studio.gifutils.SaveGIFAsyncTask;
 import com.gifsart.studio.helper.RecyclerItemClickListener;
-import com.gifsart.studio.helper.SimpleItemTouchHelperCallback;
 import com.gifsart.studio.item.GifItem;
 import com.gifsart.studio.gifutils.GifImitation;
 import com.gifsart.studio.item.GiphyItem;
@@ -107,6 +108,7 @@ public class MakeGifActivity extends ActionBarActivity {
 
     private boolean containerIsOpened = false;
     private int selectedMaskPosition = 0;
+    private int editedFramePosition;
     private int clipartCurrentCategoryPosition = 0;
 
     private RequestCode requestCode;
@@ -142,14 +144,23 @@ public class MakeGifActivity extends ActionBarActivity {
         filters.addFilter("Posterize", GPUEffects.FilterType.POSTERIZE);
 
         maskResourceIds.add(R.drawable.none_icon);
-        maskResourceIds.add(R.drawable.mask1);
-        maskResourceIds.add(R.drawable.mask2);
-        maskResourceIds.add(R.drawable.mask3);
-        maskResourceIds.add(R.drawable.mask4);
-        maskResourceIds.add(R.drawable.mask5);
-        maskResourceIds.add(R.drawable.mask6);
-        maskResourceIds.add(R.drawable.mask7);
-        maskResourceIds.add(R.drawable.mask8);
+        maskResourceIds.add(R.raw.mask1);
+        maskResourceIds.add(R.raw.mask2);
+        maskResourceIds.add(R.raw.mask3);
+        maskResourceIds.add(R.raw.mask4);
+        maskResourceIds.add(R.raw.mask5);
+        maskResourceIds.add(R.raw.mask6);
+        maskResourceIds.add(R.raw.mask7);
+        maskResourceIds.add(R.raw.mask8);
+        maskResourceIds.add(R.raw.mask9);
+        maskResourceIds.add(R.raw.mask10);
+        maskResourceIds.add(R.raw.mask11);
+        maskResourceIds.add(R.raw.mask12);
+        maskResourceIds.add(R.raw.mask13);
+        maskResourceIds.add(R.raw.mask14);
+        maskResourceIds.add(R.raw.mask15);
+        maskResourceIds.add(R.raw.mask16);
+        maskResourceIds.add(R.raw.mask17);
 
         new LoadFramesAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
@@ -190,10 +201,13 @@ public class MakeGifActivity extends ActionBarActivity {
         framesRecyclerView.addItemDecoration(new SpacesItemDecoration(2));
         framesRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
-        /*framesRecyclerView.addOnItemTouchListener(new RecyclerItemClickListener(getApplicationContext(), new RecyclerItemClickListener.OnItemClickListener() {
+        framesRecyclerView.addOnItemTouchListener(new RecyclerItemClickListener(getApplicationContext(), new RecyclerItemClickListener.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
                 if (position != slideAdapter.getItemCount() - 1) {
+                    editedFramePosition = position;
+                    requestCode = RequestCode.EDIT_TEXT;
+                    gifImitation.showCurrentPosition(position);
                     setContainerLayout(R.layout.edit_frame_layout);
                     initEditFrameLayout();
                 } else {
@@ -205,14 +219,14 @@ public class MakeGifActivity extends ActionBarActivity {
                     editor.commit();
                 }
             }
-        }));*/
+        }));
 
-        initMainView();
-
-        ItemTouchHelper.Callback callback =
+        /*ItemTouchHelper.Callback callback =
                 new SimpleItemTouchHelperCallback(slideAdapter);
         ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
-        touchHelper.attachToRecyclerView(framesRecyclerView);
+        touchHelper.attachToRecyclerView(framesRecyclerView);*/
+
+        initMainView();
 
         gifImitation = new GifImitation(MakeGifActivity.this, mainFrameImageView, gifItems, gifSpeed);
         gifImitation.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
@@ -299,10 +313,16 @@ public class MakeGifActivity extends ActionBarActivity {
             @Override
             public void onClick(View v) {
                 if (containerIsOpened) {
-                    slideDownContainer();
+                    if (requestCode == RequestCode.EDIT_TEXT) {
+                        gifImitation.showAllPositions();
+                        addPlusButton();
+                    }
+
                     if (mainView != null && requestCode == RequestCode.SELECT_CLIPART) {
                         mainView.removeClipArt();
                     }
+
+                    slideDownContainer();
                 } else {
                     android.app.AlertDialog.Builder gifSavedDialogBuilder = new android.app.AlertDialog.Builder(MakeGifActivity.this);
                     gifSavedDialogBuilder.setMessage("Do you really want?");
@@ -565,11 +585,46 @@ public class MakeGifActivity extends ActionBarActivity {
                 startActivityForResult(intent, 666);
             }
         });
-
     }
 
     public void initEditFrameLayout() {
+        gifItems.remove(gifItems.size() - 1);
+        final TextView gifItemsCountTextView = ((TextView) findViewById(R.id.gifitems_count_text_view));
+        gifItemsCountTextView.setText((editedFramePosition + 1) + " of " + gifItems.size());
 
+        findViewById(R.id.left_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (editedFramePosition > 0) {
+                    editedFramePosition -= 1;
+                    gifImitation.showCurrentPosition(editedFramePosition);
+                    gifItemsCountTextView.setText((editedFramePosition + 1) + " of " + gifItems.size());
+                }
+            }
+        });
+        findViewById(R.id.right_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (editedFramePosition < gifItems.size() - 1) {
+                    editedFramePosition += 1;
+                    gifImitation.showCurrentPosition(editedFramePosition);
+                    gifItemsCountTextView.setText((editedFramePosition + 1) + " of " + gifItems.size());
+                }
+            }
+        });
+
+        findViewById(R.id.duplicate_frame_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (gifItems.get(editedFramePosition).getType() == Type.IMAGE) {
+                    gifItems.add(editedFramePosition + 1, gifItems.get(editedFramePosition));
+                    gifImitation.showAllPositions();
+                    addPlusButton();
+                    slideAdapter.notifyDataSetChanged();
+                    slideDownContainer();
+                }
+            }
+        });
     }
 
     public void initMaskLayout() {

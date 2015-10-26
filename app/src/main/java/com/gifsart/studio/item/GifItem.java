@@ -19,6 +19,8 @@ public class GifItem {
     private Type type = Type.NONE;
     private ArrayList<Clipart> cliparts;
 
+    private boolean isSelected = true;
+
     public GifItem() {
 
     }
@@ -82,6 +84,14 @@ public class GifItem {
 
     public void setCurrentDuration(int currentDuration) {
         this.currentDuration = currentDuration;
+    }
+
+    public boolean isSelected() {
+        return isSelected;
+    }
+
+    public void setIsSelected(boolean isSelected) {
+        this.isSelected = isSelected;
     }
 
 }

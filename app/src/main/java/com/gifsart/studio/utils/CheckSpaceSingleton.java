@@ -28,6 +28,10 @@ public class CheckSpaceSingleton {
     }
 
     public void setAllocatedSpace(int allocatedSpace) {
+        this.allocatedSpace = allocatedSpace;
+    }
+
+    public void addAllocatedSpaceInt(int allocatedSpace) {
         this.allocatedSpace += allocatedSpace;
     }
 
@@ -79,6 +83,15 @@ public class CheckSpaceSingleton {
             }
         }
         return false;
+    }
+
+    public boolean haveEnoughSpaceInt(int allocatedSpace) {
+        int freeSpace = GifsArtConst.GIF_MAX_FRAMES_COUNT - this.allocatedSpace;
+        if (freeSpace > allocatedSpace) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
 }

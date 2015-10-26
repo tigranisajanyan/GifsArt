@@ -3,7 +3,6 @@ package com.gifsart.studio.gifutils;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
-import android.widget.ImageView;
 
 import com.gifsart.studio.item.GifItem;
 import com.gifsart.studio.utils.ThreadControl;
@@ -25,8 +24,10 @@ public class GifImitation extends AsyncTask<Void, Bitmap, Void> {
     private int duration;
     private boolean play = false;
     private int k = 0;
+    private boolean boo = false;
 
     ThreadControl tControl = new ThreadControl();
+    ThreadControl contraller = new ThreadControl();
     int count = 0;
 
     public GifImitation(Context context, GPUImageView container, ArrayList<GifItem> gifItems, int duration) {
@@ -55,7 +56,8 @@ public class GifImitation extends AsyncTask<Void, Bitmap, Void> {
         while (play) {
 
             int index = k % gifItems.size();
-            if (gifItems.get(index).getType() == Type.IMAGE) {
+
+            if (gifItems.get(index).getType() == Type.IMAGE && gifItems.get(index).isSelected()) {
                 publishProgress(gifItems.get(index).getBitmap());
                 try {
                     TimeUnit.MILLISECONDS.sleep(gifItems.get(index).getCurrentDuration());
@@ -72,10 +74,15 @@ public class GifImitation extends AsyncTask<Void, Bitmap, Void> {
                 if (tControl.isCancelled()) {
                     break;
                 }
+                if (boo) {
+                    break;
+                }
                 ++count;
-
-            } else if (gifItems.get(index).getType() == Type.GIF) {
+            } else if (gifItems.get(index).getType() == Type.GIF && gifItems.get(index).isSelected()) {
                 for (int i = 0; i < gifItems.get(index).getBitmaps().size(); i++) {
+                    if (boo) {
+                        break;
+                    }
                     publishProgress(gifItems.get(index).getBitmaps().get(i));
                     try {
                         TimeUnit.MILLISECONDS.sleep(gifItems.get(index).getCurrentDuration());
@@ -95,9 +102,11 @@ public class GifImitation extends AsyncTask<Void, Bitmap, Void> {
                     }
                     ++count;
                 }
-
-            } else if ((gifItems.get(index).getType() == Type.VIDEO)) {
+            } else if ((gifItems.get(index).getType() == Type.VIDEO) && gifItems.get(index).isSelected()) {
                 for (int i = 0; i < gifItems.get(index).getBitmaps().size(); i++) {
+                    if (boo) {
+                        break;
+                    }
                     publishProgress(gifItems.get(index).getBitmaps().get(i));
                     try {
                         TimeUnit.MILLISECONDS.sleep(gifItems.get(index).getCurrentDuration());
@@ -123,12 +132,8 @@ public class GifImitation extends AsyncTask<Void, Bitmap, Void> {
             } catch (InterruptedException e) {
                 //e.printStackTrace();
             }
-
             k++;
-
-
         }
-
         return null;
     }
 
@@ -155,12 +160,48 @@ public class GifImitation extends AsyncTask<Void, Bitmap, Void> {
     public void onPause() {
         //No need to pause if we are getting destroyed
         //and will cancel thread control anyway.
-            //Pause control.
-            tControl.pause();
+        //Pause control.
+        play = false;
+        tControl.pause();
     }
 
     public void onResume() {
+        play = true;
         tControl.resume();
+    }
+
+    public void showCurrentPosition(int position) {
+        boo = true;
+        play = false;
+        gifItems.get(position).setIsSelected(true);
+        for (int i = 0; i < gifItems.size(); i++) {
+            if (i != position) {
+                gifItems.get(i).setIsSelected(false);
+            }
+        }
+        boo = false;
+        play = true;
+    }
+
+    public void showAllPositions() {
+        for (int i = 0; i < gifItems.size(); i++) {
+            gifItems.get(i).setIsSelected(true);
+        }
+        k = 0;
+        contraller.resume();
+    }
+
+    public void setItemContraller() {
+        try {
+            //Pause work if control is paused.
+            contraller.waitIfPaused();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        //Stop work if control is cancelled.
+        if (contraller.isCancelled()) {
+            return;
+        }
     }
 
 }
