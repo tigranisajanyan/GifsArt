@@ -87,7 +87,6 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
                     }
                 }
             });
-
         } else {
             holder.mainFrameImageView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -101,8 +100,8 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
                         ((TextView) activity.findViewById(R.id.maic_activity_toolbar_selected_text)).setText(getSelected().size() + " Selected");
                         if (getSelected().size() < 1) {
                             ((TextView) activity.findViewById(R.id.maic_activity_toolbar_selected_text)).setText("");
-                            ((TextView) activity.findViewById(R.id.maic_activity_toolbar_cancel)).setText("Cancel");
-                            ((Button) activity.findViewById(R.id.maic_activity_toolbar_done)).setTextColor(activity.getResources().getColor(R.color.font_main_color));
+                            ((TextView) activity.findViewById(R.id.main_activity_toolbar_cancel)).setText("Cancel");
+                            ((Button) activity.findViewById(R.id.main_activity_toolbar_done)).setTextColor(activity.getResources().getColor(R.color.font_main_color));
                         }
 
                     } else {
@@ -122,8 +121,8 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
                 }
             });
 
-            ((Button) activity.findViewById(R.id.maic_activity_toolbar_done)).setTextColor(((selected.size() > 0) ? activity.getResources().getColor(R.color.pink) : activity.getResources().getColor(R.color.font_main_color)));
-            ((Button) activity.findViewById(R.id.maic_activity_toolbar_cancel)).setText(((selected.size() > 0) ? "Deselect" : "Cancel"));
+            ((Button) activity.findViewById(R.id.main_activity_toolbar_done)).setTextColor(((selected.size() > 0) ? activity.getResources().getColor(R.color.pink) : activity.getResources().getColor(R.color.font_main_color)));
+            ((Button) activity.findViewById(R.id.main_activity_toolbar_cancel)).setText(((selected.size() > 0) ? "Deselect" : "Cancel"));
 
             try {
                 Glide.with(activity).load(array.get(position).getFilePath()).asBitmap().centerCrop().into(holder.mainFrameImageView);
@@ -141,7 +140,6 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
             } else {
                 holder.fileTypeImageView.setImageBitmap(null);
             }
-
 
             if (array.get(position).isSeleted()) {
                 holder.textView.setVisibility(View.VISIBLE);
@@ -185,6 +183,11 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
         return array.get(i);
     }
 
+    public void setArray(ArrayList<GalleryItem> array) {
+        this.array = array;
+        notifyDataSetChanged();
+    }
+
     public ArrayList<String> getSelected() {
         ArrayList<String> arrayList = new ArrayList<>();
         for (int i = 0; i < selected.size(); i++) {
@@ -192,7 +195,6 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
                 arrayList.add(selected.get(i).getFilePath());
             }
         }
-
         return arrayList;
     }
 
@@ -205,7 +207,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
             }
             selected.clear();
             ((TextView) activity.findViewById(R.id.maic_activity_toolbar_selected_text)).setText("");
-            ((TextView) activity.findViewById(R.id.maic_activity_toolbar_cancel)).setText("Cancel");
+            ((TextView) activity.findViewById(R.id.main_activity_toolbar_cancel)).setText("Cancel");
             notifyDataSetChanged();
         }
     }

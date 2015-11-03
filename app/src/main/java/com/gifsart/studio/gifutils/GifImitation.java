@@ -28,7 +28,9 @@ public class GifImitation extends AsyncTask<Void, Bitmap, Void> {
 
     ThreadControl tControl = new ThreadControl();
     ThreadControl contraller = new ThreadControl();
+
     int count = 0;
+    int width = 0;
 
     public GifImitation(Context context, GPUImageView container, ArrayList<GifItem> gifItems, int duration) {
 
@@ -141,8 +143,11 @@ public class GifImitation extends AsyncTask<Void, Bitmap, Void> {
     protected void onProgressUpdate(Bitmap... values) {
         super.onProgressUpdate(values);
         Bitmap bitmap = values[0];
-        container.getGPUImage().deleteImage();
-        container.setImage(bitmap);
+        if (width != bitmap.getWidth()) {
+            container.getGPUImage().deleteImage();
+            width = bitmap.getWidth();
+        }
+        container.getGPUImage().setImage(bitmap);
 
     }
 
@@ -150,11 +155,6 @@ public class GifImitation extends AsyncTask<Void, Bitmap, Void> {
     protected void onCancelled() {
         super.onCancelled();
         play = false;
-    }
-
-    protected void onDestroy() {
-        //Cancel control
-        tControl.cancel();
     }
 
     public void onPause() {

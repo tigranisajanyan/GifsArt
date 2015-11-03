@@ -1,11 +1,14 @@
 package com.gifsart.studio.activity;
 
 import android.app.SearchManager;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -27,7 +30,16 @@ import com.gifsart.studio.utils.GifsArtConst;
 import com.gifsart.studio.utils.SpacesItemDecoration;
 import com.gifsart.studio.utils.Utils;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
+
+import pl.droidsonroids.gif.GifDrawable;
 
 public class GiphyActivity extends AppCompatActivity {
 
@@ -41,6 +53,7 @@ public class GiphyActivity extends AppCompatActivity {
     private int offset = 0;
     private int limit = GifsArtConst.GIPHY_LIMIT_COUNT;
 
+    private static final String giphyName = "giphy.gif";
     private int lastSelectedPosition = -1;
     private SharedPreferences sharedPreferences;
 
@@ -147,7 +160,7 @@ public class GiphyActivity extends AppCompatActivity {
         search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(final String query) {
-                Giphy giphy = new Giphy(GiphyActivity.this, query, false, 0, 30);
+                Giphy giphy = new Giphy(GiphyActivity.this, query, false, 0, limit);
                 giphy.requestGiphy();
                 giphy.setOnDownloadedListener(new Giphy.GiphyListener() {
                     @Override
@@ -188,13 +201,14 @@ public class GiphyActivity extends AppCompatActivity {
     }
 
     public void sendIntentWithGif(final Intent intent, final boolean isOpened) {
-        DownloadFileAsyncTask downloadFileAsyncTask = new DownloadFileAsyncTask(GiphyActivity.this, root + GifsArtConst.SLASH + GifsArtConst.MY_DIR + "/giphy/giphy.gif", giphyItems.get(lastSelectedPosition));
+
+        DownloadFileAsyncTask downloadFileAsyncTask = new DownloadFileAsyncTask(GiphyActivity.this, root + "/" + GifsArtConst.DIR_GIPHY + "/" + giphyName, giphyItems.get(lastSelectedPosition));
         downloadFileAsyncTask.setOnDownloadedListener(new DownloadFileAsyncTask.OnDownloaded() {
             @Override
             public void onDownloaded(boolean isDownloded) {
-                intent.putExtra(GifsArtConst.INTENT_GIF_PATH, root + GifsArtConst.SLASH + GifsArtConst.MY_DIR + "/giphy/giphy.gif");
+                intent.putExtra(GifsArtConst.INTENT_GIF_PATH, root + "/" + GifsArtConst.DIR_GIPHY + "/" + giphyName);
                 intent.putExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, GifsArtConst.INDEX_GIPHY_TO_GIF);
-                CheckSpaceSingleton.getInstance().addAllocatedSpaceInt(GifUtils.getGifFramesCount(root + GifsArtConst.SLASH + GifsArtConst.MY_DIR + "/giphy/giphy.gif"));
+                CheckSpaceSingleton.getInstance().addAllocatedSpaceInt(GifUtils.getGifFramesCount(root + "/" + GifsArtConst.DIR_GIPHY + "/" + giphyName));
                 if (isOpened) {
                     setResult(RESULT_OK, intent);
                 } else {

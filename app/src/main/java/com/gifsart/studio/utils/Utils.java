@@ -140,19 +140,47 @@ public class Utils {
                     File file = new File(imagecursor.getString(dataColumnIndex));
                     if (file.exists()) {
                         item.setFilePath(imagecursor.getString(dataColumnIndex));
-                        /*if (Utils.getMimeType(gif_item.getFilePath()).toString().toLowerCase().contains("gif")) {
-                            type = GalleryItem.Type.GIF;
-                        }*/
-                        //gif_item.setHeight((int) Utils.getBitmapHeight(activity, gif_item.getFilePath()));
-                        //gif_item.setWidth((int) Utils.getBitmapWidth(activity));
                         galleryList.add(item);
                     }
-
                 }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-            galleryList.add(new GalleryItem(Environment.getExternalStorageDirectory() + "/myvideo.mp4"));  /////
+        // show newest photo at beginning of the list
+        Collections.reverse(galleryList);
+        return galleryList;
+    }
 
+    public static ArrayList<GalleryItem> getGalleryVideos(Activity activity) {
+        ArrayList<GalleryItem> galleryList = new ArrayList();
+
+        try {
+            final String[] columns = {MediaStore.Video.Media.DATA,
+                    MediaStore.Video.Media._ID};
+            final String orderBy = MediaStore.Video.Media._ID;
+
+            Cursor imagecursor = activity.managedQuery(
+                    MediaStore.Video.Media.EXTERNAL_CONTENT_URI, columns,
+                    null, null, orderBy);
+
+            if (imagecursor != null && imagecursor.getCount() > 0) {
+
+                while (imagecursor.moveToNext()) {
+                    GalleryItem item = new GalleryItem();
+
+                    int dataColumnIndex = imagecursor
+                            .getColumnIndex(MediaStore.Video.Media.DATA);
+
+                    File file = new File(imagecursor.getString(dataColumnIndex));
+                    if (file.exists()) {
+                        item.setFilePath(imagecursor.getString(dataColumnIndex));
+                        item.setType(Type.VIDEO);
+                        galleryList.add(item);
+                    }
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

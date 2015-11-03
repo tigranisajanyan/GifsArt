@@ -17,7 +17,6 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,18 +37,16 @@ import com.gifsart.studio.adapter.MasksAdapter;
 import com.gifsart.studio.adapter.SlideAdapter;
 import com.gifsart.studio.adapter.StickerAdapter;
 import com.gifsart.studio.adapter.StickerCategoryAdapter;
-import com.gifsart.studio.clipart.DrawClipArtOnMainFrames;
 import com.gifsart.studio.clipart.MainView;
 import com.gifsart.studio.effects.GPUEffects;
 import com.gifsart.studio.effects.GPUImageFilterTools;
 import com.gifsart.studio.gifutils.GifUtils;
 import com.gifsart.studio.gifutils.Giphy;
-import com.gifsart.studio.gifutils.SaveGIFAsyncTask;
+import com.gifsart.studio.gifutils.SaveGifBolts;
 import com.gifsart.studio.helper.RecyclerItemClickListener;
 import com.gifsart.studio.item.GifItem;
 import com.gifsart.studio.gifutils.GifImitation;
 import com.gifsart.studio.item.GiphyItem;
-import com.gifsart.studio.utils.AddMaskAsyncTask;
 import com.gifsart.studio.utils.CheckSpaceSingleton;
 import com.gifsart.studio.utils.GifsArtConst;
 import com.gifsart.studio.utils.SpacesItemDecoration;
@@ -62,6 +59,8 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
+import bolts.Continuation;
+import bolts.Task;
 import jp.co.cyberagent.android.gpuimage.GPUImage;
 import jp.co.cyberagent.android.gpuimage.GPUImageFilter;
 import jp.co.cyberagent.android.gpuimage.GPUImageView;
@@ -116,6 +115,7 @@ public class MakeGifActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_make_gif);
 
         categoryResourceIds.add(R.drawable.giphy_icon);
@@ -174,6 +174,8 @@ public class MakeGifActivity extends ActionBarActivity {
         container = (LinearLayout) findViewById(R.id.container);
         mainFrameImageView = (GPUImageView) findViewById(R.id.image_view);
         mainFrameContainer = (ViewGroup) findViewById(R.id.main_frame_container);
+        mainFrameContainer.setDrawingCacheEnabled(true);
+        mainFrameContainer.buildDrawingCache();
 
         ViewGroup.LayoutParams layoutParams = mainFrameContainer.getLayoutParams();
         layoutParams.width = getResources().getDisplayMetrics().widthPixels;
@@ -181,7 +183,6 @@ public class MakeGifActivity extends ActionBarActivity {
 
         mainFrameContainer.setLayoutParams(layoutParams);
         mainFrameImageView.setScaleType(GPUImage.ScaleType.CENTER_INSIDE);
-
 
         maskImageView = new GifImageView(this);
         mainFrameContainer.addView(maskImageView);
@@ -318,6 +319,9 @@ public class MakeGifActivity extends ActionBarActivity {
                         addPlusButton();
                     }
 
+                    if (requestCode == RequestCode.SELECT_SQUARE_FIT) {
+                    }
+
                     if (mainView != null && requestCode == RequestCode.SELECT_CLIPART) {
                         mainView.removeClipArt();
                     }
@@ -329,6 +333,7 @@ public class MakeGifActivity extends ActionBarActivity {
                     gifSavedDialogBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
+                            CheckSpaceSingleton.getInstance().clearAllocatedSpace();
                             finish();
                         }
                     });
@@ -341,7 +346,6 @@ public class MakeGifActivity extends ActionBarActivity {
                     android.app.AlertDialog alertDialog = gifSavedDialogBuilder.create();
                     alertDialog.show();
                 }
-
             }
         });
 
@@ -349,35 +353,54 @@ public class MakeGifActivity extends ActionBarActivity {
             @Override
             public void onClick(View v) {
                 if (containerIsOpened) {
+                    if (requestCode == RequestCode.EDIT_TEXT) {
+                        addPlusButton();
+                    }
                     slideDownContainer();
                 } else {
-                    CheckSpaceSingleton.getInstance().removeAllSpace();
+                    CheckSpaceSingleton.getInstance().clearAllocatedSpace();
                     gifItems.remove(gifItems.size() - 1);
                     gifImitation.cancel(true);
 
-                    DrawClipArtOnMainFrames drawClipArtOnMainFrames = new DrawClipArtOnMainFrames(MakeGifActivity.this, mainView, gifItems);
-                    drawClipArtOnMainFrames.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                    drawClipArtOnMainFrames.setDrownedListener(new DrawClipArtOnMainFrames.ClipartsAreDrowned() {
+
+                    final ProgressDialog progressDialog = new ProgressDialog(MakeGifActivity.this);
+                    progressDialog.setCancelable(false);
+                    progressDialog.show();
+
+                    square_fit_mode = SaveGifBolts.checkSquareFitMode(gifItems, square_fit_mode);
+                    SaveGifBolts.doSquareFitTask(square_fit_mode, gifItems).continueWithTask(new Continuation<Void, Task<Void>>() {
                         @Override
-                        public void areDrowned(boolean done) {
-                            if (done) {
-                                if (selectedMaskPosition != 0) {
-                                    AddMaskAsyncTask addMaskAsyncTask = new AddMaskAsyncTask(gifItems, maskResourceIds.get(selectedMaskPosition), MakeGifActivity.this);
-                                    addMaskAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                                    addMaskAsyncTask.setMergeGifsListener(new AddMaskAsyncTask.MergeGifs() {
-                                        @Override
-                                        public void Merged(boolean done) {
-                                            if (done) {
-                                                final SaveGIFAsyncTask saveGIFAsyncTask = new SaveGIFAsyncTask(root + GifsArtConst.SLASH + GifsArtConst.GIF_NAME, gifItems, square_fit_mode, mainFrameImageView, gpuImageFilter, MakeGifActivity.this);
-                                                saveGIFAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                                            }
-                                        }
-                                    });
-                                } else {
-                                    final SaveGIFAsyncTask saveGIFAsyncTask = new SaveGIFAsyncTask(root + GifsArtConst.SLASH + GifsArtConst.GIF_NAME, gifItems, square_fit_mode, mainFrameImageView, gpuImageFilter, MakeGifActivity.this);
-                                    saveGIFAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                                }
+                        public Task<Void> then(final Task<Void> task) throws Exception {
+                            Log.d("gagg", "1");
+                            return SaveGifBolts.applyEffect(gifItems, gpuImageFilter, MakeGifActivity.this);
+                        }
+                    }).continueWithTask(new Continuation<Void, Task<Void>>() {
+                        @Override
+                        public Task<Void> then(Task<Void> task) throws Exception {
+                            Log.d("gagg", "2");
+                            return SaveGifBolts.setClipartsOnGifTask(gifItems, mainView);
+                        }
+                    }).continueWithTask(new Continuation<Void, Task<Void>>() {
+                        @Override
+                        public Task<Void> then(Task<Void> task) throws Exception {
+                            Log.d("gagg", "3");
+                            if (selectedMaskPosition < 1) {
+                                return null;
                             }
+                            return SaveGifBolts.addMaskToGifTask(gifItems, maskResourceIds.get(selectedMaskPosition), MakeGifActivity.this);
+                        }
+                    }).continueWithTask(new Continuation<Void, Task<Void>>() {
+                        @Override
+                        public Task<Void> then(Task<Void> task) throws Exception {
+                            Log.d("gagg", "4");
+                            return SaveGifBolts.addFramesToGifTask(root + "/test.gif", gifItems);
+                        }
+                    }).onSuccessTask(new Continuation<Void, Task<Void>>() {
+                        @Override
+                        public Task<Void> then(Task<Void> task) throws Exception {
+                            progressDialog.dismiss();
+                            Log.d("gagg", "done");
+                            return null;
                         }
                     });
                 }
@@ -405,9 +428,18 @@ public class MakeGifActivity extends ActionBarActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        CheckSpaceSingleton.getInstance().clearAllocatedSpace();
         gifImitation.cancel(true);
         editor.clear();
         editor.commit();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        if (!sharedPreferences.getBoolean(GifsArtConst.SHARED_PREFERENCES_IS_OPENED, false)) {
+            CheckSpaceSingleton.getInstance().clearAllocatedSpace();
+        }
     }
 
     /*public void saveClipart() {
@@ -438,28 +470,33 @@ public class MakeGifActivity extends ActionBarActivity {
     }
 
     public void initSquareFitLayout() {
-
         container.findViewById(R.id.original_fit_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mainFrameImageView.setScaleType(GPUImage.ScaleType.CENTER_INSIDE);
-                square_fit_mode = GifsArtConst.FIT_MODE_ORIGINAL;
+                if (square_fit_mode != GifsArtConst.FIT_MODE_ORIGINAL) {
+                    mainFrameImageView.setScaleType(GPUImage.ScaleType.CENTER_INSIDE);
+                    square_fit_mode = GifsArtConst.FIT_MODE_ORIGINAL;
+                }
             }
         });
 
         container.findViewById(R.id.square_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mainFrameImageView.setScaleType(GPUImage.ScaleType.CENTER_CROP);
-                square_fit_mode = GifsArtConst.FIT_MODE_SQUARE;
+                if (square_fit_mode != GifsArtConst.FIT_MODE_SQUARE) {
+                    mainFrameImageView.setScaleType(GPUImage.ScaleType.CENTER_CROP);
+                    square_fit_mode = GifsArtConst.FIT_MODE_SQUARE;
+                }
             }
         });
 
         container.findViewById(R.id.square_fit_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mainFrameImageView.setScaleType(GPUImage.ScaleType.CENTER_INSIDE);
-                square_fit_mode = GifsArtConst.FIT_MODE_SQUARE_FIT;
+                if (square_fit_mode != GifsArtConst.FIT_MODE_SQUARE_FIT) {
+                    mainFrameImageView.setScaleType(GPUImage.ScaleType.CENTER_INSIDE);
+                    square_fit_mode = GifsArtConst.FIT_MODE_SQUARE_FIT;
+                }
             }
         });
     }
@@ -744,6 +781,7 @@ public class MakeGifActivity extends ActionBarActivity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            progressDialog.setCancelable(false);
             progressDialog.show();
         }
 
@@ -791,6 +829,7 @@ public class MakeGifActivity extends ActionBarActivity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            progressDialog.setCancelable(false);
             progressDialog.show();
             gifImitation.onPause();
             gifItems.remove(gifItems.size() - 1);

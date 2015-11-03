@@ -60,8 +60,8 @@
         <jp.co.cyberagent.android.gpuimage.GPUImageView
             android:id="@+id/image_view"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:adjustViewBounds="true" />
+            android:layout_height="match_parent"/>
+
     </FrameLayout>
 
     <RelativeLayout

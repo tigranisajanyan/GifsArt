@@ -12,6 +12,9 @@
     <uses-feature android:name="android.hardware.camera.flash" />
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
+    <uses-feature
+        android:glEsVersion="0x00020000"
+        android:required="true" />
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
@@ -46,7 +49,8 @@
         <activity
             android:name=".activity.GifPreviewActivity"
             android:label="@string/title_activity_gif_preview" />
-        <activity android:name=".activity.GiphyStickerActivity" >
+        <activity android:name=".activity.GiphyStickerActivity" />
+        <activity android:name=".activity.ShareGifActivity" >
         </activity>
     </application>
 

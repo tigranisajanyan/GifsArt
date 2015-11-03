@@ -38,7 +38,7 @@ public class MasksAdapter extends RecyclerView.Adapter<MasksAdapter.ViewHolder> 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
 
-        Glide.with(context).load(maskResourceIds.get(position)).thumbnail(0.1f).into(holder.maskImageView);
+        Glide.with(context).load(maskResourceIds.get(position)).asBitmap().into(holder.maskImageView);
 
     }
 

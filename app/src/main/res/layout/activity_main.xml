@@ -1,4 +1,4 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -7,9 +7,10 @@
     tools:context=".MainActivity">
 
     <android.support.v7.widget.Toolbar xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/maic_activity_toolbar"
+        android:id="@+id/main_activity_toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
         android:background="@color/navigation_bar_color"
         app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
@@ -18,7 +19,7 @@
             android:layout_height="match_parent">
 
             <Button
-                android:id="@+id/maic_activity_toolbar_cancel"
+                android:id="@+id/main_activity_toolbar_cancel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
@@ -29,19 +30,37 @@
                 android:textColor="@color/pink" />
 
             <LinearLayout
+                android:id="@+id/main_activity_category_change_container"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 android:gravity="center"
                 android:orientation="vertical">
 
-                <Button
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@android:color/transparent"
-                    android:text="Gallery"
-                    android:textAllCaps="false"
-                    android:textColor="@color/font_main_color" />
+                    android:layout_gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/main_activity_category_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@android:color/transparent"
+                        android:text="Images"
+                        android:textAllCaps="false"
+                        android:textColor="@color/font_main_color"
+                        android:textSize="20dp" />
+
+                    <ImageView
+                        android:id="@+id/main_activity_up_down_image"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="3dp"
+                        android:src="@drawable/up_icon" />
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/maic_activity_toolbar_selected_text"
@@ -53,7 +72,7 @@
             </LinearLayout>
 
             <Button
-                android:id="@+id/maic_activity_toolbar_done"
+                android:id="@+id/main_activity_toolbar_done"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
@@ -68,22 +87,37 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/main_activity_toolbar"
         android:layout_marginTop="5dp">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/gallery_rec_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="#1E2127"
+            android:background="@color/background_color"
             android:padding="2dp"
             android:scrollbars="vertical" />
 
         <ProgressBar
-            android:id="@+id/progress_bar"
+            android:id="@+id/main_activity_progress_bar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:visibility="visible" />
     </FrameLayout>
 
-</LinearLayout>
+    <LinearLayout
+        android:id="@+id/main_activity_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentBottom="true"
+        android:background="@color/background_color"
+        android:visibility="gone">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/category_rec_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+
+</RelativeLayout>

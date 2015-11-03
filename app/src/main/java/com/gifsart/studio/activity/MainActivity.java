@@ -9,35 +9,55 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.decoder.VideoDecoder;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.gifsart.studio.R;
 import com.gifsart.studio.adapter.GalleryAdapter;
+import com.gifsart.studio.adapter.GalleryItemCategoryAdapter;
+import com.gifsart.studio.helper.RecyclerItemClickListener;
+import com.gifsart.studio.item.GalleryCategoryItem;
 import com.gifsart.studio.item.GalleryItem;
 import com.gifsart.studio.utils.GifsArtConst;
 import com.gifsart.studio.utils.SpacesItemDecoration;
 import com.gifsart.studio.utils.Type;
 import com.gifsart.studio.utils.Utils;
-import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.io.File;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    private RecyclerView recyclerView;
+    private RecyclerView galleryItemsRecyclerView;
+    private RecyclerView galleryCategoryRecyclerView;
     private ProgressBar progressBar;
+    private ViewGroup container;
+
     private GridLayoutManager gridLayoutManager;
     private RecyclerView.ItemAnimator itemAnimator;
+
     private GalleryAdapter galleryAdapter;
-    private ArrayList<GalleryItem> customGalleryArrayList = new ArrayList<>();
+    private GalleryItemCategoryAdapter galleryItemCategoryAdapter;
+
+    private ArrayList<GalleryItem> imageItemsArrayList = new ArrayList<>();
+    private ArrayList<GalleryItem> videoItemsArrayList = new ArrayList<>();
+    private ArrayList<GalleryCategoryItem> galleryCategoryItems = new ArrayList<>();
+
     private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor editor;
+
+    private boolean containerIsOpened = false;
+    private int currentCategoryPosition = 0;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,39 +78,69 @@ public class MainActivity extends AppCompatActivity {
 
     public void init() {
 
-        galleryAdapter = new GalleryAdapter(customGalleryArrayList, this, (int) Utils.getBitmapWidth(this));
+        container = (ViewGroup) findViewById(R.id.main_activity_container);
+        galleryAdapter = new GalleryAdapter(imageItemsArrayList, this, (int) Utils.getBitmapWidth(this));
 
-        recyclerView = (RecyclerView) findViewById(R.id.gallery_rec_view);
-        progressBar = (ProgressBar) findViewById(R.id.progress_bar);
+        galleryItemsRecyclerView = (RecyclerView) findViewById(R.id.gallery_rec_view);
+        progressBar = (ProgressBar) findViewById(R.id.main_activity_progress_bar);
         gridLayoutManager = new GridLayoutManager(this, 3, GridLayoutManager.VERTICAL, false);
         itemAnimator = new DefaultItemAnimator();
 
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setClipToPadding(true);
-        recyclerView.setLayoutManager(gridLayoutManager);
-        recyclerView.setItemAnimator(itemAnimator);
+        galleryItemsRecyclerView.setHasFixedSize(true);
+        galleryItemsRecyclerView.setClipToPadding(true);
+        galleryItemsRecyclerView.setLayoutManager(gridLayoutManager);
+        galleryItemsRecyclerView.setItemAnimator(itemAnimator);
 
-        recyclerView.setAdapter(galleryAdapter);
-        recyclerView.addItemDecoration(new SpacesItemDecoration((int) Utils.dpToPixel(2, this)));
+        galleryItemsRecyclerView.setAdapter(galleryAdapter);
+        galleryItemsRecyclerView.addItemDecoration(new SpacesItemDecoration((int) Utils.dpToPixel(2, this)));
 
         sharedPreferences = getApplicationContext().getSharedPreferences(GifsArtConst.SHARED_PREFERENCES, MODE_PRIVATE);
         editor = sharedPreferences.edit();
 
+        galleryCategoryRecyclerView = (RecyclerView) findViewById(R.id.category_rec_view);
+        galleryCategoryRecyclerView.addItemDecoration(new SpacesItemDecoration((int) Utils.dpToPixel(4, this)));
+        galleryCategoryRecyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this, LinearLayoutManager.VERTICAL, false));
+
+        galleryItemCategoryAdapter = new GalleryItemCategoryAdapter(galleryCategoryItems, MainActivity.this);
+
+        galleryCategoryRecyclerView.setAdapter(galleryItemCategoryAdapter);
+
+        galleryCategoryRecyclerView.addOnItemTouchListener(new RecyclerItemClickListener(getApplicationContext(), new RecyclerItemClickListener.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                galleryCategoryItems.get(currentCategoryPosition).setIsSelected(false);
+                galleryCategoryItems.get(position).setIsSelected(true);
+                currentCategoryPosition = position;
+                switch (currentCategoryPosition) {
+                    case 0:
+                        galleryAdapter.setArray(imageItemsArrayList);
+                        ((TextView) findViewById(R.id.main_activity_category_title)).setText(galleryCategoryItems.get(currentCategoryPosition).getCategoryTitle());
+                        break;
+                    case 1:
+                        galleryAdapter.setArray(videoItemsArrayList);
+                        ((TextView) findViewById(R.id.main_activity_category_title)).setText(galleryCategoryItems.get(currentCategoryPosition).getCategoryTitle());
+                        break;
+                    default:
+                        break;
+                }
+                galleryItemCategoryAdapter.notifyDataSetChanged();
+                slideDownContainer();
+            }
+        }));
+
         new InitGalleryItems().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
-        findViewById(R.id.maic_activity_toolbar_cancel).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.main_activity_toolbar_cancel).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 galleryAdapter.deselectAll();
             }
         });
 
-        findViewById(R.id.maic_activity_toolbar_done).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.main_activity_toolbar_done).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (galleryAdapter.getSelected().size() > 0) {
-
-                    galleryAdapter.notifyDataSetChanged();
 
                     final ProgressDialog progressDialog = new ProgressDialog(MainActivity.this);
                     progressDialog.setMessage(getApplicationContext().getResources().getString(R.string.please_wait));
@@ -122,9 +172,19 @@ public class MainActivity extends AppCompatActivity {
                             sendIntentWithoutVideo(new Intent(), galleryAdapter, progressDialog, true);
                         }
                     }
-
                 } else {
                     Toast.makeText(MainActivity.this, getResources().getString(R.string.no_images_selected), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        findViewById(R.id.main_activity_category_change_container).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (containerIsOpened) {
+                    slideDownContainer();
+                } else {
+                    setContainerLayout();
                 }
             }
         });
@@ -134,8 +194,8 @@ public class MainActivity extends AppCompatActivity {
         GalleryItem galleryItem2 = new GalleryItem(BitmapFactory.decodeResource(getResources(), R.drawable.giphy_icon));
         galleryItem2.setIsSeleted(false);
 
-        customGalleryArrayList.add(galleryItem1);
-        customGalleryArrayList.add(galleryItem2);
+        imageItemsArrayList.add(galleryItem1);
+        imageItemsArrayList.add(galleryItem2);
 
         PhoneImagesRetriever retriever = new PhoneImagesRetriever(getLoaderManager(), getApplicationContext());
         retriever.retrieveImages(new OnImagesRetrievedListener() {
@@ -143,7 +203,7 @@ public class MainActivity extends AppCompatActivity {
             public void onImagesRetrieved(ArrayList<ImageData> data) {
                 for (int i = 0; i < data.size(); i++) {
 
-                    customGalleryArrayList.add(new GalleryItem(data.get(i).getFilePath()));
+                    imageItemsArrayList.add(new GalleryItem(data.get(i).getFilePath()));
                 }
                 galleryAdapter.notifyDataSetChanged();
                 progressBar.setVisibility(View.GONE);
@@ -191,9 +251,16 @@ public class MainActivity extends AppCompatActivity {
             galleryItem2.setIsSeleted(false);
             galleryItem2.setType(Type.NONE);
 
-            customGalleryArrayList.add(galleryItem1);
-            customGalleryArrayList.add(galleryItem2);
-            customGalleryArrayList.addAll(Utils.getGalleryPhotos(MainActivity.this));
+            imageItemsArrayList.add(galleryItem1);
+            imageItemsArrayList.add(galleryItem2);
+            imageItemsArrayList.addAll(Utils.getGalleryPhotos(MainActivity.this));
+
+            videoItemsArrayList.add(galleryItem1);
+            videoItemsArrayList.add(galleryItem2);
+            videoItemsArrayList.addAll(Utils.getGalleryVideos(MainActivity.this));
+
+            galleryCategoryItems.add(new GalleryCategoryItem(imageItemsArrayList.get(8).getFilePath(), "Images", imageItemsArrayList.size(), true));
+            galleryCategoryItems.add(new GalleryCategoryItem(videoItemsArrayList.get(3).getFilePath(), "Videos", videoItemsArrayList.size(), false));
 
             return null;
         }
@@ -202,6 +269,7 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
             galleryAdapter.notifyDataSetChanged();
+            galleryItemCategoryAdapter.notifyDataSetChanged();
             progressBar.setVisibility(View.GONE);
         }
 
@@ -237,8 +305,6 @@ public class MainActivity extends AppCompatActivity {
         } else {
             startActivity(intent);
         }
-
-
     }
 
     public boolean sendIntentWithVideo(final Intent intent, String path, final GalleryAdapter galleryAdapter, final ProgressDialog progressDialog, final boolean isOpened) {
@@ -267,6 +333,52 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         return true;
+    }
+
+    public void setContainerLayout() {
+        findViewById(R.id.main_activity_toolbar_cancel).setVisibility(View.INVISIBLE);
+        findViewById(R.id.main_activity_toolbar_done).setVisibility(View.INVISIBLE);
+        ViewGroup.LayoutParams params = container.getLayoutParams();
+        int[] location = new int[2];
+        findViewById(R.id.main_activity_toolbar).getLocationOnScreen(location);
+        params.height = (int) (getResources().getDisplayMetrics().heightPixels - location[1] - findViewById(R.id.main_activity_toolbar).getHeight());
+        container.setLayoutParams(params);
+
+        containerIsOpened = true;
+        com.gifsart.studio.utils.AnimationUtils.rotateAnimation(findViewById(R.id.main_activity_up_down_image), 0, 180);
+        TranslateAnimation anim = new TranslateAnimation(0, 0, getResources().getDisplayMetrics().heightPixels, findViewById(R.id.main_activity_toolbar).getBottom());
+        anim.setDuration(200);
+        anim.setFillAfter(false);
+        container.setVisibility(View.VISIBLE);
+        findViewById(R.id.category_rec_view).setVisibility(View.VISIBLE);
+        container.startAnimation(anim);
+    }
+
+    public void slideDownContainer() {
+        containerIsOpened = false;
+        findViewById(R.id.main_activity_toolbar_cancel).setVisibility(View.VISIBLE);
+        findViewById(R.id.main_activity_toolbar_done).setVisibility(View.VISIBLE);
+        com.gifsart.studio.utils.AnimationUtils.rotateAnimation(findViewById(R.id.main_activity_up_down_image), 180, 0);
+        TranslateAnimation anim = new TranslateAnimation(0, 0, findViewById(R.id.main_activity_toolbar).getBottom(), getResources().getDisplayMetrics().heightPixels);
+        anim.setDuration(200);
+        anim.setFillAfter(true);
+        container.setVisibility(View.VISIBLE);
+        container.startAnimation(anim);
+        anim.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                container.setVisibility(View.GONE);
+                findViewById(R.id.category_rec_view).setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+            }
+        });
     }
 
 }

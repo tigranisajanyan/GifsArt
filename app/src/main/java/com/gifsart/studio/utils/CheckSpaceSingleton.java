@@ -35,7 +35,7 @@ public class CheckSpaceSingleton {
         this.allocatedSpace += allocatedSpace;
     }
 
-    public void removeAllSpace() {
+    public void clearAllocatedSpace() {
         this.allocatedSpace = 0;
     }
 
