@@ -59,7 +59,7 @@
                 android:id="@+id/capture_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
+                android:layout_gravity="center"
                 android:text="6"
                 android:textColor="@color/font_main_color"
                 android:visibility="invisible" />
@@ -94,9 +94,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:gravity="center"
             android:textColor="@color/font_main_color"
-            android:textSize="40dp" />
+            android:textSize="50dp" />
+
     </FrameLayout>
 
     <RelativeLayout

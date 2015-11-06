@@ -1,4 +1,4 @@
-package com.gifsart.studio.utils;
+package com.gifsart.studio.camera;
 
 import android.content.Context;
 import android.hardware.Camera;
@@ -134,7 +134,6 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
             }
         }
         return result;
-
     }
 
 }

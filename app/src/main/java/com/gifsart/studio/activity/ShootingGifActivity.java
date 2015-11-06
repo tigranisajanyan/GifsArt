@@ -11,9 +11,9 @@ import android.os.CountDownTimer;
 import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -24,7 +24,7 @@ import com.gifsart.studio.R;
 import com.gifsart.studio.camera.BurstModeAper;
 import com.gifsart.studio.camera.CameraPrepair;
 import com.gifsart.studio.utils.AnimatedProgressDialog;
-import com.gifsart.studio.utils.CameraPreview;
+import com.gifsart.studio.camera.CameraPreview;
 import com.gifsart.studio.utils.CheckSpaceSingleton;
 import com.gifsart.studio.utils.GifsArtConst;
 import com.gifsart.studio.utils.Utils;
@@ -53,7 +53,7 @@ public class ShootingGifActivity extends ActionBarActivity {
     private SharedPreferences sharedPreferences;
     private ArrayList<byte[]> bytes = new ArrayList<>();
 
-    private Thread myThread;
+    private MyCountDownTimer myCountDownTimer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,12 +63,11 @@ public class ShootingGifActivity extends ActionBarActivity {
         context = this;
         sharedPreferences = getApplicationContext().getSharedPreferences(GifsArtConst.SHARED_PREFERENCES, MODE_PRIVATE);
 
-        Utils.clearDir(new File(Environment.getExternalStorageDirectory() + "/GifsArt/video_frames"));
+        Utils.clearDir(new File(Environment.getExternalStorageDirectory() + "/" + GifsArtConst.DIR_VIDEO_FRAMES));
 
         burstModeCounts.add(5);
         burstModeCounts.add(10);
         burstModeCounts.add(15);
-
 
         init();
     }
@@ -369,6 +368,7 @@ public class ShootingGifActivity extends ActionBarActivity {
                             releaseMediaRecorder(); // release the MediaRecorder object
                             Toast.makeText(ShootingGifActivity.this, "Video captured!", Toast.LENGTH_LONG).show();
                             recording = false;
+                            myCountDownTimer.cancel();
                             if (CheckSpaceSingleton.getInstance().haveEnoughSpace(GifsArtConst.SHOOTING_VIDEO_OUTPUT_DIR + "/" + GifsArtConst.VIDEO_NAME)) {
                                 saveCapturedVideoFrames();
                             } else {
@@ -395,7 +395,6 @@ public class ShootingGifActivity extends ActionBarActivity {
         }
     };
 
-
     View.OnLongClickListener onLongClickListener = new View.OnLongClickListener() {
         @Override
         public boolean onLongClick(View v) {
@@ -405,56 +404,14 @@ public class ShootingGifActivity extends ActionBarActivity {
             }
             visibilitySwitcher(View.INVISIBLE);
             findViewById(R.id.capture_time).setVisibility(View.VISIBLE);
-            findViewById(R.id.burst_mode_image).setVisibility(View.VISIBLE);
+            findViewById(R.id.burst_mode_image).setVisibility(View.INVISIBLE);
             mediaRecorder.start();
             recording = true;
-            new PinkAnimCountDownTimer(6000, 1000).start();
-            /*Runnable myRunnableThread = new CountDownRunner();
-            myThread = new Thread(myRunnableThread);*/
+            myCountDownTimer = new MyCountDownTimer(7000, 1000);
+            myCountDownTimer.start();
             return false;
         }
     };
-
-    public void doWork() {
-        runOnUiThread(new Runnable() {
-            public void run() {
-                try {
-                    ((TextView) findViewById(R.id.capture_time)).setText(currentCapturedTime / 10.0 + " s");
-                    if (currentCapturedTime / 10.0 == 0) {
-                        // stop recording and release camera
-                        captureButton.setOnTouchListener(null);
-                        captureButton.setOnLongClickListener(null);
-                        //myThread.interrupt();
-                        mediaRecorder.stop(); // stop the recording
-                        releaseMediaRecorder(); // release the MediaRecorder object
-                        Toast.makeText(ShootingGifActivity.this, "Video captured!", Toast.LENGTH_LONG).show();
-                        saveCapturedVideoFrames();
-
-                        visibilitySwitcher(View.VISIBLE);
-                    }
-
-                    currentCapturedTime--;
-
-                } catch (Exception e) {
-                }
-            }
-        });
-    }
-
-    class CountDownRunner implements Runnable {
-        // @Override
-        public void run() {
-            while (!Thread.currentThread().isInterrupted()) {
-                try {
-                    doWork();
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                } catch (Exception e) {
-                }
-            }
-        }
-    }
 
     public void saveCapturedVideoFrames() {
         final AnimatedProgressDialog animatedProgressDialog = new AnimatedProgressDialog(ShootingGifActivity.this);
@@ -497,37 +454,40 @@ public class ShootingGifActivity extends ActionBarActivity {
 
     }
 
-    public class PinkAnimCountDownTimer extends CountDownTimer {
-        public PinkAnimCountDownTimer(long startTime, long interval) {
+    public class MyCountDownTimer extends CountDownTimer {
+        public MyCountDownTimer(long startTime, long interval) {
             super(startTime, interval);
         }
 
         @Override
         public void onFinish() {
-            if (recording) {
-                try {
-                    mediaRecorder.stop(); // stop the recording
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                captureButton.setOnTouchListener(null);
-                captureButton.setOnLongClickListener(null);
-                releaseMediaRecorder(); // release the MediaRecorder object
-                Toast.makeText(ShootingGifActivity.this, "Video captured!", Toast.LENGTH_LONG).show();
-                recording = false;
-                if (CheckSpaceSingleton.getInstance().haveEnoughSpace(GifsArtConst.SHOOTING_VIDEO_OUTPUT_DIR + "/" + GifsArtConst.VIDEO_NAME)) {
-                    saveCapturedVideoFrames();
-                } else {
-                    setResult(RESULT_CANCELED);
-                    finish();
-                    Toast.makeText(context, "No enough space", Toast.LENGTH_SHORT).show();
-                }
-            }
         }
 
         @Override
         public void onTick(long millisUntilFinished) {
             ((TextView) findViewById(R.id.capture_time)).setText("" + millisUntilFinished / 1000);
+            Log.d("gagag", "" + millisUntilFinished);
+            if (millisUntilFinished <= 2000) {
+                if (recording) {
+                    try {
+                        mediaRecorder.stop(); // stop the recording
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    captureButton.setOnTouchListener(null);
+                    captureButton.setOnLongClickListener(null);
+                    releaseMediaRecorder(); // release the MediaRecorder object
+                    Toast.makeText(ShootingGifActivity.this, "Video captured!", Toast.LENGTH_LONG).show();
+                    recording = false;
+                    //if (CheckSpaceSingleton.getInstance().haveEnoughSpace(GifsArtConst.SHOOTING_VIDEO_OUTPUT_DIR + "/" + GifsArtConst.VIDEO_NAME)) {
+                    saveCapturedVideoFrames();
+                    /*} else {
+                        setResult(RESULT_CANCELED);
+                        finish();
+                        Toast.makeText(context, "No enough space", Toast.LENGTH_SHORT).show();
+                    }*/
+                }
+            }
         }
     }
 
