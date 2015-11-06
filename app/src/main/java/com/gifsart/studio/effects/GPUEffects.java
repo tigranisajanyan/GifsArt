@@ -1,5 +1,9 @@
 package com.gifsart.studio.effects;
 
+import android.view.View;
+
+import com.gifsart.studio.R;
+
 import java.util.LinkedList;
 import java.util.List;
 

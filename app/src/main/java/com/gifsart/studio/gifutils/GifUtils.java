@@ -25,7 +25,7 @@ public class GifUtils {
             e.printStackTrace();
         }
         for (int i = 0; i < gifDrawable.getNumberOfFrames(); i++) {
-            frameBitmaps.add(Utils.scaleCenterCrop(gifDrawable.seekToFrameAndGet(i), GifsArtConst.GIF_FRAME_SIZE, GifsArtConst.GIF_FRAME_SIZE));
+            frameBitmaps.add(gifDrawable.seekToFrameAndGet(i));
         }
         return frameBitmaps;
     }
@@ -41,10 +41,31 @@ public class GifUtils {
         return gifDrawable.getFrameDuration(0);
     }
 
+    public static int getGifFrameDurationFromByteArray(byte[] bytes) {
+        GifDrawable gifDrawable = null;
+        try {
+            gifDrawable = new GifDrawable(bytes);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return gifDrawable.getFrameDuration(0);
+    }
+
     public static int getGifFramesCount(String gifPath) {
         GifDrawable gifDrawable = null;
         try {
             gifDrawable = new GifDrawable(gifPath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return gifDrawable.getNumberOfFrames();
+    }
+
+    public static int getGifFramesCountFromByteArray(byte[] bytes) {
+        GifDrawable gifDrawable = null;
+        try {
+            gifDrawable = new GifDrawable(bytes);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -70,4 +91,24 @@ public class GifUtils {
         }
         return bitmaps;
     }
+
+    public static ArrayList<Bitmap> getGifFramesFromByteArray(byte[] bytes){
+        GifDrawable gifDrawable = null;
+        try {
+            gifDrawable = new GifDrawable(bytes);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        ArrayList<Bitmap> bitmaps = new ArrayList<>();
+
+
+        for (int i = 0; i < gifDrawable.getNumberOfFrames(); i++) {
+            Bitmap bitmap = gifDrawable.seekToFrameAndGet(i);
+            bitmaps.add(bitmap);
+
+        }
+        return bitmaps;
+    }
+
 }

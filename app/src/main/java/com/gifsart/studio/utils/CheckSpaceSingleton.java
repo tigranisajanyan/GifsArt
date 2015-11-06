@@ -39,7 +39,7 @@ public class CheckSpaceSingleton {
         this.allocatedSpace = 0;
     }
 
-    public void addAllocatedSpace(String filePath) {
+    public void addAllocatedSpaceFromFilePath(String filePath) {
         if (Utils.getMimeType(filePath) == Type.IMAGE) {
             this.allocatedSpace += 1;
         } else if (Utils.getMimeType(filePath) == Type.GIF) {

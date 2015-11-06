@@ -10,6 +10,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PointF;
 import android.graphics.RectF;
@@ -26,6 +27,14 @@ import android.webkit.MimeTypeMap;
 
 import com.decoder.PhotoUtils;
 import com.gifsart.studio.item.GalleryItem;
+import com.nostra13.universalimageloader.cache.disc.naming.HashCodeFileNameGenerator;
+import com.nostra13.universalimageloader.cache.memory.impl.UsingFreqLimitedMemoryCache;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.ImageScaleType;
+import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
+import com.nostra13.universalimageloader.utils.StorageUtils;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -39,6 +48,48 @@ import java.util.Collections;
 
 
 public class Utils {
+
+    public static void initImageLoader(Context context) {
+        try {
+            String CACHE_DIR = Environment.getExternalStorageDirectory()
+                    .getAbsolutePath() + "/.temp_tmp";
+            new File(CACHE_DIR).mkdirs();
+
+            File cacheDir = StorageUtils.getOwnCacheDirectory(context,
+                    CACHE_DIR);
+
+            DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
+                    .cacheOnDisc(true)
+                    .imageScaleType(ImageScaleType.IN_SAMPLE_POWER_OF_2)
+                    .considerExifParams(true)
+                    .cacheOnDisk(true)
+                    .cacheInMemory(true)
+                    .considerExifParams(true)
+                    .decodingOptions(new BitmapFactory.Options())
+                    .bitmapConfig(Bitmap.Config.RGB_565).build();
+
+            ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(context)
+                    /*.memoryCacheExtraOptions(1000, 1000) // width, height
+                    .discCacheExtraOptions(1000, 1000, new BitmapProcessor() {
+                        @Override
+                        public Bitmap process(Bitmap bitmap) {
+                            return null;
+                        }
+                    })*/
+                    //.threadPoolSize(3)
+                    //.threadPriority(Thread.MIN_PRIORITY + 2)
+                    .denyCacheImageMultipleSizesInMemory()
+                    .memoryCache(new UsingFreqLimitedMemoryCache(3 * 1024 * 1024)) // 3 Mb
+                    .discCacheFileNameGenerator(new HashCodeFileNameGenerator())
+                    .imageDownloader(new BaseImageDownloader(context)) // connectTimeout (5 s), readTimeout (30 s)
+                    .defaultDisplayImageOptions(defaultOptions)
+                    .build();
+
+            ImageLoader.getInstance().init(config);
+
+        } catch (Exception e) {
+        }
+    }
 
     public static double getBitmapWidth(Context context) {
 
@@ -411,4 +462,41 @@ public class Utils {
         return byteArray;
     }
 
+    public static Bitmap getBitmapFromPath(String filePath) {
+
+        Bitmap bitmap = BitmapFactory.decodeFile(filePath);
+        Matrix matrix = new Matrix();
+
+        ExifInterface exifReader = null;
+        try {
+            exifReader = new ExifInterface(filePath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        int orientation = exifReader.getAttributeInt(ExifInterface.TAG_ORIENTATION, -1);
+
+        if (orientation == ExifInterface.ORIENTATION_NORMAL) {// Do nothing. The original image is fine.
+        } else if (orientation == ExifInterface.ORIENTATION_ROTATE_90) {
+            matrix.postRotate(90);
+        } else if (orientation == ExifInterface.ORIENTATION_ROTATE_180) {
+            matrix.postRotate(180);
+        } else if (orientation == ExifInterface.ORIENTATION_ROTATE_270) {
+            matrix.postRotate(270);
+        }
+        return scaleDown(Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true), 700, true);
+    }
+
+    public static Bitmap scaleDown(Bitmap realImage, float maxImageSize,
+                                   boolean filter) {
+        float ratio = Math.min(
+                (float) maxImageSize / realImage.getWidth(),
+                (float) maxImageSize / realImage.getHeight());
+        int width = Math.round((float) ratio * realImage.getWidth());
+        int height = Math.round((float) ratio * realImage.getHeight());
+
+        Bitmap newBitmap = Bitmap.createScaledBitmap(realImage, width,
+                height, filter);
+        return newBitmap;
+    }
 }

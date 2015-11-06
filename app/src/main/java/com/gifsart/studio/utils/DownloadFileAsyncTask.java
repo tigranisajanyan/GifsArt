@@ -2,6 +2,8 @@ package com.gifsart.studio.utils;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.res.AssetFileDescriptor;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
@@ -10,10 +12,14 @@ import com.gifsart.studio.R;
 import com.gifsart.studio.item.GiphyItem;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -27,8 +33,6 @@ public class DownloadFileAsyncTask extends AsyncTask<Void, Integer, Void> {
     private Context context;
     private String outputFile;
     private GiphyItem giphyItem;
-    private String fileUrl;
-    private static final String root = Environment.getExternalStorageDirectory().toString();
 
     private ProgressDialog progressDialog;
 
@@ -86,21 +90,12 @@ public class DownloadFileAsyncTask extends AsyncTask<Void, Integer, Void> {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return null;
     }
 
     @Override
     protected void onPostExecute(Void result) {
         super.onPostExecute(result);
-
-        GifDrawable gifDrawable = null;
-        try {
-            gifDrawable = new GifDrawable(outputFile);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        Log.d("gagagagag", gifDrawable.getNumberOfFrames() + "");
         onDownloaded.onDownloaded(true);
         progressDialog.dismiss();
 
@@ -110,9 +105,9 @@ public class DownloadFileAsyncTask extends AsyncTask<Void, Integer, Void> {
         onDownloaded = l;
     }
 
-
     public interface OnDownloaded {
-        void onDownloaded(boolean isDownloded);
+        void onDownloaded(boolean isDownladed);
     }
+
 
 }

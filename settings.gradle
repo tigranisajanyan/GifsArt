@@ -1,1 +1,1 @@
-include ':app', ':picsart_video_encoder', ':picsart_camera'
+include ':app', ':picsart_video_encoder'

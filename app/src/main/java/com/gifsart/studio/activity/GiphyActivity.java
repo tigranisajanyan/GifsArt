@@ -14,10 +14,14 @@ import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.SearchView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.SimpleTarget;
 import com.gifsart.studio.R;
 import com.gifsart.studio.adapter.GiphyAdapter;
 import com.gifsart.studio.gifutils.GifUtils;
@@ -37,6 +41,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 
 import pl.droidsonroids.gif.GifDrawable;
@@ -96,7 +101,6 @@ public class GiphyActivity extends AppCompatActivity {
                         return;
                     } else {
                         Toast.makeText(GiphyActivity.this, "No enough space", Toast.LENGTH_SHORT).show();
-
                     }
                 } else {
                     if (lastSelectedPosition == position) {
@@ -120,7 +124,6 @@ public class GiphyActivity extends AppCompatActivity {
         }));
 
         if (Utils.haveNetworkConnection(this)) {
-
             Giphy giphy = new Giphy(this, tag, false, offset, limit);
             giphy.requestGiphy();
             giphy.setOnDownloadedListener(new Giphy.GiphyListener() {

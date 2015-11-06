@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.List;
 
 public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback {
     private SurfaceHolder mHolder;
@@ -59,15 +60,12 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
         try {
             Camera.Parameters parameters = mCamera.getParameters();
 
-            DisplayMetrics metrics = getResources().getDisplayMetrics();
-            int displayWidth = metrics.widthPixels;
-            int displayHeight = metrics.heightPixels;
-
-            width = getBestPreviewSize(camera, displayWidth, displayHeight).width;
-            height = getBestPreviewSize(camera, displayWidth, displayHeight).height;
+            width = getBestPreviewSize(camera, 640, 480).width;
+            height = getBestPreviewSize(camera, 640, 480).height;
 
             Log.d("gagaga", width + "  /  " + height);
             parameters.setPreviewSize(width, height);
+            parameters.setPictureSize(getBestPictureSize(camera, 640, 480).width, getBestPictureSize(camera, 640, 480).height);
             mCamera.setPreviewDisplay(mHolder);
             mCamera.setDisplayOrientation(orientation);
             mCamera.setParameters(parameters);
@@ -98,7 +96,30 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     public Camera.Size getBestPreviewSize(Camera camera, int width, int height) {
         Camera.Size result = null;
         Camera.Parameters p = camera.getParameters();
-        for (Camera.Size size : p.getSupportedPreviewSizes()) {
+        List<Camera.Size> sizes = p.getSupportedPreviewSizes();
+        for (Camera.Size size : sizes) {
+            if (size.width <= width && size.height <= height) {
+                if (result == null) {
+                    result = size;
+                } else {
+                    int resultArea = result.width * result.height;
+                    int newArea = size.width * size.height;
+
+                    if (newArea > resultArea) {
+                        result = size;
+                    }
+                }
+            }
+        }
+        return result;
+
+    }
+
+    public Camera.Size getBestPictureSize(Camera camera, int width, int height) {
+        Camera.Size result = null;
+        Camera.Parameters p = camera.getParameters();
+        List<Camera.Size> sizes = p.getSupportedPictureSizes();
+        for (Camera.Size size : sizes) {
             if (size.width <= width && size.height <= height) {
                 if (result == null) {
                     result = size;

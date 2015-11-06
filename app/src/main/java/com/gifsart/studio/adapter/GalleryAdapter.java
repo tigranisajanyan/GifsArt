@@ -91,7 +91,6 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
             holder.mainFrameImageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
                     if (array.get(position).isSeleted()) {
                         CheckSpaceSingleton.getInstance().removeAllocatedSpace(array.get(position).getFilePath());
                         array.get(position).setIsSeleted(false);
@@ -106,7 +105,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
 
                     } else {
                         if (CheckSpaceSingleton.getInstance().haveEnoughSpace(array.get(position).getFilePath())) {
-                            CheckSpaceSingleton.getInstance().addAllocatedSpace(array.get(position).getFilePath());
+                            CheckSpaceSingleton.getInstance().addAllocatedSpaceFromFilePath(array.get(position).getFilePath());
                             array.get(position).setIsSeleted(true);
                             selected.add(array.get(position));
                             ((TextView) activity.findViewById(R.id.maic_activity_toolbar_selected_text)).setText(getSelected().size() + " Selected");

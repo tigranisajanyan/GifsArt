@@ -29,7 +29,6 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.decoder.PhotoUtils;
 import com.gifsart.studio.R;
 import com.gifsart.studio.adapter.EffectsAdapter;
@@ -38,6 +37,7 @@ import com.gifsart.studio.adapter.SlideAdapter;
 import com.gifsart.studio.adapter.StickerAdapter;
 import com.gifsart.studio.adapter.StickerCategoryAdapter;
 import com.gifsart.studio.clipart.MainView;
+import com.gifsart.studio.effects.ApplyGifEffect;
 import com.gifsart.studio.effects.GPUEffects;
 import com.gifsart.studio.effects.GPUImageFilterTools;
 import com.gifsart.studio.gifutils.GifUtils;
@@ -47,17 +47,19 @@ import com.gifsart.studio.helper.RecyclerItemClickListener;
 import com.gifsart.studio.item.GifItem;
 import com.gifsart.studio.gifutils.GifImitation;
 import com.gifsart.studio.item.GiphyItem;
+import com.gifsart.studio.utils.AnimatedProgressDialog;
 import com.gifsart.studio.utils.CheckSpaceSingleton;
 import com.gifsart.studio.utils.GifsArtConst;
 import com.gifsart.studio.utils.SpacesItemDecoration;
 import com.gifsart.studio.utils.Type;
 import com.gifsart.studio.utils.Utils;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.ImageSize;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
 
 import bolts.Continuation;
 import bolts.Task;
@@ -109,8 +111,10 @@ public class MakeGifActivity extends ActionBarActivity {
     private int selectedMaskPosition = 0;
     private int editedFramePosition;
     private int clipartCurrentCategoryPosition = 0;
+    private int maskTransparencyLevel = 255;
 
     private RequestCode requestCode;
+    public static String FILE_PREFIX = "file://";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -207,9 +211,8 @@ public class MakeGifActivity extends ActionBarActivity {
             public void onItemClick(View view, int position) {
                 if (position != slideAdapter.getItemCount() - 1) {
                     editedFramePosition = position;
-                    requestCode = RequestCode.EDIT_TEXT;
                     gifImitation.showCurrentPosition(position);
-                    setContainerLayout(R.layout.edit_frame_layout);
+                    setContainerLayout(R.layout.edit_frame_layout, RequestCode.EDIT_FRAME);
                     initEditFrameLayout();
                 } else {
                     Intent intent = new Intent(MakeGifActivity.this, MainActivity.class);
@@ -218,6 +221,7 @@ public class MakeGifActivity extends ActionBarActivity {
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putBoolean(GifsArtConst.SHARED_PREFERENCES_IS_OPENED, true);
                     editor.commit();
+                    gifImitation.onPause();
                 }
             }
         }));
@@ -277,8 +281,7 @@ public class MakeGifActivity extends ActionBarActivity {
         findViewById(R.id.square_fit_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                requestCode = RequestCode.SELECT_SQUARE_FIT;
-                setContainerLayout(R.layout.square_fit_layout);
+                setContainerLayout(R.layout.square_fit_layout, RequestCode.SELECT_SQUARE_FIT);
                 initSquareFitLayout();
             }
         });
@@ -286,8 +289,7 @@ public class MakeGifActivity extends ActionBarActivity {
         findViewById(R.id.add_effects_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                requestCode = RequestCode.SELECT_EFFECTS;
-                setContainerLayout(R.layout.effects_layout);
+                setContainerLayout(R.layout.effects_layout, RequestCode.SELECT_EFFECTS);
                 initEffectsLayout();
             }
         });
@@ -295,8 +297,7 @@ public class MakeGifActivity extends ActionBarActivity {
         findViewById(R.id.add_clipart_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                requestCode = RequestCode.SELECT_CLIPART;
-                setContainerLayout(R.layout.clip_art_layout);
+                setContainerLayout(R.layout.clip_art_layout, RequestCode.SELECT_CLIPART);
                 initClipArtLayout();
             }
         });
@@ -304,8 +305,7 @@ public class MakeGifActivity extends ActionBarActivity {
         findViewById(R.id.mask_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                requestCode = RequestCode.SELECT_MASKS;
-                setContainerLayout(R.layout.mask_layout);
+                setContainerLayout(R.layout.mask_layout, RequestCode.SELECT_MASKS);
                 initMaskLayout();
             }
         });
@@ -314,7 +314,7 @@ public class MakeGifActivity extends ActionBarActivity {
             @Override
             public void onClick(View v) {
                 if (containerIsOpened) {
-                    if (requestCode == RequestCode.EDIT_TEXT) {
+                    if (requestCode == RequestCode.EDIT_FRAME) {
                         gifImitation.showAllPositions();
                         addPlusButton();
                     }
@@ -353,7 +353,7 @@ public class MakeGifActivity extends ActionBarActivity {
             @Override
             public void onClick(View v) {
                 if (containerIsOpened) {
-                    if (requestCode == RequestCode.EDIT_TEXT) {
+                    if (requestCode == RequestCode.EDIT_FRAME) {
                         addPlusButton();
                     }
                     slideDownContainer();
@@ -363,21 +363,27 @@ public class MakeGifActivity extends ActionBarActivity {
                     gifImitation.cancel(true);
 
 
-                    final ProgressDialog progressDialog = new ProgressDialog(MakeGifActivity.this);
-                    progressDialog.setCancelable(false);
-                    progressDialog.show();
+                    final AnimatedProgressDialog animatedProgressDialog = new AnimatedProgressDialog(MakeGifActivity.this);
+                    animatedProgressDialog.setCancelable(false);
+                    animatedProgressDialog.show();
 
                     square_fit_mode = SaveGifBolts.checkSquareFitMode(gifItems, square_fit_mode);
                     SaveGifBolts.doSquareFitTask(square_fit_mode, gifItems).continueWithTask(new Continuation<Void, Task<Void>>() {
                         @Override
                         public Task<Void> then(final Task<Void> task) throws Exception {
                             Log.d("gagg", "1");
+                            if (gpuImageFilter == GPUEffects.createFilterForType(filters.filters.get(0))) {
+                                return null;
+                            }
                             return SaveGifBolts.applyEffect(gifItems, gpuImageFilter, MakeGifActivity.this);
                         }
                     }).continueWithTask(new Continuation<Void, Task<Void>>() {
                         @Override
                         public Task<Void> then(Task<Void> task) throws Exception {
                             Log.d("gagg", "2");
+                            if (mainView.getClipartItem() == null) {
+                                return null;
+                            }
                             return SaveGifBolts.setClipartsOnGifTask(gifItems, mainView);
                         }
                     }).continueWithTask(new Continuation<Void, Task<Void>>() {
@@ -387,7 +393,7 @@ public class MakeGifActivity extends ActionBarActivity {
                             if (selectedMaskPosition < 1) {
                                 return null;
                             }
-                            return SaveGifBolts.addMaskToGifTask(gifItems, maskResourceIds.get(selectedMaskPosition), MakeGifActivity.this);
+                            return SaveGifBolts.addMaskToGifTask(gifItems, maskResourceIds.get(selectedMaskPosition), maskTransparencyLevel, MakeGifActivity.this);
                         }
                     }).continueWithTask(new Continuation<Void, Task<Void>>() {
                         @Override
@@ -398,8 +404,10 @@ public class MakeGifActivity extends ActionBarActivity {
                     }).onSuccessTask(new Continuation<Void, Task<Void>>() {
                         @Override
                         public Task<Void> then(Task<Void> task) throws Exception {
-                            progressDialog.dismiss();
-                            Log.d("gagg", "done");
+                            animatedProgressDialog.dismiss();
+                            Intent intent = new Intent(MakeGifActivity.this, ShareGifActivity.class);
+                            startActivity(intent);
+                            finish();
                             return null;
                         }
                     });
@@ -420,8 +428,12 @@ public class MakeGifActivity extends ActionBarActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == GifsArtConst.REQUEST_CODE_MAIN_ACTIVITY && resultCode == RESULT_OK) {
-            new AddFramesAsyncTask().execute(data);
+        if (requestCode == GifsArtConst.REQUEST_CODE_MAIN_ACTIVITY) {
+            if (resultCode == RESULT_OK) {
+                new AddFramesAsyncTask().execute(data);
+            }else {
+                gifImitation.onResume();
+            }
         }
     }
 
@@ -513,7 +525,9 @@ public class MakeGifActivity extends ActionBarActivity {
         recyclerView.addItemDecoration(new SpacesItemDecoration((int) Utils.dpToPixel(2, this)));
 
         EffectsAdapter effectsAdapter = new EffectsAdapter(filters, this);
-        new ApplyEffectsLayoutEffects().execute(effectsAdapter);
+
+        ApplyGifEffect applyGifEffect = new ApplyGifEffect(gifItems.get(0).getBitmap(), filters, effectsAdapter, MakeGifActivity.this);
+        applyGifEffect.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
         recyclerView.setAdapter(effectsAdapter);
         recyclerView.addOnItemTouchListener(new RecyclerItemClickListener(getApplicationContext(), new RecyclerItemClickListener.OnItemClickListener() {
@@ -685,6 +699,7 @@ public class MakeGifActivity extends ActionBarActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 maskImageView.setAlpha(progress);
+                maskTransparencyLevel = progress;
             }
 
             @Override
@@ -730,14 +745,16 @@ public class MakeGifActivity extends ActionBarActivity {
 
     public void addImageItem(String path, ArrayList<GifItem> gifItems) {
 
-        Bitmap bitmap = null;
-        try {
+        Bitmap bitmap = ImageLoader.getInstance().loadImageSync(FILE_PREFIX + path, new ImageSize(400, 400));
+        /*try {
             bitmap = Glide.with(this).load(path).asBitmap().into(GifsArtConst.GIF_FRAME_SIZE, GifsArtConst.GIF_FRAME_SIZE).get();
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
             e.printStackTrace();
-        }
+        }*/
+
+        //Bitmap bitmap = Utils.getBitmapFromPath(path);
 
         GifItem gifItem = new GifItem(GifsArtConst.IMAGE_FRAME_DURATION, Type.IMAGE);
         gifItem.setCurrentDuration(GifsArtConst.IMAGE_FRAME_DURATION);
@@ -759,13 +776,11 @@ public class MakeGifActivity extends ActionBarActivity {
         File file = new File(GifsArtConst.VIDEOS_DECODED_FRAMES_DIR);
         File[] files = file.listFiles();
         for (int j = 0; j < files.length; j++) {
-
             if (j % 3 != 0) {
                 ByteBuffer buffer = PhotoUtils.readBufferFromFile(files[j].getAbsolutePath(), PhotoUtils.checkBufferSize(path, scaleSize));
                 Bitmap bitmap = PhotoUtils.fromBufferToBitmap(PhotoUtils.checkFrameWidth(path, scaleSize), PhotoUtils.checkFrameHeight(path, scaleSize), buffer);
                 bitmaps.add(bitmap);
             }
-
         }
         GifItem gifItem = new GifItem(Utils.checkVideoFrameDuration(path, bitmaps.size()), Type.VIDEO);
         gifItem.setCurrentDuration(Utils.checkVideoFrameDuration(path, bitmaps.size()));
@@ -776,13 +791,15 @@ public class MakeGifActivity extends ActionBarActivity {
 
     // When first time MakeGifActivity opens should do this
     class LoadFramesAsyncTask extends AsyncTask<Void, Void, Void> {
-        ProgressDialog progressDialog = new ProgressDialog(MakeGifActivity.this);
+        AnimatedProgressDialog animatedProgressDialog = new AnimatedProgressDialog(MakeGifActivity.this);
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            progressDialog.setCancelable(false);
-            progressDialog.show();
+            animatedProgressDialog.setCancelable(false);
+            animatedProgressDialog.show();
+            ImageLoader.getInstance().clearMemoryCache();
+            ImageLoader.getInstance().clearDiskCache();
         }
 
         @Override
@@ -817,22 +834,23 @@ public class MakeGifActivity extends ActionBarActivity {
             addPlusButton();
 
             init();
-            progressDialog.dismiss();
+            animatedProgressDialog.dismiss();
             Log.d("gaggagagag", "Frames Count: " + CheckSpaceSingleton.getInstance().getAllocatedSpace());
         }
     }
 
     // When adding new items to gif should do this
     class AddFramesAsyncTask extends AsyncTask<Intent, Void, Void> {
-        ProgressDialog progressDialog = new ProgressDialog(MakeGifActivity.this);
+        AnimatedProgressDialog animatedProgressDialog = new AnimatedProgressDialog(MakeGifActivity.this);
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            progressDialog.setCancelable(false);
-            progressDialog.show();
-            gifImitation.onPause();
+            animatedProgressDialog.setCancelable(false);
+            animatedProgressDialog.show();
             gifItems.remove(gifItems.size() - 1);
+            ImageLoader.getInstance().clearMemoryCache();
+            ImageLoader.getInstance().clearDiskCache();
         }
 
         @Override
@@ -840,7 +858,6 @@ public class MakeGifActivity extends ActionBarActivity {
             if (params[0].getIntExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, 0) == GifsArtConst.INDEX_FROM_GALLERY_TO_GIF) {
                 ArrayList<String> addedItemsArray = params[0].getStringArrayListExtra(GifsArtConst.INTENT_DECODED_IMAGE_PATHS);
                 for (int i = 0; i < addedItemsArray.size(); i++) {
-
                     if (Utils.getMimeType(addedItemsArray.get(i)) == Type.IMAGE) {
                         addImageItem(addedItemsArray.get(i), gifItems);
                     } else if (Utils.getMimeType(addedItemsArray.get(i)) == Type.GIF) {
@@ -865,48 +882,14 @@ public class MakeGifActivity extends ActionBarActivity {
             super.onPostExecute(result);
             addPlusButton();
             slideAdapter.notifyDataSetChanged();
-            progressDialog.dismiss();
+            animatedProgressDialog.dismiss();
             gifImitation.onResume();
-            Log.d("gaggagagag", "Frames Count: " + CheckSpaceSingleton.getInstance().getAllocatedSpace());
-        }
-    }
-
-    // Adding EffectsAdapter items for each effect
-    class ApplyEffectsLayoutEffects extends AsyncTask<EffectsAdapter, Bitmap, Void> {
-        EffectsAdapter effectsAdapter;
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        @Override
-        protected Void doInBackground(EffectsAdapter... params) {
-            effectsAdapter = params[0];
-            GPUImage gpuImage = new GPUImage(MakeGifActivity.this);
-            gpuImage.setImage(gifItems.get(0).getBitmap());
-            for (int i = 0; i < filters.filters.size(); i++) {
-                gpuImage.setFilter(GPUEffects.createFilterForType(filters.filters.get(i)));
-                publishProgress(Utils.scaleCenterCrop(gpuImage.getBitmapWithFilterApplied(), GifsArtConst.GIF_FRAME_SIZE, GifsArtConst.GIF_FRAME_SIZE));
-            }
-            return null;
-        }
-
-        @Override
-        protected void onProgressUpdate(Bitmap... values) {
-            super.onProgressUpdate(values);
-            effectsAdapter.addItem(values[0]);
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-            super.onPostExecute(result);
-
         }
     }
 
     // Set container layout content
-    public void setContainerLayout(int resourceId) {
+    public void setContainerLayout(int resourceId, RequestCode requestCode) {
+        this.requestCode = requestCode;
         LayoutInflater inflater = getLayoutInflater();
         View view = inflater.inflate(resourceId, null, false);
 
@@ -960,7 +943,7 @@ public class MakeGifActivity extends ActionBarActivity {
         SELECT_CLIPART,
         SELECT_MASKS,
         SELECT_TEXT,
-        EDIT_TEXT;
+        EDIT_FRAME;
 
         public static RequestCode fromInt(int val) {
             RequestCode[] codes = values();

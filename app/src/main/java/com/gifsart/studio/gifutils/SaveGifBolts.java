@@ -88,13 +88,12 @@ public class SaveGifBolts {
             public Void call() throws IOException {
                 File outFile = new File(fileName);
                 try {
-
                     BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(outFile));
                     ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
                     AnimatedGifEncoder animatedGifEncoder = new AnimatedGifEncoder();
                     animatedGifEncoder.setRepeat(0);
-                    animatedGifEncoder.setQuality(255);
+                    //animatedGifEncoder.setQuality(255);
                     animatedGifEncoder.start(bos);
 
                     for (int i = 0; i < gifItems.size(); i++) {
@@ -201,7 +200,7 @@ public class SaveGifBolts {
         }
     }
 
-    public static Task<Void> addMaskToGifTask(final ArrayList<GifItem> gifItems, final int resourceId, final Context context) {
+    public static Task<Void> addMaskToGifTask(final ArrayList<GifItem> gifItems, final int resourceId, final int maskTransparency, final Context context) {
         return Task.callInBackground(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
@@ -210,16 +209,16 @@ public class SaveGifBolts {
 
                 for (int i = 0; i < gifItems.size(); i++) {
                     if (gifItems.get(i).getType() == Type.IMAGE) {
-                        drawMask(gifItems.get(i).getBitmap(), bitmapArrayList.get(pos % size));
+                        drawMask(gifItems.get(i).getBitmap(), bitmapArrayList.get(pos % size), maskTransparency);
                         pos++;
                     } else if (gifItems.get(i).getType() == Type.GIF) {
                         for (int j = 0; j < gifItems.get(i).getBitmaps().size(); j++) {
-                            drawMask(gifItems.get(i).getBitmaps().get(j), bitmapArrayList.get(pos % size));
+                            drawMask(gifItems.get(i).getBitmaps().get(j), bitmapArrayList.get(pos % size), maskTransparency);
                             pos++;
                         }
                     } else if (gifItems.get(i).getType() == Type.VIDEO) {
                         for (int j = 0; j < gifItems.get(i).getBitmaps().size(); j++) {
-                            drawMask(gifItems.get(i).getBitmaps().get(j), bitmapArrayList.get(pos % size));
+                            drawMask(gifItems.get(i).getBitmaps().get(j), bitmapArrayList.get(pos % size), maskTransparency);
                             pos++;
                         }
                     }
@@ -229,9 +228,10 @@ public class SaveGifBolts {
         });
     }
 
-    private static void drawMask(Bitmap mainFrame, Bitmap maskFrame) {
+    private static void drawMask(Bitmap mainFrame, Bitmap maskFrame, int maskTransparency) {
         Canvas canvas = new Canvas(mainFrame);
         Paint paint = new Paint();
+        paint.setAlpha(maskTransparency);
         Rect originalRect = new Rect(0, 0, maskFrame.getWidth(), maskFrame.getHeight());
         Rect newRect = new Rect(0, 0, canvas.getWidth(), canvas.getHeight());
         canvas.drawBitmap(maskFrame, originalRect, newRect, paint);

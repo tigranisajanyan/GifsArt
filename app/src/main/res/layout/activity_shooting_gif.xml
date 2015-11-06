@@ -16,7 +16,7 @@
         android:gravity="center">
 
         <Button
-            android:id="@+id/cancel_btn"
+            android:id="@+id/cancel_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
@@ -56,10 +56,10 @@
             </LinearLayout>
 
             <TextView
-                android:layout_marginLeft="20dp"
                 android:id="@+id/capture_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
                 android:text="6"
                 android:textColor="@color/font_main_color"
                 android:visibility="invisible" />
@@ -75,12 +75,12 @@
     </RelativeLayout>
 
     <FrameLayout
+        android:id="@+id/frameLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/ttt"
         android:layout_gravity="center"
-        android:gravity="center"
-        android:id="@+id/frameLayout">
+        android:gravity="center">
 
         <LinearLayout
             android:id="@+id/camera_preview"
@@ -99,71 +99,63 @@
             android:textSize="40dp" />
     </FrameLayout>
 
-
-    <LinearLayout
+    <RelativeLayout
+        android:id="@+id/relativeLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:background="@color/navigation_bar_color"
-        android:gravity="center"
-        android:id="@+id/relativeLayout">
-
+        android:gravity="center">
 
         <ImageButton
-            android:layout_weight="2"
+            android:id="@+id/flashlightButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
-            android:background="@android:color/transparent"
-            android:src="@drawable/flash_light_on"
             android:layout_centerVertical="true"
-            android:id="@+id/flashlightButton" />
+            android:layout_marginLeft="20dp"
+            android:background="@android:color/transparent"
+            android:src="@drawable/flash_light_on" />
 
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_margin="20dp">
 
-<RelativeLayout
-    android:layout_weight="2"
-    android:layout_marginLeft="10dp"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
+            <ImageButton
+                android:id="@+id/button_capture"
+                android:layout_width="120dp"
+                android:layout_height="100dp"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:background="@android:color/transparent"
+                android:src="@drawable/capture" />
 
+            <ProgressBar
+                android:id="@+id/circle_progress_bar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="120dp"
+                android:layout_height="100dp"
+                android:layout_alignBottom="@+id/button_capture"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:indeterminate="false"
+                android:max="100"
+                android:progressDrawable="@drawable/circle_progress_foreground"
+                android:rotation="-90" />
 
-    <ImageButton
-
-        android:id="@+id/button_capture"
-        android:layout_width="120dp"
-        android:layout_height="100dp"
-        android:background="@android:color/transparent"
-        android:src="@drawable/capture"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true" />
-
-    <ProgressBar
-        android:id="@+id/circle_progress_bar"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="120dp"
-        android:layout_height="100dp"
-        android:max="100"
-        android:rotation="-90"
-        android:indeterminate="false"
-        android:progressDrawable="@drawable/circle_progress_foreground"
-        android:layout_alignBottom="@+id/button_capture"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"/>
-
-</RelativeLayout>
+        </RelativeLayout>
 
         <ImageButton
-            android:id="@+id/button_ChangeCamera"
+            android:id="@+id/switch_camera_button"
             android:layout_width="wrap_content"
-            android:layout_weight="2"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:background="@android:color/transparent"
             android:layout_centerVertical="true"
+            android:layout_marginRight="20dp"
+            android:background="@android:color/transparent"
             android:src="@drawable/camera_rotate" />
-
-    </LinearLayout>
-
-
+    </RelativeLayout>
 
 </RelativeLayout>

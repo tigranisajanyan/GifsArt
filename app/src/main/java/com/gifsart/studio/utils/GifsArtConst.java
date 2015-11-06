@@ -34,6 +34,8 @@ public class GifsArtConst {
     public static String INTENT_DECODED_IMAGES_OUTPUT_DIR = "output_dir";
     public static String INTENT_FRONT_CAMERA = "front_camera";
     public static String INTENT_GIF_PATH = "gif_path";
+    public static String INTENT_CAMERA_BURST_MODE = "burst_mode";
+    public static String INTENT_GIPHY_BYTE_ARRAY = "giphy_byte_array";
     public static String INTENT_IMAGE_BITMAP = "image_bitmap";
     public static String INTENT_SQUARE_FIT_MODE = "square_fit_mode";
     public static String INTENT_EFFECT_FILTER = "filter";

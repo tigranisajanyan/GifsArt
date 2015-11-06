@@ -11,6 +11,8 @@ public class GiphyItem {
     private int gifHeight;
     private int framesCount;
 
+    private int byteBufferSize;
+
     private boolean isSelected;
 
     public GiphyItem() {
@@ -70,6 +72,14 @@ public class GiphyItem {
 
     public void setFramesCount(int framesCount) {
         this.framesCount = framesCount;
+    }
+
+    public int getByteBufferSize() {
+        return byteBufferSize;
+    }
+
+    public void setByteBufferSize(int byteBufferSize) {
+        this.byteBufferSize = byteBufferSize;
     }
 
 }

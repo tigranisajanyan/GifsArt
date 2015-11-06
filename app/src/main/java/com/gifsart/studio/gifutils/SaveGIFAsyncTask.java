@@ -3,14 +3,17 @@ package com.gifsart.studio.gifutils;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.gifsart.studio.activity.GifPreviewActivity;
+import com.gifsart.studio.activity.ShareGifActivity;
 import com.gifsart.studio.item.GifItem;
 import com.gifsart.studio.utils.GifsArtConst;
 import com.gifsart.studio.utils.Type;
@@ -23,7 +26,12 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
 
+import bolts.Bolts;
+import bolts.Continuation;
+import bolts.Task;
 import jp.co.cyberagent.android.gpuimage.GPUImage;
 import jp.co.cyberagent.android.gpuimage.GPUImageFilter;
 import jp.co.cyberagent.android.gpuimage.GPUImageView;
@@ -64,7 +72,7 @@ public class SaveGIFAsyncTask extends AsyncTask<Void, Integer, Void> {
     protected void onPreExecute() {
         super.onPreExecute();
 
-        applyEffect(gpuImageFilter);
+        //applyEffect(gpuImageFilter);
         checkSquareFitMode();
     }
 
@@ -79,23 +87,24 @@ public class SaveGIFAsyncTask extends AsyncTask<Void, Integer, Void> {
 
             AnimatedGifEncoder animatedGifEncoder = new AnimatedGifEncoder();
             animatedGifEncoder.setRepeat(0);
+            animatedGifEncoder.setQuality(255);
             animatedGifEncoder.start(bos);
 
             for (int i = 0; i < gifItems.size(); i++) {
 
                 if (gifItems.get(i).getType() == Type.IMAGE) {
-                    addGifFrame(animatedGifEncoder, gifItems.get(i).getBitmap(), squareFitMode, gifItems.get(i).getCurrentDuration());
+                    addGifFrame(animatedGifEncoder, gifItems.get(i).getBitmap(), gifItems.get(i).getCurrentDuration());
                     publishProgress(num);
                     num++;
                 } else if (gifItems.get(i).getType() == Type.GIF) {
                     for (int j = 0; j < gifItems.get(i).getBitmaps().size(); j++) {
-                        addGifFrame(animatedGifEncoder, gifItems.get(i).getBitmaps().get(j), squareFitMode, gifItems.get(i).getCurrentDuration());
+                        addGifFrame(animatedGifEncoder, gifItems.get(i).getBitmaps().get(j), gifItems.get(i).getCurrentDuration());
                         publishProgress(num);
                         num++;
                     }
                 } else if (gifItems.get(i).getType() == Type.VIDEO) {
                     for (int j = 0; j < gifItems.get(i).getBitmaps().size(); j++) {
-                        addGifFrame(animatedGifEncoder, gifItems.get(i).getBitmaps().get(j), squareFitMode, gifItems.get(i).getCurrentDuration());
+                        addGifFrame(animatedGifEncoder, gifItems.get(i).getBitmaps().get(j), gifItems.get(i).getCurrentDuration());
                         publishProgress(num);
                         num++;
                     }
@@ -125,8 +134,9 @@ public class SaveGIFAsyncTask extends AsyncTask<Void, Integer, Void> {
     @Override
     protected void onPostExecute(Void result) {
         super.onPostExecute(result);
+
         progressDialog.dismiss();
-        AlertDialog.Builder gifSavedDialogBuilder = new AlertDialog.Builder(activity);
+        /*AlertDialog.Builder gifSavedDialogBuilder = new AlertDialog.Builder(activity);
         gifSavedDialogBuilder.setTitle("GiFit");
         gifSavedDialogBuilder.setMessage("Gif saved successfully");
         gifSavedDialogBuilder.setPositiveButton("Preview", new DialogInterface.OnClickListener() {
@@ -154,42 +164,11 @@ public class SaveGIFAsyncTask extends AsyncTask<Void, Integer, Void> {
             }
         });
         AlertDialog alertDialog = gifSavedDialogBuilder.create();
-        alertDialog.show();
-    }
+        alertDialog.show();*/
+        Intent intent = new Intent(activity, ShareGifActivity.class);
+        activity.startActivity(intent);
+        activity.finish();
 
-    public class ApplyEffects extends AsyncTask<Void,Void,Void>{
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-
-        }
-    }
-
-    public void applyEffect(final GPUImageFilter gpuImageFilter) {
-        GPUImage gpuImage = new GPUImage(activity);
-        gpuImage.setFilter(gpuImageFilter);
-        for (int i = 0; i < gifItems.size(); i++) {
-            if (gifItems.get(i).getType() == Type.IMAGE) {
-                gpuImage.setImage(gifItems.get(i).getBitmap());
-                gifItems.get(i).setBitmap(gpuImage.getBitmapWithFilterApplied());
-            } else {
-                for (int j = 0; j < gifItems.get(i).getBitmaps().size(); j++) {
-                    gpuImage.setImage(gifItems.get(i).getBitmaps().get(j));
-                    gifItems.get(i).getBitmaps().set(j, gpuImage.getBitmapWithFilterApplied());
-                }
-            }
-        }
     }
 
     public int checkGifItemsFramesCount() {
@@ -218,14 +197,43 @@ public class SaveGIFAsyncTask extends AsyncTask<Void, Integer, Void> {
         }
     }
 
-    public void addGifFrame(AnimatedGifEncoder animatedGifEncoder, Bitmap bitmap, int squareFitMode, int duration) {
+    public void addGifFrame(AnimatedGifEncoder animatedGifEncoder, Bitmap bitmap, int duration) {
         animatedGifEncoder.setDelay(duration);
-        if (squareFitMode == GifsArtConst.FIT_MODE_SQUARE_FIT) {
-            bitmap = Utils.squareFit(bitmap, GifsArtConst.GIF_FRAME_SIZE);
-        } else if (squareFitMode == GifsArtConst.FIT_MODE_SQUARE) {
-            bitmap = Utils.scaleCenterCrop(bitmap, GifsArtConst.GIF_FRAME_SIZE, GifsArtConst.GIF_FRAME_SIZE);
-        }
         animatedGifEncoder.addFrame(bitmap);
     }
+
+    class ApplyEffects extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            GPUImage gpuImage = new GPUImage(activity);
+            gpuImage.setFilter(gpuImageFilter);
+            for (int i = 0; i < gifItems.size(); i++) {
+                if (gifItems.get(i).getType() == Type.IMAGE) {
+                    gpuImage.setImage(gifItems.get(i).getBitmap());
+                    gifItems.get(i).setBitmap(gpuImage.getBitmapWithFilterApplied());
+                } else {
+                    for (int j = 0; j < gifItems.get(i).getBitmaps().size(); j++) {
+                        gpuImage.setImage(gifItems.get(i).getBitmaps().get(j));
+                        gifItems.get(i).getBitmaps().set(j, gpuImage.getBitmapWithFilterApplied());
+                    }
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+
+        }
+    }
+
+
 
 }
