@@ -1,5 +1,4 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:pushtouch="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -7,60 +6,54 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <android.support.v7.widget.Toolbar xmlns:app="http://schemas.android.com/apk/res-auto"
+    <RelativeLayout
         android:id="@+id/make_gif_activity_toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/abc_action_bar_default_height_material"
         android:layout_alignParentTop="true"
-        android:background="@color/navigation_bar_color"
-        app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+        android:background="@color/navigation_bar_color">
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:padding="0dp">
+        <Button
+            android:id="@+id/make_gif_activity_toolbar_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:background="@android:color/transparent"
+            android:text="Cancel"
+            android:textAllCaps="false"
+            android:textColor="@color/pink" />
 
-            <Button
-                android:id="@+id/make_gif_activity_toolbar_cancel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:background="@android:color/transparent"
-                android:text="Cancel"
-                android:textAllCaps="false"
-                android:textColor="@color/pink" />
+        <TextView
+            android:id="@+id/make_gif_activity_toolbar_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="Preview"
+            android:textColor="@color/font_main_color" />
 
-            <TextView
-                android:id="@+id/make_gif_activity_toolbar_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:text="Preview"
-                android:textColor="@color/font_main_color" />
-
-            <Button
-                android:id="@+id/make_gif_activity_toolbar_next"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:background="@android:color/transparent"
-                android:text="Next"
-                android:textAllCaps="false"
-                android:textColor="@color/pink" />
-        </RelativeLayout>
-    </android.support.v7.widget.Toolbar>
+        <Button
+            android:id="@+id/make_gif_activity_toolbar_next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:background="@android:color/transparent"
+            android:text="Next"
+            android:textAllCaps="false"
+            android:textColor="@color/pink" />
+    </RelativeLayout>
 
     <FrameLayout
         android:id="@+id/main_frame_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/make_gif_activity_toolbar"
-        android:layout_marginTop="5dp">
+        android:layout_marginTop="5dp"
+        android:clickable="true">
 
         <jp.co.cyberagent.android.gpuimage.GPUImageView
             android:id="@+id/image_view"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent" />
 
     </FrameLayout>
 

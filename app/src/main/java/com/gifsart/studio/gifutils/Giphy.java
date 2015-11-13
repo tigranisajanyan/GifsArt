@@ -12,6 +12,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.gifsart.studio.R;
 import com.gifsart.studio.item.GiphyItem;
+import com.gifsart.studio.utils.AnimatedProgressDialog;
 import com.gifsart.studio.utils.GifsArtConst;
 
 import org.json.JSONArray;
@@ -25,7 +26,7 @@ import java.util.ArrayList;
  */
 public class Giphy {
 
-    private ProgressDialog progressDialog;
+    private AnimatedProgressDialog progressDialog;
     private Context context;
     private String tag = GifsArtConst.GIPHY_TAG;
     private int offset;
@@ -33,10 +34,6 @@ public class Giphy {
     private ArrayList<GiphyItem> giphyItems = new ArrayList<>();
     private GiphyListener giphyListener;
     private boolean isSticker;
-
-    public Giphy() {
-
-    }
 
     public Giphy(Context context, String tag, boolean isSticker, int offset, int limit) {
 
@@ -54,9 +51,8 @@ public class Giphy {
 
     public void requestGiphy() {
 
-        progressDialog = new ProgressDialog(context);
+        progressDialog = new AnimatedProgressDialog(context);
         progressDialog.setCancelable(false);
-        progressDialog.setMessage(context.getResources().getString(R.string.please_wait));
         progressDialog.show();
         String urlId = GifsArtConst.GIPHY_URL;
         if (isSticker) {
@@ -98,7 +94,7 @@ public class Giphy {
             @Override
             public void onErrorResponse(VolleyError error) {
                 error.printStackTrace();
-                //Log.d(GifsArtConst.GIFSART_LOG, error + "");
+                Log.d(GifsArtConst.GIFSART_LOG, error + "");
             }
         });
         queue.add(stringRequest);

@@ -13,7 +13,10 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PointF;
+import android.graphics.PorterDuff;
 import android.graphics.RectF;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.media.ExifInterface;
 import android.media.MediaMetadataRetriever;
 import android.net.ConnectivityManager;
@@ -23,9 +26,11 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.view.View;
 import android.webkit.MimeTypeMap;
 
 import com.decoder.PhotoUtils;
+import com.gifsart.studio.R;
 import com.gifsart.studio.item.GalleryItem;
 import com.nostra13.universalimageloader.cache.disc.naming.HashCodeFileNameGenerator;
 import com.nostra13.universalimageloader.cache.memory.impl.UsingFreqLimitedMemoryCache;
@@ -462,41 +467,18 @@ public class Utils {
         return byteArray;
     }
 
-    public static Bitmap getBitmapFromPath(String filePath) {
-
-        Bitmap bitmap = BitmapFactory.decodeFile(filePath);
-        Matrix matrix = new Matrix();
-
-        ExifInterface exifReader = null;
+    public static Drawable changeDrawableColor(Context context, int color, int id) {
+        Drawable tubeBg = context.getResources().getDrawable(id);
+        // bug 2.1 and lower StateListDrawable.mutate() throws
+        // NullPointerException
         try {
-            exifReader = new ExifInterface(filePath);
-        } catch (IOException e) {
-            e.printStackTrace();
+            tubeBg.mutate();
+        } catch (NullPointerException e) {
         }
+        tubeBg.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
 
-        int orientation = exifReader.getAttributeInt(ExifInterface.TAG_ORIENTATION, -1);
-
-        if (orientation == ExifInterface.ORIENTATION_NORMAL) {// Do nothing. The original image is fine.
-        } else if (orientation == ExifInterface.ORIENTATION_ROTATE_90) {
-            matrix.postRotate(90);
-        } else if (orientation == ExifInterface.ORIENTATION_ROTATE_180) {
-            matrix.postRotate(180);
-        } else if (orientation == ExifInterface.ORIENTATION_ROTATE_270) {
-            matrix.postRotate(270);
-        }
-        return scaleDown(Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true), 700, true);
+        return tubeBg;
     }
 
-    public static Bitmap scaleDown(Bitmap realImage, float maxImageSize,
-                                   boolean filter) {
-        float ratio = Math.min(
-                (float) maxImageSize / realImage.getWidth(),
-                (float) maxImageSize / realImage.getHeight());
-        int width = Math.round((float) ratio * realImage.getWidth());
-        int height = Math.round((float) ratio * realImage.getHeight());
 
-        Bitmap newBitmap = Bitmap.createScaledBitmap(realImage, width,
-                height, filter);
-        return newBitmap;
-    }
 }

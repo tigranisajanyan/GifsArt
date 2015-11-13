@@ -7,9 +7,11 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.os.Environment;
+import android.util.Log;
 
 import com.gifsart.studio.clipart.Clipart;
 import com.gifsart.studio.clipart.MainView;
+import com.gifsart.studio.effects.GPUEffects;
 import com.gifsart.studio.item.GifItem;
 import com.gifsart.studio.utils.GifsArtConst;
 import com.gifsart.studio.utils.Type;
@@ -28,6 +30,7 @@ import java.util.concurrent.Callable;
 import bolts.Task;
 import jp.co.cyberagent.android.gpuimage.GPUImage;
 import jp.co.cyberagent.android.gpuimage.GPUImageFilter;
+import jp.co.cyberagent.android.gpuimage.GPUImageView;
 
 /**
  * Created by Tigran on 11/3/15.
@@ -93,7 +96,7 @@ public class SaveGifBolts {
 
                     AnimatedGifEncoder animatedGifEncoder = new AnimatedGifEncoder();
                     animatedGifEncoder.setRepeat(0);
-                    //animatedGifEncoder.setQuality(255);
+                    animatedGifEncoder.setQuality(256);
                     animatedGifEncoder.start(bos);
 
                     for (int i = 0; i < gifItems.size(); i++) {
@@ -142,16 +145,18 @@ public class SaveGifBolts {
         return Task.callInBackground(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                GPUImage gpuImage = new GPUImage(context);
-                gpuImage.setFilter(gpuImageFilter);
-                for (int i = 0; i < gifItems.size(); i++) {
-                    if (gifItems.get(i).getType() == Type.IMAGE) {
-                        gpuImage.setImage(gifItems.get(i).getBitmap());
-                        gifItems.get(i).setBitmap(gpuImage.getBitmapWithFilterApplied());
-                    } else {
-                        for (int j = 0; j < gifItems.get(i).getBitmaps().size(); j++) {
-                            gpuImage.setImage(gifItems.get(i).getBitmaps().get(j));
-                            gifItems.get(i).getBitmaps().set(j, gpuImage.getBitmapWithFilterApplied());
+                if (gpuImageFilter != GPUEffects.createFilterForType(GPUEffects.FilterType.NONE)) {
+                    GPUImage gpuImage = new GPUImage(context);
+                    gpuImage.setFilter(gpuImageFilter);
+                    for (int i = 0; i < gifItems.size(); i++) {
+                        if (gifItems.get(i).getType() == Type.IMAGE) {
+                            gpuImage.setImage(gifItems.get(i).getBitmap());
+                            gifItems.get(i).setBitmap(gpuImage.getBitmapWithFilterApplied());
+                        } else {
+                            for (int j = 0; j < gifItems.get(i).getBitmaps().size(); j++) {
+                                gpuImage.setImage(gifItems.get(i).getBitmaps().get(j));
+                                gifItems.get(i).getBitmaps().set(j, gpuImage.getBitmapWithFilterApplied());
+                            }
                         }
                     }
                 }

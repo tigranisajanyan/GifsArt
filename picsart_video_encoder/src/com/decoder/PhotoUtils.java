@@ -5,6 +5,9 @@ import android.graphics.Matrix;
 import android.media.MediaMetadataRetriever;
 import android.util.DisplayMetrics;
 
+import com.socialin.android.photo.imgop.ImageOp;
+import com.socialin.android.photo.imgop.ImageOpCommon;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -47,8 +50,8 @@ public class PhotoUtils {
         try {
             inputStream = new FileInputStream(bufferPath);
 
-            ByteBuffer buffer = ByteBuffer.allocate(bufferSize);
-//            ByteBuffer buffer = ImageOp.allocNativeBuffer(bufferSize);
+            //ByteBuffer buffer = ByteBuffer.allocate(bufferSize);
+            ByteBuffer buffer = ImageOp.allocNativeBuffer(bufferSize);
 
             channel = inputStream.getChannel();
             channel.read(buffer);

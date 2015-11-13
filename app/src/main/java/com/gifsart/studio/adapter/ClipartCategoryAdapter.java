@@ -7,22 +7,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.bumptech.glide.Glide;
 import com.gifsart.studio.R;
-
-import java.util.ArrayList;
+import com.gifsart.studio.clipart.ClipartRes;
 
 /**
  * Created by Tigran on 10/14/15.
  */
-public class StickerCategoryAdapter extends RecyclerView.Adapter<StickerCategoryAdapter.ViewHolder> {
+public class ClipartCategoryAdapter extends RecyclerView.Adapter<ClipartCategoryAdapter.ViewHolder> {
 
-    private ArrayList<Integer> resourceIds = new ArrayList<>();
+    private int[] resourceIds;
     private LayoutInflater inflater = null;
     private Context context;
 
-    public StickerCategoryAdapter(ArrayList<Integer> resourceIds, Context context) {
-        this.resourceIds = resourceIds;
+    public ClipartCategoryAdapter(Context context) {
+        this.resourceIds = ClipartRes.clipartCategoryIcons;
         this.context = context;
     }
 
@@ -36,16 +34,16 @@ public class StickerCategoryAdapter extends RecyclerView.Adapter<StickerCategory
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
-        holder.stickerImageView.setImageResource(resourceIds.get(position));
+        holder.stickerImageView.setImageResource(resourceIds[position]);
     }
 
     @Override
     public int getItemCount() {
-        return resourceIds.size();
+        return resourceIds.length;
     }
 
     public int getItem(int position) {
-        return resourceIds.get(position);
+        return resourceIds[position];
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {

@@ -75,10 +75,7 @@ public class GifsArtConst {
     public static int IMAGE_FRAME_DURATION = 200;   // 200 mls
 
     public static int GIPHY_LIMIT_COUNT = 30;
-    public static int GIF_MAX_FRAMES_COUNT = 100;
+    public static int GIF_MAX_FRAMES_COUNT = 150;
 
-
-
-                /**/
 
 }

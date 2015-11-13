@@ -1,50 +1,32 @@
 package com.gifsart.studio.activity;
 
 import android.app.SearchManager;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Environment;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.widget.SearchView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.animation.GlideAnimation;
-import com.bumptech.glide.request.target.SimpleTarget;
 import com.gifsart.studio.R;
 import com.gifsart.studio.adapter.GiphyAdapter;
 import com.gifsart.studio.gifutils.GifUtils;
 import com.gifsart.studio.gifutils.Giphy;
+import com.gifsart.studio.gifutils.GiphyToByteArray;
 import com.gifsart.studio.helper.RecyclerItemClickListener;
 import com.gifsart.studio.item.GiphyItem;
 import com.gifsart.studio.utils.CheckSpaceSingleton;
-import com.gifsart.studio.utils.DownloadFileAsyncTask;
 import com.gifsart.studio.utils.GifsArtConst;
 import com.gifsart.studio.utils.SpacesItemDecoration;
 import com.gifsart.studio.utils.Utils;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
-
-import pl.droidsonroids.gif.GifDrawable;
 
 public class GiphyActivity extends AppCompatActivity {
 
@@ -58,11 +40,8 @@ public class GiphyActivity extends AppCompatActivity {
     private int offset = 0;
     private int limit = GifsArtConst.GIPHY_LIMIT_COUNT;
 
-    private static final String giphyName = "giphy.gif";
     private int lastSelectedPosition = -1;
     private SharedPreferences sharedPreferences;
-
-    private static final String root = Environment.getExternalStorageDirectory().toString();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,7 +55,7 @@ public class GiphyActivity extends AppCompatActivity {
     public void init() {
 
         sharedPreferences = getSharedPreferences(GifsArtConst.SHARED_PREFERENCES, MODE_PRIVATE);
-        giphyAdapter = new GiphyAdapter(tag, false, this);
+        giphyAdapter = new GiphyAdapter(giphyItems, tag, false, this);
 
         recyclerView = (RecyclerView) findViewById(R.id.giphy_rec_view);
         gridLayoutManager = new GridLayoutManager(this, 2, GridLayoutManager.VERTICAL, false);
@@ -88,6 +67,21 @@ public class GiphyActivity extends AppCompatActivity {
 
         recyclerView.setAdapter(giphyAdapter);
         recyclerView.addItemDecoration(new SpacesItemDecoration(5));
+
+        if (Utils.haveNetworkConnection(this)) {
+            Giphy giphy = new Giphy(this, tag, false, offset, limit);
+            giphy.requestGiphy();
+            giphy.setOnDownloadedListener(new Giphy.GiphyListener() {
+                @Override
+                public void onGiphyDownloadFinished(ArrayList<GiphyItem> items) {
+                    giphyItems.addAll(items);
+                    giphyAdapter.notifyDataSetChanged();
+                }
+            });
+        } else {
+            Toast.makeText(this, "No Wifi Connection", Toast.LENGTH_SHORT).show();
+            finish();
+        }
 
         recyclerView.addOnItemTouchListener(new RecyclerItemClickListener(getApplicationContext(), new RecyclerItemClickListener.OnItemClickListener() {
             @Override
@@ -122,21 +116,6 @@ public class GiphyActivity extends AppCompatActivity {
                 }
             }
         }));
-
-        if (Utils.haveNetworkConnection(this)) {
-            Giphy giphy = new Giphy(this, tag, false, offset, limit);
-            giphy.requestGiphy();
-            giphy.setOnDownloadedListener(new Giphy.GiphyListener() {
-                @Override
-                public void onGiphyDownloadFinished(ArrayList<GiphyItem> items) {
-                    giphyItems.addAll(items);
-                    giphyAdapter.addItems(giphyItems);
-                }
-            });
-        } else {
-            Toast.makeText(this, "No Wifi Connection", Toast.LENGTH_SHORT).show();
-            finish();
-        }
 
         SearchManager manager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         final SearchView search = (SearchView) findViewById(R.id.search_giphy_search_view);
@@ -187,6 +166,13 @@ public class GiphyActivity extends AppCompatActivity {
             }
         });
 
+        findViewById(R.id.giphy_toolbar_back_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
         findViewById(R.id.giphy_next_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -204,23 +190,23 @@ public class GiphyActivity extends AppCompatActivity {
     }
 
     public void sendIntentWithGif(final Intent intent, final boolean isOpened) {
-
-        DownloadFileAsyncTask downloadFileAsyncTask = new DownloadFileAsyncTask(GiphyActivity.this, root + "/" + GifsArtConst.DIR_GIPHY + "/" + giphyName, giphyItems.get(lastSelectedPosition));
-        downloadFileAsyncTask.setOnDownloadedListener(new DownloadFileAsyncTask.OnDownloaded() {
+        GiphyToByteArray giphyToByteArray = new GiphyToByteArray(GiphyActivity.this, giphyItems.get(lastSelectedPosition));
+        giphyToByteArray.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        giphyToByteArray.setOnDownloadedListener(new GiphyToByteArray.OnDownloaded() {
             @Override
-            public void onDownloaded(boolean isDownloded) {
-                intent.putExtra(GifsArtConst.INTENT_GIF_PATH, root + "/" + GifsArtConst.DIR_GIPHY + "/" + giphyName);
-                intent.putExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, GifsArtConst.INDEX_GIPHY_TO_GIF);
-                CheckSpaceSingleton.getInstance().addAllocatedSpaceInt(GifUtils.getGifFramesCount(root + "/" + GifsArtConst.DIR_GIPHY + "/" + giphyName));
-                if (isOpened) {
-                    setResult(RESULT_OK, intent);
-                } else {
-                    startActivity(intent);
+            public void onDownloaded(boolean isDownladed) {
+                if (isDownladed) {
+                    intent.putExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, GifsArtConst.INDEX_GIPHY_TO_GIF);
+                    CheckSpaceSingleton.getInstance().addAllocatedSpaceInt(GifUtils.getGifFramesCountFromByteArray(GiphyToByteArray.buffer));
+                    if (isOpened) {
+                        setResult(RESULT_OK, intent);
+                    } else {
+                        startActivity(intent);
+                    }
+                    finish();
                 }
-                finish();
             }
         });
-        downloadFileAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
 }

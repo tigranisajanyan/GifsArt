@@ -39,7 +39,7 @@ public class GalleryItemCategoryAdapter extends RecyclerView.Adapter<GalleryItem
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
-        Glide.with(context).load(galleryCategoryItems.get(position).getCategoryCover()).fitCenter().into(holder.galleryCategoryItemImageView);
+        Glide.with(context).load(galleryCategoryItems.get(position).getCategoryCover()).asBitmap().fitCenter().into(holder.galleryCategoryItemImageView);
         holder.galleryCategoryItemTitle.setText(galleryCategoryItems.get(position).getCategoryTitle());
         holder.galleryCategoryItemsCount.setText("" + galleryCategoryItems.get(position).getCategoryItemsCount());
         if (galleryCategoryItems.get(position).isSelected()) {

@@ -10,7 +10,7 @@
     <RelativeLayout
         android:id="@+id/ttt"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="?android:attr/actionBarSize"
         android:layout_alignParentTop="true"
         android:background="@color/navigation_bar_color"
         android:gravity="center">
@@ -60,7 +60,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="6"
+                android:text="00:06"
                 android:textColor="@color/font_main_color"
                 android:visibility="invisible" />
         </FrameLayout>
@@ -108,42 +108,40 @@
         android:gravity="center">
 
         <ImageButton
-            android:id="@+id/flashlightButton"
+            android:id="@+id/flash_light_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
             android:layout_marginLeft="20dp"
             android:background="@android:color/transparent"
-            android:src="@drawable/flash_light_on" />
+            android:src="@drawable/flash_light_off" />
 
         <RelativeLayout
+            android:id="@+id/ggg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:layout_margin="20dp">
 
+
             <ImageButton
                 android:id="@+id/button_capture"
                 android:layout_width="120dp"
                 android:layout_height="100dp"
-                android:layout_alignParentTop="true"
-                android:layout_centerHorizontal="true"
+                android:layout_centerInParent="true"
                 android:background="@android:color/transparent"
                 android:src="@drawable/capture" />
 
             <ProgressBar
                 android:id="@+id/circle_progress_bar"
-                style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="120dp"
                 android:layout_height="100dp"
-                android:layout_alignBottom="@+id/button_capture"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
-                android:indeterminate="false"
-                android:max="100"
-                android:progressDrawable="@drawable/circle_progress_foreground"
-                android:rotation="-90" />
+                android:layout_centerInParent="true"
+                android:indeterminate="true"
+                android:indeterminateDrawable="@drawable/custom_progress_bar"
+                android:indeterminateDuration="5970"
+                android:visibility="gone" />
 
         </RelativeLayout>
 

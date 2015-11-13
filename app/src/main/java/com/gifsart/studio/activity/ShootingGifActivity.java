@@ -3,6 +3,7 @@ package com.gifsart.studio.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
@@ -16,13 +17,13 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.decoder.VideoDecoder;
 import com.gifsart.studio.R;
-import com.gifsart.studio.camera.BurstModeAper;
-import com.gifsart.studio.camera.CameraPrepair;
+import com.gifsart.studio.camera.BurstModeFramesSaving;
 import com.gifsart.studio.utils.AnimatedProgressDialog;
 import com.gifsart.studio.camera.CameraPreview;
 import com.gifsart.studio.utils.CheckSpaceSingleton;
@@ -39,21 +40,29 @@ public class ShootingGifActivity extends ActionBarActivity {
     private Camera camera;
     private CameraPreview cameraPreview;
     private MediaRecorder mediaRecorder;
+    private ProgressBar captureCicrleButtonProgressBar;
 
     private ImageButton captureButton, screenModeBtn, switchCameraButton;
 
     private LinearLayout cameraPreviewLayout;
     private boolean cameraFront = false;
+    private boolean recording = false;
 
-    private int currentCapturedTime;
     private ArrayList<Integer> burstModeCounts = new ArrayList();
-
-    private int burstMode = 5;
 
     private SharedPreferences sharedPreferences;
     private ArrayList<byte[]> bytes = new ArrayList<>();
 
     private MyCountDownTimer myCountDownTimer;
+
+    public String[] flashLightModes = new String[]{
+            Camera.Parameters.FLASH_MODE_OFF,
+            Camera.Parameters.FLASH_MODE_TORCH,
+            Camera.Parameters.FLASH_MODE_AUTO
+    };
+
+    private String flashMode = flashLightModes[0];
+    private int burstMode = 5;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,7 +83,7 @@ public class ShootingGifActivity extends ActionBarActivity {
 
     public void onResume() {
         super.onResume();
-        if (!CameraPrepair.getInstance().hasCamera(context)) {
+        if (!hasCamera(context)) {
             Toast toast = Toast.makeText(context, "Sorry, your phone does not have a camera!", Toast.LENGTH_LONG);
             toast.show();
             finish();
@@ -112,6 +121,15 @@ public class ShootingGifActivity extends ActionBarActivity {
 
         screenModeBtn = (ImageButton) findViewById(R.id.screen_mode);
 
+        captureCicrleButtonProgressBar = (ProgressBar) findViewById(R.id.circle_progress_bar);
+
+        findViewById(R.id.cancel_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
         findViewById(R.id.burst_mode_image).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -121,30 +139,11 @@ public class ShootingGifActivity extends ActionBarActivity {
             }
         });
 
-        findViewById(R.id.flashlightButton).setOnClickListener(new View.OnClickListener() {
-            int count;
-
+        findViewById(R.id.flash_light_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (!cameraFront) {
-                    Camera.Parameters cameraParams = camera.getParameters();
-                    count++;
-                    switch (count) {
-                        case 1:
-                            cameraParams.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
-                            camera.setParameters(cameraParams);
-                            break;
-                        case 2:
-                            cameraParams.setFlashMode(Camera.Parameters.FLASH_MODE_AUTO);
-                            camera.setParameters(cameraParams);
-                            break;
-                        case 3:
-                            //TODO flashlight off/deafault mode
-                            cameraParams.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
-                            camera.setParameters(cameraParams);
-                            count = 0;
-                            break;
-                    }
+                    setNextFlashLightMode(flashMode, camera);
                 }
             }
         });
@@ -225,6 +224,15 @@ public class ShootingGifActivity extends ActionBarActivity {
         return true;
     }
 
+    public boolean hasCamera(Context context) {
+        // check if the device has camera
+        if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public void chooseCamera() {
         // if the camera preview is the front
         if (cameraFront) {
@@ -279,75 +287,11 @@ public class ShootingGifActivity extends ActionBarActivity {
         }
     };
 
-
-    public void burstModeRecursion(final int n) {
-        if (n == 0) {
-            if (CheckSpaceSingleton.getInstance().haveEnoughSpaceInt(burstMode)) {
-                BurstModeAper burstModeAper = new BurstModeAper(bytes);
-                burstModeAper.setFramesSavedListener(new BurstModeAper.FramesSaved() {
-                    @Override
-                    public void done(boolean done) {
-                        if (done) {
-                            if (!sharedPreferences.getBoolean(GifsArtConst.SHARED_PREFERENCES_IS_OPENED, false)) {
-                                ArrayList<String> strings = new ArrayList<>();
-                                for (int i = 0; i < burstMode; i++) {
-                                    strings.add(Environment.getExternalStorageDirectory() + "/GifsArt/video_frames/img_" + i + ".jpg");
-                                }
-
-                                Intent intent = new Intent(ShootingGifActivity.this, MakeGifActivity.class);
-                                intent.putExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, GifsArtConst.INDEX_FROM_GALLERY_TO_GIF);
-                                intent.putStringArrayListExtra(GifsArtConst.INTENT_DECODED_IMAGE_PATHS, strings);
-                                intent.putExtra(GifsArtConst.INTENT_CAMERA_BURST_MODE, true);
-                                startActivity(intent);
-                                finish();
-                            } else {
-                                ArrayList<String> strings = new ArrayList<>();
-                                for (int i = 0; i < burstMode; i++) {
-                                    strings.add(Environment.getExternalStorageDirectory() + "/GifsArt/video_frames/img_" + i + ".jpg");
-                                }
-
-                                Intent intent = new Intent();
-                                intent.putExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, GifsArtConst.INDEX_FROM_GALLERY_TO_GIF);
-                                intent.putStringArrayListExtra(GifsArtConst.INTENT_DECODED_IMAGE_PATHS, strings);
-                                intent.putExtra(GifsArtConst.INTENT_CAMERA_BURST_MODE, true);
-                                setResult(RESULT_OK, intent);
-                                finish();
-                            }
-                            CheckSpaceSingleton.getInstance().addAllocatedSpaceInt(burstMode);
-                        }
-                    }
-                });
-                burstModeAper.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-            } else {
-                setResult(RESULT_CANCELED);
-                finish();
-                Toast.makeText(ShootingGifActivity.this, "No enough space", Toast.LENGTH_SHORT).show();
-            }
-            return;
-        } else {
-            camera.takePicture(null, null, new Camera.PictureCallback() {
-                @Override
-                public void onPictureTaken(byte[] data, Camera camera) {
-                    camera.startPreview();
-                    bytes.add(data);
-                    ((TextView) findViewById(R.id.burst_count)).setText(n + "");
-                    burstModeRecursion(n - 1);
-                }
-            });
-            camera.startPreview();
-        }
-
-    }
-
-    boolean recording = false;
-
     View.OnTouchListener captrureListener = new View.OnTouchListener() {
         @Override
         public boolean onTouch(View v, MotionEvent event) {
             switch (event.getActionMasked()) {
                 case MotionEvent.ACTION_DOWN:
-                    break;
-                case MotionEvent.ACTION_MOVE:
                     break;
                 case MotionEvent.ACTION_UP:
                     boolean finish = false;
@@ -355,12 +299,14 @@ public class ShootingGifActivity extends ActionBarActivity {
                         try {
                             mediaRecorder.stop(); // stop the recording
                         } catch (Exception e) {
+                            // when mediaRecorder haven't prepared yet, will thraw an exaption which we catch here
                             finish = true;
                             recording = false;
                             cameraPreview.refreshCamera(camera);
-                            findViewById(R.id.capture_time).setVisibility(View.INVISIBLE);
-                            findViewById(R.id.burst_mode_image).setVisibility(View.VISIBLE);
-                            findViewById(R.id.burst_count).setVisibility(View.VISIBLE);
+                            myCountDownTimer.cancel();
+                            captureCicrleButtonProgressBar.setVisibility(View.GONE);
+                            visibilitySwitcher(View.VISIBLE);
+                            visibiltySwitcherBurstMode(View.VISIBLE);
                         }
                         if (!finish) {
                             captureButton.setOnTouchListener(null);
@@ -369,6 +315,7 @@ public class ShootingGifActivity extends ActionBarActivity {
                             Toast.makeText(ShootingGifActivity.this, "Video captured!", Toast.LENGTH_LONG).show();
                             recording = false;
                             myCountDownTimer.cancel();
+                            captureCicrleButtonProgressBar.setVisibility(View.INVISIBLE);
                             if (CheckSpaceSingleton.getInstance().haveEnoughSpace(GifsArtConst.SHOOTING_VIDEO_OUTPUT_DIR + "/" + GifsArtConst.VIDEO_NAME)) {
                                 saveCapturedVideoFrames();
                             } else {
@@ -382,9 +329,7 @@ public class ShootingGifActivity extends ActionBarActivity {
                         captureButton.setOnTouchListener(null);
                         captureButton.setOnLongClickListener(null);
                         visibilitySwitcher(View.INVISIBLE);
-                        findViewById(R.id.burst_mode_image).setVisibility(View.VISIBLE);
-                        findViewById(R.id.capture_time).setVisibility(View.INVISIBLE);
-                        findViewById(R.id.burst_count).setVisibility(View.VISIBLE);
+                        visibiltySwitcherBurstMode(View.VISIBLE);
                         int n = burstMode;
                         burstModeRecursion(n);
                     }
@@ -403,12 +348,15 @@ public class ShootingGifActivity extends ActionBarActivity {
                 finish();
             }
             visibilitySwitcher(View.INVISIBLE);
-            findViewById(R.id.capture_time).setVisibility(View.VISIBLE);
-            findViewById(R.id.burst_mode_image).setVisibility(View.INVISIBLE);
+            visibiltySwitcherBurstMode(View.INVISIBLE);
             mediaRecorder.start();
             recording = true;
-            myCountDownTimer = new MyCountDownTimer(7000, 1000);
+            myCountDownTimer = new MyCountDownTimer(7100, 1000);
             myCountDownTimer.start();
+            captureCicrleButtonProgressBar.setProgress(0);
+            captureCicrleButtonProgressBar.setVisibility(View.VISIBLE);
+
+
             return false;
         }
     };
@@ -423,35 +371,98 @@ public class ShootingGifActivity extends ActionBarActivity {
             @Override
             public void onFinish(boolean isDone) {
                 if (!sharedPreferences.getBoolean(GifsArtConst.SHARED_PREFERENCES_IS_OPENED, false)) {
-                    Intent intent = new Intent(ShootingGifActivity.this, MakeGifActivity.class);
-                    intent.putExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, GifsArtConst.INDEX_SHOOT_GIF);
-                    intent.putExtra(GifsArtConst.INTENT_FRONT_CAMERA, cameraFront);
-                    intent.putExtra(GifsArtConst.INTENT_VIDEO_FRAME_SCALE_SIZE, GifsArtConst.VIDEO_FRAME_SCALE_SIZE);
-                    intent.putExtra(GifsArtConst.INTENT_VIDEO_PATH, GifsArtConst.SHOOTING_VIDEO_OUTPUT_DIR + "/" + GifsArtConst.VIDEO_NAME);
-                    intent.putExtra(GifsArtConst.INTENT_CAMERA_BURST_MODE, false);
-                    startActivity(intent);
+                    sendCapturedVideoFramesWithIntent(new Intent(ShootingGifActivity.this, MakeGifActivity.class));
                 } else {
-                    Intent intent = new Intent();
-                    intent.putExtra(GifsArtConst.INTENT_FRONT_CAMERA, cameraFront);
-                    intent.putExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, GifsArtConst.INDEX_SHOOT_GIF);
-                    intent.putExtra(GifsArtConst.INTENT_VIDEO_FRAME_SCALE_SIZE, GifsArtConst.VIDEO_FRAME_SCALE_SIZE);
-                    intent.putExtra(GifsArtConst.INTENT_VIDEO_PATH, GifsArtConst.SHOOTING_VIDEO_OUTPUT_DIR + "/" + GifsArtConst.VIDEO_NAME);
-                    intent.putExtra(GifsArtConst.INTENT_CAMERA_BURST_MODE, false);
-                    setResult(RESULT_OK, intent);
+                    sendCapturedVideoFramesWithIntent(new Intent());
                 }
-                CheckSpaceSingleton.getInstance().addAllocatedSpaceFromFilePath(GifsArtConst.SHOOTING_VIDEO_OUTPUT_DIR + "/" + GifsArtConst.VIDEO_NAME);
+                File file = new File(GifsArtConst.VIDEOS_DECODED_FRAMES_DIR);
+                CheckSpaceSingleton.getInstance().addAllocatedSpaceInt(file.listFiles().length * 2 / 3);
                 animatedProgressDialog.dismiss();
                 finish();
             }
         });
     }
 
+    public void saveBurstModeFrames() {
+        BurstModeFramesSaving burstModeFramesSaving = new BurstModeFramesSaving(bytes);
+        burstModeFramesSaving.setFramesSavedListener(new BurstModeFramesSaving.FramesSaved() {
+            @Override
+            public void done(boolean done) {
+                if (done) {
+                    ArrayList<String> strings = new ArrayList<>();
+                    for (int i = 0; i < burstMode; i++) {
+                        strings.add(Environment.getExternalStorageDirectory() + "/GifsArt/video_frames/img_" + i + ".jpg");
+                    }
+                    if (!sharedPreferences.getBoolean(GifsArtConst.SHARED_PREFERENCES_IS_OPENED, false)) {
+                        Intent intent = new Intent(ShootingGifActivity.this, MakeGifActivity.class);
+                        intent.putExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, GifsArtConst.INDEX_FROM_GALLERY_TO_GIF);
+                        intent.putStringArrayListExtra(GifsArtConst.INTENT_DECODED_IMAGE_PATHS, strings);
+                        intent.putExtra(GifsArtConst.INTENT_CAMERA_BURST_MODE, true);
+                        startActivity(intent);
+                    } else {
+                        Intent intent = new Intent();
+                        intent.putExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, GifsArtConst.INDEX_FROM_GALLERY_TO_GIF);
+                        intent.putStringArrayListExtra(GifsArtConst.INTENT_DECODED_IMAGE_PATHS, strings);
+                        intent.putExtra(GifsArtConst.INTENT_CAMERA_BURST_MODE, true);
+                        setResult(RESULT_OK, intent);
+                    }
+                    finish();
+                    CheckSpaceSingleton.getInstance().addAllocatedSpaceInt(burstMode);
+                }
+            }
+        });
+        burstModeFramesSaving.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    }
+
+    public void sendCapturedVideoFramesWithIntent(Intent intent) {
+        intent.putExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, GifsArtConst.INDEX_SHOOT_GIF);
+        intent.putExtra(GifsArtConst.INTENT_FRONT_CAMERA, cameraFront);
+        intent.putExtra(GifsArtConst.INTENT_VIDEO_FRAME_SCALE_SIZE, GifsArtConst.VIDEO_FRAME_SCALE_SIZE);
+        intent.putExtra(GifsArtConst.INTENT_VIDEO_PATH, GifsArtConst.SHOOTING_VIDEO_OUTPUT_DIR + "/" + GifsArtConst.VIDEO_NAME);
+        intent.putExtra(GifsArtConst.INTENT_CAMERA_BURST_MODE, false);
+        if (!sharedPreferences.getBoolean(GifsArtConst.SHARED_PREFERENCES_IS_OPENED, false)) {
+            startActivity(intent);
+        } else {
+            setResult(RESULT_OK, intent);
+        }
+    }
+
     public void visibilitySwitcher(int visibility) {
-        findViewById(R.id.flashlightButton).setVisibility(visibility);
-        switchCameraButton.setVisibility(visibility);
+        findViewById(R.id.flash_light_button).setVisibility(visibility);
         findViewById(R.id.cancel_button).setVisibility(visibility);
         screenModeBtn.setVisibility(visibility);
+        switchCameraButton.setVisibility(visibility);
+    }
 
+    public void visibiltySwitcherBurstMode(int visibility) {
+        findViewById(R.id.burst_mode_image).setVisibility(visibility);
+        findViewById(R.id.capture_time).setVisibility(visibility);
+        findViewById(R.id.burst_count).setVisibility(visibility);
+        findViewById(R.id.capture_time).setVisibility(visibility == View.VISIBLE ? View.INVISIBLE : View.VISIBLE);
+    }
+
+    public void burstModeRecursion(final int n) {
+        if (n == 0) {
+            if (CheckSpaceSingleton.getInstance().haveEnoughSpaceInt(burstMode)) {
+                saveBurstModeFrames();
+            } else {
+                setResult(RESULT_CANCELED);
+                finish();
+                Toast.makeText(ShootingGifActivity.this, "No enough space", Toast.LENGTH_SHORT).show();
+            }
+            return;
+        } else {
+            camera.takePicture(null, null, new Camera.PictureCallback() {
+                @Override
+                public void onPictureTaken(byte[] data, Camera camera) {
+                    camera.startPreview();
+                    bytes.add(data);
+                    ((TextView) findViewById(R.id.burst_count)).setText(n + "");
+                    burstModeRecursion(n - 1);
+                }
+            });
+            camera.startPreview();
+        }
     }
 
     public class MyCountDownTimer extends CountDownTimer {
@@ -465,7 +476,7 @@ public class ShootingGifActivity extends ActionBarActivity {
 
         @Override
         public void onTick(long millisUntilFinished) {
-            ((TextView) findViewById(R.id.capture_time)).setText("" + millisUntilFinished / 1000);
+            ((TextView) findViewById(R.id.capture_time)).setText("00:0" + ((millisUntilFinished / 1000) - 1));
             Log.d("gagag", "" + millisUntilFinished);
             if (millisUntilFinished <= 2000) {
                 if (recording) {
@@ -477,15 +488,41 @@ public class ShootingGifActivity extends ActionBarActivity {
                     captureButton.setOnTouchListener(null);
                     captureButton.setOnLongClickListener(null);
                     releaseMediaRecorder(); // release the MediaRecorder object
-                    Toast.makeText(ShootingGifActivity.this, "Video captured!", Toast.LENGTH_LONG).show();
                     recording = false;
-                    //if (CheckSpaceSingleton.getInstance().haveEnoughSpace(GifsArtConst.SHOOTING_VIDEO_OUTPUT_DIR + "/" + GifsArtConst.VIDEO_NAME)) {
-                    saveCapturedVideoFrames();
-                    /*} else {
+                    captureCicrleButtonProgressBar.setVisibility(View.INVISIBLE);
+                    if (CheckSpaceSingleton.getInstance().haveEnoughSpace(GifsArtConst.SHOOTING_VIDEO_OUTPUT_DIR + "/" + GifsArtConst.VIDEO_NAME)) {
+                        saveCapturedVideoFrames();
+                    } else {
                         setResult(RESULT_CANCELED);
                         finish();
                         Toast.makeText(context, "No enough space", Toast.LENGTH_SHORT).show();
-                    }*/
+                    }
+                }
+            }
+        }
+    }
+
+    public void setNextFlashLightMode(String currentFlashMode, Camera camera) {
+        Camera.Parameters cameraParams = camera.getParameters();
+        ImageButton flashLightSwitchButton = (ImageButton) findViewById(R.id.flash_light_button);
+        for (int i = 0; i < flashLightModes.length; i++) {
+            if (currentFlashMode.equals(flashLightModes[i])) {
+                int nextIndex = (i + 1) % flashLightModes.length;
+                flashMode = flashLightModes[nextIndex];
+                cameraParams.setFlashMode(flashMode);
+                camera.setParameters(cameraParams);
+                switch (nextIndex) {
+                    case 0:
+                        flashLightSwitchButton.setImageDrawable(getResources().getDrawable(R.drawable.flash_light_off));
+                        break;
+                    case 1:
+                        flashLightSwitchButton.setImageDrawable(getResources().getDrawable(R.drawable.flash_light_on));
+                        break;
+                    case 2:
+                        flashLightSwitchButton.setImageDrawable(getResources().getDrawable(R.drawable.flash_light_auto));
+                        break;
+                    default:
+                        break;
                 }
             }
         }

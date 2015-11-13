@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.gifsart.studio.R;
+import com.gifsart.studio.utils.MaskRes;
 
 import java.util.ArrayList;
 
@@ -18,13 +19,13 @@ import java.util.ArrayList;
  */
 public class MasksAdapter extends RecyclerView.Adapter<MasksAdapter.ViewHolder> {
 
-    private ArrayList<Integer> maskResourceIds = new ArrayList<>();
+    private int[] maskResourceIds;
     private LayoutInflater inflater = null;
     private Context context;
 
-    public MasksAdapter(ArrayList<Integer> maskResourceIds, Context context) {
+    public MasksAdapter(Context context) {
         this.context = context;
-        this.maskResourceIds = maskResourceIds;
+        this.maskResourceIds = MaskRes.maskResourceIds;
     }
 
     @Override
@@ -38,7 +39,7 @@ public class MasksAdapter extends RecyclerView.Adapter<MasksAdapter.ViewHolder> 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
 
-        Glide.with(context).load(maskResourceIds.get(position)).asBitmap().into(holder.maskImageView);
+        Glide.with(context).load(maskResourceIds[position]).asBitmap().into(holder.maskImageView);
 
     }
 
@@ -48,11 +49,11 @@ public class MasksAdapter extends RecyclerView.Adapter<MasksAdapter.ViewHolder> 
 
     @Override
     public int getItemCount() {
-        return maskResourceIds.size();
+        return maskResourceIds.length;
     }
 
     public int getItem(int position) {
-        return maskResourceIds.get(position);
+        return maskResourceIds[position];
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {

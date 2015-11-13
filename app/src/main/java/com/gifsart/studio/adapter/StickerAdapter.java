@@ -28,7 +28,7 @@ import java.util.ArrayList;
 public class StickerAdapter extends RecyclerView.Adapter<StickerAdapter.ViewHolder> {
 
     private ArrayList<GiphyItem> giphyItems = new ArrayList<>();
-    private ArrayList<Integer> resourceItems = new ArrayList<>();
+    private int[] resourceItems;
     private LayoutInflater inflater = null;
     private Context context;
     private boolean fromGiphy = false;
@@ -50,7 +50,7 @@ public class StickerAdapter extends RecyclerView.Adapter<StickerAdapter.ViewHold
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
         if (!fromGiphy) {
-            holder.stickerImageView.setImageResource(resourceItems.get(position));
+            holder.stickerImageView.setImageResource(resourceItems[position]);
         } else {
 
             if (position + 1 == GifsArtConst.GIPHY_LIMIT_COUNT + offset) {
@@ -84,7 +84,7 @@ public class StickerAdapter extends RecyclerView.Adapter<StickerAdapter.ViewHold
         if (fromGiphy) {
             return giphyItems.size();
         } else {
-            return resourceItems.size();
+            return resourceItems.length;
         }
     }
 
@@ -94,9 +94,9 @@ public class StickerAdapter extends RecyclerView.Adapter<StickerAdapter.ViewHold
         notifyDataSetChanged();
     }
 
-    public void addResourceItems(ArrayList<Integer> resourceItems) {
+    public void addResourceItems(int[] resourceItems) {
         fromGiphy = false;
-        this.resourceItems.addAll(resourceItems);
+        this.resourceItems = resourceItems;
         notifyDataSetChanged();
     }
 
@@ -106,7 +106,7 @@ public class StickerAdapter extends RecyclerView.Adapter<StickerAdapter.ViewHold
     }
 
     public void clearResourceItems() {
-        this.resourceItems.clear();
+        this.resourceItems = null;
         notifyDataSetChanged();
     }
 
@@ -114,7 +114,7 @@ public class StickerAdapter extends RecyclerView.Adapter<StickerAdapter.ViewHold
         if (fromGiphy) {
             return giphyItems.get(position);
         } else {
-            return resourceItems.get(position);
+            return resourceItems[position];
         }
 
     }

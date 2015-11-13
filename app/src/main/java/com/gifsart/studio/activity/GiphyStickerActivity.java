@@ -44,7 +44,7 @@ public class GiphyStickerActivity extends AppCompatActivity {
 
         recyclerView.addItemDecoration(new SpacesItemDecoration(5));
 
-        giphyAdapter = new GiphyAdapter("", true, this);
+        giphyAdapter = new GiphyAdapter(new ArrayList<GiphyItem>(),"", true, this);
         recyclerView.setAdapter(giphyAdapter);
 
         SearchManager manager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);

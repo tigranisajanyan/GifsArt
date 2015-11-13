@@ -16,12 +16,12 @@ import java.util.ArrayList;
 /**
  * Created by Tigran on 10/28/15.
  */
-public class BurstModeAper extends AsyncTask<Void, Integer, Void> {
+public class BurstModeFramesSaving extends AsyncTask<Void, Integer, Void> {
 
     private FramesSaved framesSaved;
     private ArrayList<byte[]> bytes = new ArrayList<>();
 
-    public BurstModeAper(ArrayList<byte[]> bytes) {
+    public BurstModeFramesSaving(ArrayList<byte[]> bytes) {
         this.bytes = bytes;
     }
 
@@ -52,7 +52,6 @@ public class BurstModeAper extends AsyncTask<Void, Integer, Void> {
     @Override
     protected void onPostExecute(Void aVoid) {
         super.onPostExecute(aVoid);
-        Log.d("gagaga", "done");
         framesSaved.done(true);
 
     }
@@ -68,7 +67,7 @@ public class BurstModeAper extends AsyncTask<Void, Integer, Void> {
     }
 
     public interface FramesSaved {
-        public void done(boolean done);
+        void done(boolean done);
     }
 
     public void setFramesSavedListener(FramesSaved fs) {

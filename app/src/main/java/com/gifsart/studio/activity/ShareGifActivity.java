@@ -1,5 +1,6 @@
 package com.gifsart.studio.activity;
 
+import android.content.Intent;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -27,8 +28,6 @@ import bolts.Task;
 
 public class ShareGifActivity extends AppCompatActivity {
 
-    Task<Object> saveAsync;
-
     private RecyclerView recyclerView;
 
     private LinearLayoutManager linearLayoutManager;
@@ -36,6 +35,7 @@ public class ShareGifActivity extends AppCompatActivity {
     private ShareGifAdapter shareGifAdapter;
 
     private ArrayList<ShareGifItem> shareGifItems = new ArrayList<>();
+    private static final String EXTRA_GIF_PATH = "gif_file_path_string";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +86,16 @@ public class ShareGifActivity extends AppCompatActivity {
                 }
             }
         }));
+
+        findViewById(R.id.share_gif_activity_done_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(ShareGifActivity.this, GifPreviewActivity.class);
+                intent.putExtra(EXTRA_GIF_PATH, Environment.getExternalStorageDirectory() + "/test.gif");
+                startActivity(intent);
+                finish();
+            }
+        });
 
     }
 

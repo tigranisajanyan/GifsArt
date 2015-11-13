@@ -40,7 +40,8 @@ public class GiphyAdapter extends RecyclerView.Adapter<GiphyAdapter.ViewHolder> 
     private boolean isSticker = false;
     Random random = new Random();
 
-    public GiphyAdapter(String tag, boolean isSticker, Context context) {
+    public GiphyAdapter(ArrayList<GiphyItem> giphyItems, String tag, boolean isSticker, Context context) {
+        this.giphyItems = giphyItems;
         this.tag = tag;
         this.isSticker = isSticker;
         this.context = context;
@@ -92,7 +93,6 @@ public class GiphyAdapter extends RecyclerView.Adapter<GiphyAdapter.ViewHolder> 
         } else {
             holder.corner.setVisibility(View.GONE);
         }
-
     }
 
     @Override

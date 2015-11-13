@@ -229,6 +229,35 @@ public class MainView extends View {
         invalidate();
     }
 
+    public ClipartView addClipart(Bitmap bitmap){
+        if (bitmap == null) {
+            return null;
+        }
+        if (clipartView != null) {
+            clipartView.cleanBitmaps();
+        }
+        clipartView = new ClipartView(getContext(), bitmap, this, 0);
+
+        Runnable initializePosition = new Runnable() {
+            @Override
+            public void run() {
+                clipartView.initSizeParams(viewWidth, viewHeight);
+            }
+        };
+
+        if (viewWidth != 0 && viewHeight != 0) {
+            initializePosition.run();
+        } else {
+            sizeChangedActioQueue.add(initializePosition);
+        }
+
+        clipartViewArrayList.add(clipartView);
+        Log.d("gagaga", clipartViewArrayList.size() + "");
+
+        invalidate();
+        return clipartView;
+    }
+
     public ClipartView addClipart(int clipartResId) {
         if (clipartResId == -1) {
             return null;

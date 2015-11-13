@@ -9,4 +9,9 @@
         <item name="android:statusBarColor">@color/navigation_bar_color</item>
     </style>
 
+    <style name="AppThemeNoStatusBar" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
+
 </resources>

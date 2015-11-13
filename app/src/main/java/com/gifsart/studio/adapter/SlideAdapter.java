@@ -108,9 +108,9 @@ public class SlideAdapter extends RecyclerView.Adapter<SlideAdapter.ViewHolder> 
             }
         }
         return true;
-    }*/
+    }
 
-    /*@Override
+    @Override
     public void onItemDismiss(int position) {
 
         if (position != array.size() - 1 && array.size() > 2) {

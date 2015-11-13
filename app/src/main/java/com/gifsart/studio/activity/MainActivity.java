@@ -1,6 +1,5 @@
 package com.gifsart.studio.activity;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
@@ -239,8 +238,8 @@ public class MainActivity extends AppCompatActivity {
                     finish();
                 }
             } else {
-                setResult(RESULT_CANCELED);
-                finish();
+                //setResult(RESULT_CANCELED);
+                //finish();
             }
         }
         if (requestCode == GifsArtConst.REQUEST_CODE_GIPHY_REOPENED && resultCode == RESULT_OK) {
@@ -278,8 +277,12 @@ public class MainActivity extends AppCompatActivity {
             videoItemsArrayList.add(galleryItem2);
             videoItemsArrayList.addAll(Utils.getGalleryVideos(MainActivity.this));
 
-            galleryCategoryItems.add(new GalleryCategoryItem(imageItemsArrayList.get(8).getFilePath(), "Images", imageItemsArrayList.size(), true));
-            galleryCategoryItems.add(new GalleryCategoryItem(videoItemsArrayList.get(3).getFilePath(), "Videos", videoItemsArrayList.size(), false));
+            if (imageItemsArrayList.size() > 2) {
+                galleryCategoryItems.add(new GalleryCategoryItem(imageItemsArrayList.get(2).getFilePath(), "Images", imageItemsArrayList.size() - 2, true));
+            }
+            if (videoItemsArrayList.size() > 2) {
+                galleryCategoryItems.add(new GalleryCategoryItem(videoItemsArrayList.get(2).getFilePath(), "Videos", videoItemsArrayList.size() - 2, false));
+            }
 
             return null;
         }

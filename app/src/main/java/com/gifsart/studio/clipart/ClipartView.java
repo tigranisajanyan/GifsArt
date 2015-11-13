@@ -138,6 +138,22 @@ public class ClipartView extends AbstractItem implements GestureDetector.Gesture
         gestureDetector = new GestureDetector(this);
     }
 
+    public ClipartView(Context context, Bitmap bitmap, View view, int degree) {
+        this.view = view;
+        this.degree = degree;
+        this.context = context;
+        this.bitmap = bitmap;
+
+        isDrawHandle = true;
+        initHandles(context);
+
+        initBitmap(context, bitmap);
+        initPaintObjs();
+
+        clearBitmaskDstRectF.set(0, 0, origWidth, origHeight);
+        gestureDetector = new GestureDetector(this);
+    }
+
     private void initHandles(Context context) {
         if (context == null) {
             return;
@@ -155,6 +171,25 @@ public class ClipartView extends AbstractItem implements GestureDetector.Gesture
         }
     }
 
+    private void initBitmap(Context context, Bitmap bitmap) {
+        String expMsg = "no exceptions";
+        if (bitmap != null && context != null) {
+            this.bitmap = bitmap;
+        }
+        if (bitmap == null && context instanceof Activity) {
+            Toast.makeText(context, "Something went wrong", Toast.LENGTH_SHORT);
+            throw new IllegalArgumentException("bitmap resource is invalid. Params (initBitmapProperties): expMsg=" + expMsg + " clipartResId=" + clipartResId);
+        }
+
+        if (bitmap != null) {
+            origWidth = bitmap.getWidth();
+            origHeight = bitmap.getHeight();
+
+            origRatio = origWidth / origHeight;
+
+            Log.d("bitmapSize", bitmap.getWidth() + ", " + bitmap.getHeight() + ",   " + bitmap.getRowBytes() * bitmap.getHeight() / 1024f / 1024f);
+        }
+    }
 
     private void initBitmap(Context context, int clipartResId) {
         String expMsg = "no exceptions";
@@ -229,7 +264,11 @@ public class ClipartView extends AbstractItem implements GestureDetector.Gesture
             refreshClipartProperties();
 
             if (bitmap == null || bitmap.isRecycled()) {
-                initBitmap(context, resId);
+                if (resId != -1) {
+                    initBitmap(context, resId);
+                } else {
+                    initBitmap(context, bitmap);
+                }
             }
 
             c.save();

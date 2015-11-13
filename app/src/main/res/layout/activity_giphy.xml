@@ -4,76 +4,72 @@
     android:layout_height="match_parent"
     tools:context="com.gifsart.studio.activity.GiphyActivity">
 
-    <android.support.v7.widget.Toolbar
+    <LinearLayout
         android:id="@+id/giphy_toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/navigation_bar_color">
+        android:background="@color/navigation_bar_color"
+        android:orientation="vertical">
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="vertical">
+            android:gravity="center">
 
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+            <ImageButton
+                android:id="@+id/giphy_toolbar_back_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:src="@drawable/back_icon" />
 
-                <ImageButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:background="@android:color/transparent"
-                    android:src="@drawable/back_icon" />
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="Giphy"
+                android:textColor="@color/font_main_color" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:text="Giphy"
-                    android:textColor="@color/font_main_color" />
+            <Button
+                android:id="@+id/giphy_next_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:background="@android:color/transparent"
+                android:text="Next"
+                android:textColor="@color/pink" />
+        </RelativeLayout>
 
-                <Button
-                    android:id="@+id/giphy_next_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:background="@android:color/transparent"
-                    android:text="Next"
-                    android:textColor="@color/pink" />
-            </RelativeLayout>
+        <LinearLayout
+            android:id="@+id/search_giphy"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="horizontal">
 
-            <LinearLayout
-                android:id="@+id/search_giphy"
+            <SearchView
+                android:id="@+id/search_giphy_search_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:orientation="horizontal">
+                android:closeIcon="@drawable/giphy_clear_icon"
+                android:searchIcon="@drawable/giphy_search_icon" />
 
-                <SearchView
-                    android:id="@+id/search_giphy_search_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:closeIcon="@drawable/giphy_clear_icon"
-                    android:searchIcon="@drawable/giphy_search_icon" />
-
-                <Button
-                    android:id="@+id/giphy_search_cancel_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_weight="1"
-                    android:background="@android:color/transparent"
-                    android:singleLine="true"
-                    android:text="Cancel"
-                    android:textColor="@color/pink"
-                    android:visibility="gone" />
-            </LinearLayout>
-
+            <Button
+                android:id="@+id/giphy_search_cancel_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:singleLine="true"
+                android:text="Cancel"
+                android:textColor="@color/pink"
+                android:visibility="gone" />
         </LinearLayout>
-    </android.support.v7.widget.Toolbar>
+
+    </LinearLayout>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/giphy_rec_view"

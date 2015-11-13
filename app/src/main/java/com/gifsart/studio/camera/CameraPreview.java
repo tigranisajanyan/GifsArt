@@ -2,15 +2,10 @@ package com.gifsart.studio.camera;
 
 import android.content.Context;
 import android.hardware.Camera;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.widget.Toast;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 
@@ -63,9 +58,11 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
             width = getBestPreviewSize(camera, 640, 480).width;
             height = getBestPreviewSize(camera, 640, 480).height;
 
-            Log.d("gagaga", width + "  /  " + height);
+            Log.d("GifsArt", "camera_preview_size :   " + width + "  /  " + height);
             parameters.setPreviewSize(width, height);
             parameters.setPictureSize(getBestPictureSize(camera, 640, 480).width, getBestPictureSize(camera, 640, 480).height);
+            parameters.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+
             mCamera.setPreviewDisplay(mHolder);
             mCamera.setDisplayOrientation(orientation);
             mCamera.setParameters(parameters);
