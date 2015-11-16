@@ -30,7 +30,7 @@ import java.util.ArrayList;
 
 public class GiphyActivity extends AppCompatActivity {
 
-    private RecyclerView recyclerView;
+    private RecyclerView giphyRecyclerView;
     private GridLayoutManager gridLayoutManager;
     private GiphyAdapter giphyAdapter;
 
@@ -39,8 +39,8 @@ public class GiphyActivity extends AppCompatActivity {
 
     private int offset = 0;
     private int limit = GifsArtConst.GIPHY_LIMIT_COUNT;
-
     private int lastSelectedPosition = -1;
+
     private SharedPreferences sharedPreferences;
 
     @Override
@@ -57,16 +57,16 @@ public class GiphyActivity extends AppCompatActivity {
         sharedPreferences = getSharedPreferences(GifsArtConst.SHARED_PREFERENCES, MODE_PRIVATE);
         giphyAdapter = new GiphyAdapter(giphyItems, tag, false, this);
 
-        recyclerView = (RecyclerView) findViewById(R.id.giphy_rec_view);
+        giphyRecyclerView = (RecyclerView) findViewById(R.id.giphy_rec_view);
         gridLayoutManager = new GridLayoutManager(this, 2, GridLayoutManager.VERTICAL, false);
 
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setClipToPadding(true);
-        recyclerView.setLayoutManager(gridLayoutManager);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        giphyRecyclerView.setHasFixedSize(true);
+        giphyRecyclerView.setClipToPadding(true);
+        giphyRecyclerView.setLayoutManager(gridLayoutManager);
+        giphyRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
-        recyclerView.setAdapter(giphyAdapter);
-        recyclerView.addItemDecoration(new SpacesItemDecoration(5));
+        giphyRecyclerView.setAdapter(giphyAdapter);
+        giphyRecyclerView.addItemDecoration(new SpacesItemDecoration(5));
 
         if (Utils.haveNetworkConnection(this)) {
             Giphy giphy = new Giphy(this, tag, false, offset, limit);
@@ -83,7 +83,7 @@ public class GiphyActivity extends AppCompatActivity {
             finish();
         }
 
-        recyclerView.addOnItemTouchListener(new RecyclerItemClickListener(getApplicationContext(), new RecyclerItemClickListener.OnItemClickListener() {
+        giphyRecyclerView.addOnItemTouchListener(new RecyclerItemClickListener(getApplicationContext(), new RecyclerItemClickListener.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
                 if (lastSelectedPosition == -1) {

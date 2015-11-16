@@ -225,6 +225,7 @@ public class MainActivity extends AppCompatActivity {
                 if (data.getBooleanExtra(GifsArtConst.INTENT_CAMERA_BURST_MODE, false)) {
                     Intent intent = new Intent();
                     intent.putExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, data.getIntExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, GifsArtConst.INDEX_FROM_GALLERY_TO_GIF));
+                    intent.putExtra(GifsArtConst.INTENT_FRONT_CAMERA, data.getBooleanExtra(GifsArtConst.INTENT_FRONT_CAMERA, false));
                     intent.putStringArrayListExtra(GifsArtConst.INTENT_DECODED_IMAGE_PATHS, data.getStringArrayListExtra(GifsArtConst.INTENT_DECODED_IMAGE_PATHS));
                     setResult(RESULT_OK, intent);
                     finish();
@@ -237,9 +238,6 @@ public class MainActivity extends AppCompatActivity {
                     setResult(RESULT_OK, intent);
                     finish();
                 }
-            } else {
-                //setResult(RESULT_CANCELED);
-                //finish();
             }
         }
         if (requestCode == GifsArtConst.REQUEST_CODE_GIPHY_REOPENED && resultCode == RESULT_OK) {

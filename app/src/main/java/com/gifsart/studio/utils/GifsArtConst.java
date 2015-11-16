@@ -60,10 +60,6 @@ public class GifsArtConst {
     public static int INDEX_SHOOT_GIF = 2;
     public static int INDEX_GIPHY_TO_GIF = 3;
 
-    public static int FIT_MODE_ORIGINAL = 1;
-    public static int FIT_MODE_SQUARE = 2;
-    public static int FIT_MODE_SQUARE_FIT = 3;
-
     public static int REQUEST_CODE_SQUARE_FIT_ACTIVITY = 100;
     public static int REQUEST_CODE_EDIT_FRAME_ACTIVITY = 200;
     public static int REQUEST_CODE_MAIN_ACTIVITY = 300;

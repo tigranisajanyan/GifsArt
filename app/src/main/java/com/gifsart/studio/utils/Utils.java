@@ -480,5 +480,16 @@ public class Utils {
         return tubeBg;
     }
 
+    public static Bitmap getRotatedBitmap(int roatationDegree, Bitmap bitmap) {
+        if (roatationDegree % 360 == 0) {
+            return bitmap;
+        }
+        Matrix matrix = new Matrix();
+        matrix.postRotate(roatationDegree, bitmap.getWidth() / 2,
+                bitmap.getHeight() / 2);
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(),
+                bitmap.getHeight() / 2, matrix, true);
+    }
+
 
 }

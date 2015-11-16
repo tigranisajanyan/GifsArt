@@ -2,6 +2,7 @@ package com.gifsart.studio.item;
 
 import android.graphics.Bitmap;
 
+import com.gifsart.studio.activity.MakeGifActivity;
 import com.gifsart.studio.clipart.Clipart;
 import com.gifsart.studio.utils.Type;
 
@@ -20,6 +21,10 @@ public class GifItem {
     private ArrayList<Clipart> cliparts;
 
     private boolean isSelected = true;
+
+    private int maskPosition = 0;
+    private int effectPosition = 0;
+    private MakeGifActivity.SquareFitMode squareFitMode = MakeGifActivity.SquareFitMode.FIT_MODE_SQUARE;
 
     public GifItem() {
 

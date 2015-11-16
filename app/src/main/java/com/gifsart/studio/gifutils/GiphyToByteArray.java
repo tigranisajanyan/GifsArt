@@ -33,11 +33,9 @@ public class GiphyToByteArray extends AsyncTask<Void, Integer, Boolean> {
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-
         progressDialog = new AnimatedProgressDialog(context);
         progressDialog.setCancelable(false);
         progressDialog.show();
-
     }
 
     @Override

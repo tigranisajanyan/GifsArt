@@ -9,6 +9,7 @@ import android.graphics.Rect;
 import android.os.Environment;
 import android.util.Log;
 
+import com.gifsart.studio.activity.MakeGifActivity;
 import com.gifsart.studio.clipart.Clipart;
 import com.gifsart.studio.clipart.MainView;
 import com.gifsart.studio.effects.GPUEffects;
@@ -41,7 +42,7 @@ public class SaveGifBolts {
     private static int pos = 0;
     private static int size = 0;
 
-    public static Task<Void> doSquareFitTask(final int squareFitMode, final ArrayList<GifItem> gifItems) {
+    public static Task<Void> doSquareFitTask(final MakeGifActivity.SquareFitMode squareFitMode, final ArrayList<GifItem> gifItems) {
         return Task.callInBackground(new Callable<Void>() {
             @Override
             public Void call() throws IOException {
@@ -63,21 +64,21 @@ public class SaveGifBolts {
         });
     }
 
-    private static Bitmap doSquareFit(int squareFitMode, Bitmap bitmap) {
-        if (squareFitMode == GifsArtConst.FIT_MODE_SQUARE_FIT) {
+    private static Bitmap doSquareFit(MakeGifActivity.SquareFitMode squareFitMode, Bitmap bitmap) {
+        if (squareFitMode == MakeGifActivity.SquareFitMode.FIT_MODE_SQUARE_FIT) {
             return Utils.squareFit(bitmap, GifsArtConst.GIF_FRAME_SIZE);
-        } else if (squareFitMode == GifsArtConst.FIT_MODE_SQUARE) {
+        } else if (squareFitMode == MakeGifActivity.SquareFitMode.FIT_MODE_SQUARE) {
             return Utils.scaleCenterCrop(bitmap, GifsArtConst.GIF_FRAME_SIZE, GifsArtConst.GIF_FRAME_SIZE);
         }
         return bitmap;
     }
 
-    public static int checkSquareFitMode(ArrayList<GifItem> gifItems, int squareFitMode) {
-        if (squareFitMode == GifsArtConst.FIT_MODE_ORIGINAL) {
+    public static MakeGifActivity.SquareFitMode checkSquareFitMode(ArrayList<GifItem> gifItems, MakeGifActivity.SquareFitMode squareFitMode) {
+        if (squareFitMode == MakeGifActivity.SquareFitMode.FIT_MODE_ORIGINAL) {
             for (int i = 0; i < gifItems.size(); i++) {
                 for (int j = 0; j < gifItems.size(); j++) {
                     if (gifItems.get(i).getBitmap().getWidth() != gifItems.get(j).getBitmap().getWidth() || gifItems.get(i).getBitmap().getHeight() != gifItems.get(j).getBitmap().getHeight()) {
-                        return GifsArtConst.FIT_MODE_SQUARE_FIT;
+                        return MakeGifActivity.SquareFitMode.FIT_MODE_SQUARE_FIT;
                     }
                 }
             }

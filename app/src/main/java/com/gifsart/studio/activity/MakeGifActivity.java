@@ -96,7 +96,7 @@ public class MakeGifActivity extends ActionBarActivity {
     private int gifSpeed = 10;
     private GifImitation gifImitation;
 
-    private int square_fit_mode = GifsArtConst.FIT_MODE_ORIGINAL;
+    private SquareFitMode square_fit_mode = SquareFitMode.FIT_MODE_SQUARE;
 
     private GPUImageFilter gpuImageFilter = new GPUImageFilter();
     private GPUImageFilterTools.FilterAdjuster mFilterAdjuster;
@@ -155,7 +155,7 @@ public class MakeGifActivity extends ActionBarActivity {
         layoutParams.height = getResources().getDisplayMetrics().widthPixels;
 
         mainFrameContainer.setLayoutParams(layoutParams);
-        mainFrameImageView.setScaleType(GPUImage.ScaleType.CENTER_INSIDE);
+        mainFrameImageView.setScaleType(GPUImage.ScaleType.CENTER_CROP);
 
         maskImageView = new GifImageView(this);
         mainFrameContainer.addView(maskImageView);
@@ -184,13 +184,13 @@ public class MakeGifActivity extends ActionBarActivity {
                     setContainerLayout(R.layout.edit_frame_layout, RequestCode.EDIT_FRAME);
                     initEditFrameLayout();
                 } else {
+                    gifImitation.onPause();
                     Intent intent = new Intent(MakeGifActivity.this, MainActivity.class);
                     MakeGifActivity.this.startActivityForResult(intent, GifsArtConst.REQUEST_CODE_MAIN_ACTIVITY);
                     SharedPreferences sharedPreferences = MakeGifActivity.this.getSharedPreferences(GifsArtConst.SHARED_PREFERENCES, Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putBoolean(GifsArtConst.SHARED_PREFERENCES_IS_OPENED, true);
                     editor.commit();
-                    gifImitation.onPause();
                 }
             }
         }));
@@ -460,17 +460,17 @@ public class MakeGifActivity extends ActionBarActivity {
 
     public void squareFitSwitcher() {
         switch (square_fit_mode) {
-            case 1:
+            case FIT_MODE_ORIGINAL:
                 ((ImageButton) container.findViewById(R.id.original_fit_button)).setImageDrawable(Utils.changeDrawableColor(MakeGifActivity.this, getResources().getColor(R.color.pink), R.drawable.origina_size_icon));
                 ((ImageButton) container.findViewById(R.id.square_button)).setImageDrawable(Utils.changeDrawableColor(MakeGifActivity.this, getResources().getColor(R.color.font_main_color), R.drawable.square_icon));
                 ((ImageButton) container.findViewById(R.id.square_fit_button)).setImageDrawable(Utils.changeDrawableColor(MakeGifActivity.this, getResources().getColor(R.color.font_main_color), R.drawable.square_fit_icon));
                 break;
-            case 2:
+            case FIT_MODE_SQUARE:
                 ((ImageButton) container.findViewById(R.id.original_fit_button)).setImageDrawable(Utils.changeDrawableColor(MakeGifActivity.this, getResources().getColor(R.color.font_main_color), R.drawable.origina_size_icon));
                 ((ImageButton) container.findViewById(R.id.square_button)).setImageDrawable(Utils.changeDrawableColor(MakeGifActivity.this, getResources().getColor(R.color.pink), R.drawable.square_icon));
                 ((ImageButton) container.findViewById(R.id.square_fit_button)).setImageDrawable(Utils.changeDrawableColor(MakeGifActivity.this, getResources().getColor(R.color.font_main_color), R.drawable.square_fit_icon));
                 break;
-            case 3:
+            case FIT_MODE_SQUARE_FIT:
                 ((ImageButton) container.findViewById(R.id.original_fit_button)).setImageDrawable(Utils.changeDrawableColor(MakeGifActivity.this, getResources().getColor(R.color.font_main_color), R.drawable.origina_size_icon));
                 ((ImageButton) container.findViewById(R.id.square_button)).setImageDrawable(Utils.changeDrawableColor(MakeGifActivity.this, getResources().getColor(R.color.font_main_color), R.drawable.square_icon));
                 ((ImageButton) container.findViewById(R.id.square_fit_button)).setImageDrawable(Utils.changeDrawableColor(MakeGifActivity.this, getResources().getColor(R.color.pink), R.drawable.square_fit_icon));
@@ -483,9 +483,9 @@ public class MakeGifActivity extends ActionBarActivity {
         container.findViewById(R.id.original_fit_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (square_fit_mode != GifsArtConst.FIT_MODE_ORIGINAL) {
+                if (square_fit_mode != SquareFitMode.FIT_MODE_ORIGINAL) {
                     mainFrameImageView.setScaleType(GPUImage.ScaleType.CENTER_INSIDE);
-                    square_fit_mode = GifsArtConst.FIT_MODE_ORIGINAL;
+                    square_fit_mode = SquareFitMode.FIT_MODE_ORIGINAL;
                     squareFitSwitcher();
                 }
             }
@@ -494,9 +494,9 @@ public class MakeGifActivity extends ActionBarActivity {
         container.findViewById(R.id.square_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (square_fit_mode != GifsArtConst.FIT_MODE_SQUARE) {
+                if (square_fit_mode != SquareFitMode.FIT_MODE_SQUARE) {
                     mainFrameImageView.setScaleType(GPUImage.ScaleType.CENTER_CROP);
-                    square_fit_mode = GifsArtConst.FIT_MODE_SQUARE;
+                    square_fit_mode = SquareFitMode.FIT_MODE_SQUARE;
                     squareFitSwitcher();
                 }
             }
@@ -505,9 +505,9 @@ public class MakeGifActivity extends ActionBarActivity {
         container.findViewById(R.id.square_fit_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (square_fit_mode != GifsArtConst.FIT_MODE_SQUARE_FIT) {
+                if (square_fit_mode != SquareFitMode.FIT_MODE_SQUARE_FIT) {
                     mainFrameImageView.setScaleType(GPUImage.ScaleType.CENTER_INSIDE);
-                    square_fit_mode = GifsArtConst.FIT_MODE_SQUARE_FIT;
+                    square_fit_mode = SquareFitMode.FIT_MODE_SQUARE_FIT;
                     squareFitSwitcher();
                 }
             }
@@ -762,12 +762,15 @@ public class MakeGifActivity extends ActionBarActivity {
         }
     }
 
-    public void addImageItem(String path, ArrayList<GifItem> gifItems) {
+    public void addImageItem(String path, boolean cameraFront, ArrayList<GifItem> gifItems) {
 
         Bitmap bitmap = ImageLoader.getInstance().loadImageSync(FILE_PREFIX + path, new ImageSize(400, 400));
 
         GifItem gifItem = new GifItem(GifsArtConst.IMAGE_FRAME_DURATION, Type.IMAGE);
         gifItem.setCurrentDuration(GifsArtConst.IMAGE_FRAME_DURATION);
+        if (cameraFront) {
+            bitmap = Utils.getRotatedBitmap(180, bitmap);
+        }
         gifItem.setBitmap(bitmap);
         gifItems.add(gifItem);
     }
@@ -789,6 +792,8 @@ public class MakeGifActivity extends ActionBarActivity {
     }
 
     public void addVideoItem(String path, Intent intent, ArrayList<GifItem> gifItems) {
+        boolean cameraFront = false;
+        cameraFront = intent.getBooleanExtra(GifsArtConst.INTENT_FRONT_CAMERA, false);
         ArrayList<Bitmap> bitmaps = new ArrayList<>();
         int scaleSize = intent.getIntExtra(GifsArtConst.INTENT_VIDEO_FRAME_SCALE_SIZE, GifsArtConst.VIDEO_FRAME_SCALE_SIZE);
         File file = new File(GifsArtConst.VIDEOS_DECODED_FRAMES_DIR);
@@ -797,12 +802,15 @@ public class MakeGifActivity extends ActionBarActivity {
             if (j % 3 != 0) {
                 ByteBuffer buffer = PhotoUtils.readBufferFromFile(files[j].getAbsolutePath(), PhotoUtils.checkBufferSize(path, scaleSize));
                 Bitmap bitmap = PhotoUtils.fromBufferToBitmap(PhotoUtils.checkFrameWidth(path, scaleSize), PhotoUtils.checkFrameHeight(path, scaleSize), buffer);
+                if (cameraFront) {
+                    bitmap = Utils.getRotatedBitmap(180, bitmap);
+                }
                 bitmaps.add(bitmap);
             }
         }
         GifItem gifItem = new GifItem(Utils.checkVideoFrameDuration(path, bitmaps.size()), Type.VIDEO);
         gifItem.setCurrentDuration(Utils.checkVideoFrameDuration(path, bitmaps.size()));
-        gifItem.setBitmap(Utils.getVideoFirstFrame(path));
+        gifItem.setBitmap(bitmaps.get(0));
         gifItem.setBitmaps(bitmaps);
         gifItems.add(gifItem);
     }
@@ -827,7 +835,7 @@ public class MakeGifActivity extends ActionBarActivity {
                 selectedItemsArrayList = getIntent().getStringArrayListExtra(GifsArtConst.INTENT_DECODED_IMAGE_PATHS);
                 for (int i = 0; i < selectedItemsArrayList.size(); i++) {
                     if (Utils.getMimeType(selectedItemsArrayList.get(i)) == Type.IMAGE) {
-                        addImageItem(selectedItemsArrayList.get(i), gifItems);
+                        addImageItem(selectedItemsArrayList.get(i), getIntent().getBooleanExtra(GifsArtConst.INTENT_FRONT_CAMERA, false), gifItems);
                     } else if (Utils.getMimeType(selectedItemsArrayList.get(i)) == Type.GIF) {
                         addGifItem(selectedItemsArrayList.get(i), gifItems);
                     } else if (Utils.getMimeType(selectedItemsArrayList.get(i)) == Type.VIDEO) {
@@ -878,7 +886,7 @@ public class MakeGifActivity extends ActionBarActivity {
                 ArrayList<String> addedItemsArray = params[0].getStringArrayListExtra(GifsArtConst.INTENT_DECODED_IMAGE_PATHS);
                 for (int i = 0; i < addedItemsArray.size(); i++) {
                     if (Utils.getMimeType(addedItemsArray.get(i)) == Type.IMAGE) {
-                        addImageItem(addedItemsArray.get(i), gifItems);
+                        addImageItem(addedItemsArray.get(i), params[0].getBooleanExtra(GifsArtConst.INTENT_FRONT_CAMERA, false), gifItems);
                     } else if (Utils.getMimeType(addedItemsArray.get(i)) == Type.GIF) {
                         addGifItem(addedItemsArray.get(i), gifItems);
                     } else if (Utils.getMimeType(addedItemsArray.get(i)) == Type.VIDEO) {
@@ -967,6 +975,26 @@ public class MakeGifActivity extends ActionBarActivity {
 
         public static RequestCode fromInt(int val) {
             RequestCode[] codes = values();
+
+            if (val < 0 || val >= codes.length) {
+                return null;
+            } else {
+                return values()[val];
+            }
+        }
+
+        public int toInt() {
+            return ordinal();
+        }
+    }
+
+    public enum SquareFitMode {
+        FIT_MODE_ORIGINAL,
+        FIT_MODE_SQUARE,
+        FIT_MODE_SQUARE_FIT;
+
+        public static SquareFitMode fromInt(int val) {
+            SquareFitMode[] codes = values();
 
             if (val < 0 || val >= codes.length) {
                 return null;

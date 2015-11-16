@@ -1,6 +1,5 @@
 package com.gifsart.studio.gifutils;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.util.Log;
 
@@ -10,7 +9,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.gifsart.studio.R;
 import com.gifsart.studio.item.GiphyItem;
 import com.gifsart.studio.utils.AnimatedProgressDialog;
 import com.gifsart.studio.utils.GifsArtConst;
@@ -26,6 +24,8 @@ import java.util.ArrayList;
  */
 public class Giphy {
 
+    public static final String IMAGES = "images";
+
     private AnimatedProgressDialog progressDialog;
     private Context context;
     private String tag = GifsArtConst.GIPHY_TAG;
@@ -36,7 +36,6 @@ public class Giphy {
     private boolean isSticker;
 
     public Giphy(Context context, String tag, boolean isSticker, int offset, int limit) {
-
         this.context = context;
         if (tag != "" || tag != null) {
             this.tag = tag;
@@ -46,11 +45,9 @@ public class Giphy {
             this.limit = limit;
         }
         this.isSticker = isSticker;
-
     }
 
     public void requestGiphy() {
-
         progressDialog = new AnimatedProgressDialog(context);
         progressDialog.setCancelable(false);
         progressDialog.show();
@@ -75,15 +72,14 @@ public class Giphy {
                             jsonArray = jsonObject.getJSONArray("data");
                             for (int i = 0; i < jsonArray.length(); i++) {
                                 GiphyItem giphyItem = new GiphyItem();
-                                giphyItem.setGifUrl(jsonArray.getJSONObject(i).getJSONObject("images").getJSONObject(GifsArtConst.GIPHY_SIZE_DOWNSAMPLED).getString("url"));
-                                giphyItem.setOriginalGifUrl(jsonArray.getJSONObject(i).getJSONObject("images").getJSONObject(GifsArtConst.GIPHY_SIZE_ORIGINAL).getString("url"));
-                                giphyItem.setGifHeight(jsonArray.getJSONObject(i).getJSONObject("images").getJSONObject(GifsArtConst.GIPHY_SIZE_ORIGINAL).getInt("height"));
-                                giphyItem.setGifWidth(jsonArray.getJSONObject(i).getJSONObject("images").getJSONObject(GifsArtConst.GIPHY_SIZE_ORIGINAL).getInt("width"));
-                                giphyItem.setFramesCount(jsonArray.getJSONObject(i).getJSONObject("images").getJSONObject(GifsArtConst.GIPHY_SIZE_ORIGINAL).getInt("frames"));
-                                giphyItem.setByteBufferSize(jsonArray.getJSONObject(i).getJSONObject("images").getJSONObject(GifsArtConst.GIPHY_SIZE_ORIGINAL).getInt("size"));
+                                giphyItem.setGifUrl(jsonArray.getJSONObject(i).getJSONObject(IMAGES).getJSONObject(GifsArtConst.GIPHY_SIZE_DOWNSAMPLED).getString("url"));
+                                giphyItem.setOriginalGifUrl(jsonArray.getJSONObject(i).getJSONObject(IMAGES).getJSONObject(GifsArtConst.GIPHY_SIZE_ORIGINAL).getString("url"));
+                                giphyItem.setGifHeight(jsonArray.getJSONObject(i).getJSONObject(IMAGES).getJSONObject(GifsArtConst.GIPHY_SIZE_ORIGINAL).getInt("height"));
+                                giphyItem.setGifWidth(jsonArray.getJSONObject(i).getJSONObject(IMAGES).getJSONObject(GifsArtConst.GIPHY_SIZE_ORIGINAL).getInt("width"));
+                                giphyItem.setFramesCount(jsonArray.getJSONObject(i).getJSONObject(IMAGES).getJSONObject(GifsArtConst.GIPHY_SIZE_ORIGINAL).getInt("frames"));
+                                giphyItem.setByteBufferSize(jsonArray.getJSONObject(i).getJSONObject(IMAGES).getJSONObject(GifsArtConst.GIPHY_SIZE_ORIGINAL).getInt("size"));
                                 giphyItems.add(giphyItem);
                             }
-
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }

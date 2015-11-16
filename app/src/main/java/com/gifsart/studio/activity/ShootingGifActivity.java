@@ -398,12 +398,14 @@ public class ShootingGifActivity extends ActionBarActivity {
                         intent.putExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, GifsArtConst.INDEX_FROM_GALLERY_TO_GIF);
                         intent.putStringArrayListExtra(GifsArtConst.INTENT_DECODED_IMAGE_PATHS, strings);
                         intent.putExtra(GifsArtConst.INTENT_CAMERA_BURST_MODE, true);
+                        intent.putExtra(GifsArtConst.INTENT_FRONT_CAMERA, cameraFront);
                         startActivity(intent);
                     } else {
                         Intent intent = new Intent();
                         intent.putExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, GifsArtConst.INDEX_FROM_GALLERY_TO_GIF);
                         intent.putStringArrayListExtra(GifsArtConst.INTENT_DECODED_IMAGE_PATHS, strings);
                         intent.putExtra(GifsArtConst.INTENT_CAMERA_BURST_MODE, true);
+                        intent.putExtra(GifsArtConst.INTENT_FRONT_CAMERA, cameraFront);
                         setResult(RESULT_OK, intent);
                     }
                     finish();

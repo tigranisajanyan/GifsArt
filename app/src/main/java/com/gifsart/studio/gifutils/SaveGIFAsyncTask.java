@@ -13,6 +13,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.gifsart.studio.activity.GifPreviewActivity;
+import com.gifsart.studio.activity.MakeGifActivity;
 import com.gifsart.studio.activity.ShareGifActivity;
 import com.gifsart.studio.item.GifItem;
 import com.gifsart.studio.utils.GifsArtConst;
@@ -51,9 +52,9 @@ public class SaveGIFAsyncTask extends AsyncTask<Void, Integer, Void> {
 
     int num = 0;
 
-    private int squareFitMode = 1;
+    private MakeGifActivity.SquareFitMode squareFitMode;
 
-    public SaveGIFAsyncTask(String outputDir, ArrayList<GifItem> gifItems, int squareFitMode, GPUImageView gpuImageView, GPUImageFilter gpuImageFilter, Activity activity) {
+    public SaveGIFAsyncTask(String outputDir, ArrayList<GifItem> gifItems, MakeGifActivity.SquareFitMode squareFitMode, GPUImageView gpuImageView, GPUImageFilter gpuImageFilter, Activity activity) {
         this.outputDir = outputDir;
         this.gifItems = gifItems;
         this.gpuImageView = gpuImageView;
@@ -185,11 +186,11 @@ public class SaveGIFAsyncTask extends AsyncTask<Void, Integer, Void> {
 
     // if all gif items doesn't have same width and height , square fit mode will be square fit
     public void checkSquareFitMode() {
-        if (squareFitMode == GifsArtConst.FIT_MODE_ORIGINAL) {
+        if (squareFitMode == MakeGifActivity.SquareFitMode.FIT_MODE_ORIGINAL) {
             for (int i = 0; i < gifItems.size(); i++) {
                 for (int j = 0; j < gifItems.size(); j++) {
                     if (gifItems.get(i).getBitmap().getWidth() != gifItems.get(j).getBitmap().getWidth() || gifItems.get(i).getBitmap().getHeight() != gifItems.get(j).getBitmap().getHeight()) {
-                        squareFitMode = GifsArtConst.FIT_MODE_SQUARE_FIT;
+                        squareFitMode = MakeGifActivity.SquareFitMode.FIT_MODE_SQUARE_FIT;
                         break;
                     }
                 }
