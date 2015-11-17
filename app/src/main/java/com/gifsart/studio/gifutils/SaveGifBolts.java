@@ -125,9 +125,9 @@ public class SaveGifBolts {
                     e.printStackTrace();
                 }
                 /*GifEncoder gifEncoder = new GifEncoder();
-                gifEncoder.init(Environment.getExternalStorageDirectory() + "/test.gif", 500, 500, 256, 10, 100);
+                gifEncoder.init(Environment.getExternalStorageDirectory() + "/test.gif", 500, 500, 256, 100, 100);
                 int[] pixels = new int[500 * 500];
-                for (int i = 0; i < gifItems.size() - 1; i++) {
+                for (int i = 0; i < gifItems.size(); i++) {
                     gifItems.get(i).getBitmap().getPixels(pixels, 0, 500, 0, 0, 500, 500);
                     gifEncoder.addFrame(pixels);
                 }

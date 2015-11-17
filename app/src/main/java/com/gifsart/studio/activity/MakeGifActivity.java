@@ -48,6 +48,7 @@ import com.gifsart.studio.helper.RecyclerItemClickListener;
 import com.gifsart.studio.item.GifItem;
 import com.gifsart.studio.gifutils.GifImitation;
 import com.gifsart.studio.item.GiphyItem;
+import com.gifsart.studio.textart.TextArt;
 import com.gifsart.studio.textart.TextArtStyle;
 import com.gifsart.studio.textart.TextArtView;
 import com.gifsart.studio.utils.AnimatedProgressDialog;
@@ -282,7 +283,6 @@ public class MakeGifActivity extends ActionBarActivity {
         findViewById(R.id.add_text_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 View convertView = getLayoutInflater().inflate(R.layout.text_list_item, mainFrameContainer, false);
                 TextArtView item = (TextArtView) convertView;
                 item.initParams(TextArtStyle.getPreviewStyleObj(false, ""), "gagag");
@@ -352,7 +352,7 @@ public class MakeGifActivity extends ActionBarActivity {
                         @Override
                         public Task<Void> then(final Task<Void> task) throws Exception {
                             Log.d("gagg", "1");
-                            return SaveGifBolts.applyEffect(gifItems, gpuImageFilter, MakeGifActivity.this);
+                            return null;
                         }
                     }).continueWithTask(new Continuation<Void, Task<Void>>() {
                         @Override

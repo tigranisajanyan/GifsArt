@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -122,6 +123,17 @@ public class ShootingGifActivity extends ActionBarActivity {
         screenModeBtn = (ImageButton) findViewById(R.id.screen_mode);
 
         captureCicrleButtonProgressBar = (ProgressBar) findViewById(R.id.circle_progress_bar);
+
+        ViewGroup.LayoutParams layoutParams = cameraPreviewLayout.getLayoutParams();
+        layoutParams.width = getResources().getDisplayMetrics().widthPixels;
+        layoutParams.height = getResources().getDisplayMetrics().widthPixels * 4 / 3;
+        cameraPreviewLayout.setLayoutParams(layoutParams);
+
+        findViewById(R.id.screen_mode).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            }
+        });
 
         findViewById(R.id.cancel_button).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -355,8 +367,6 @@ public class ShootingGifActivity extends ActionBarActivity {
             myCountDownTimer.start();
             captureCicrleButtonProgressBar.setProgress(0);
             captureCicrleButtonProgressBar.setVisibility(View.VISIBLE);
-
-
             return false;
         }
     };
@@ -384,6 +394,9 @@ public class ShootingGifActivity extends ActionBarActivity {
     }
 
     public void saveBurstModeFrames() {
+        final AnimatedProgressDialog animatedProgressDialog = new AnimatedProgressDialog(ShootingGifActivity.this);
+        animatedProgressDialog.setCancelable(false);
+        animatedProgressDialog.show();
         BurstModeFramesSaving burstModeFramesSaving = new BurstModeFramesSaving(bytes);
         burstModeFramesSaving.setFramesSavedListener(new BurstModeFramesSaving.FramesSaved() {
             @Override
@@ -408,8 +421,9 @@ public class ShootingGifActivity extends ActionBarActivity {
                         intent.putExtra(GifsArtConst.INTENT_FRONT_CAMERA, cameraFront);
                         setResult(RESULT_OK, intent);
                     }
-                    finish();
                     CheckSpaceSingleton.getInstance().addAllocatedSpaceInt(burstMode);
+                    animatedProgressDialog.dismiss();
+                    finish();
                 }
             }
         });
@@ -445,6 +459,7 @@ public class ShootingGifActivity extends ActionBarActivity {
 
     public void burstModeRecursion(final int n) {
         if (n == 0) {
+            findViewById(R.id.burst_count).setVisibility(View.INVISIBLE);
             if (CheckSpaceSingleton.getInstance().haveEnoughSpaceInt(burstMode)) {
                 saveBurstModeFrames();
             } else {
@@ -464,6 +479,32 @@ public class ShootingGifActivity extends ActionBarActivity {
                 }
             });
             camera.startPreview();
+        }
+    }
+
+    public void setNextFlashLightMode(String currentFlashMode, Camera camera) {
+        Camera.Parameters cameraParams = camera.getParameters();
+        ImageButton flashLightSwitchButton = (ImageButton) findViewById(R.id.flash_light_button);
+        for (int i = 0; i < flashLightModes.length; i++) {
+            if (currentFlashMode.equals(flashLightModes[i])) {
+                int nextIndex = (i + 1) % flashLightModes.length;
+                flashMode = flashLightModes[nextIndex];
+                cameraParams.setFlashMode(flashMode);
+                camera.setParameters(cameraParams);
+                switch (nextIndex) {
+                    case 0:
+                        flashLightSwitchButton.setImageDrawable(getResources().getDrawable(R.drawable.flash_light_off));
+                        break;
+                    case 1:
+                        flashLightSwitchButton.setImageDrawable(getResources().getDrawable(R.drawable.flash_light_on));
+                        break;
+                    case 2:
+                        flashLightSwitchButton.setImageDrawable(getResources().getDrawable(R.drawable.flash_light_auto));
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
     }
 
@@ -499,32 +540,6 @@ public class ShootingGifActivity extends ActionBarActivity {
                         finish();
                         Toast.makeText(context, "No enough space", Toast.LENGTH_SHORT).show();
                     }
-                }
-            }
-        }
-    }
-
-    public void setNextFlashLightMode(String currentFlashMode, Camera camera) {
-        Camera.Parameters cameraParams = camera.getParameters();
-        ImageButton flashLightSwitchButton = (ImageButton) findViewById(R.id.flash_light_button);
-        for (int i = 0; i < flashLightModes.length; i++) {
-            if (currentFlashMode.equals(flashLightModes[i])) {
-                int nextIndex = (i + 1) % flashLightModes.length;
-                flashMode = flashLightModes[nextIndex];
-                cameraParams.setFlashMode(flashMode);
-                camera.setParameters(cameraParams);
-                switch (nextIndex) {
-                    case 0:
-                        flashLightSwitchButton.setImageDrawable(getResources().getDrawable(R.drawable.flash_light_off));
-                        break;
-                    case 1:
-                        flashLightSwitchButton.setImageDrawable(getResources().getDrawable(R.drawable.flash_light_on));
-                        break;
-                    case 2:
-                        flashLightSwitchButton.setImageDrawable(getResources().getDrawable(R.drawable.flash_light_auto));
-                        break;
-                    default:
-                        break;
                 }
             }
         }

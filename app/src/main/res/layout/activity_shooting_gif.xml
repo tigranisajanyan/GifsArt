@@ -8,7 +8,7 @@
     tools:context="com.example.intern.giftest.activity.ShootingGifActivity">
 
     <RelativeLayout
-        android:id="@+id/ttt"
+        android:id="@+id/shooting_gif_activity_toolbar"
         android:layout_width="match_parent"
         android:layout_height="?android:attr/actionBarSize"
         android:layout_alignParentTop="true"
@@ -75,10 +75,10 @@
     </RelativeLayout>
 
     <FrameLayout
-        android:id="@+id/frameLayout"
+        android:id="@+id/camera_preview_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/ttt"
+        android:layout_below="@+id/shooting_gif_activity_toolbar"
         android:layout_gravity="center"
         android:gravity="center">
 
@@ -104,6 +104,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
+        android:layout_below="@+id/camera_preview_container"
         android:background="@color/navigation_bar_color"
         android:gravity="center">
 
