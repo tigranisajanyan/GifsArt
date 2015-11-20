@@ -21,7 +21,7 @@ import com.gifsart.studio.gifutils.Giphy;
 import com.gifsart.studio.gifutils.GiphyToByteArray;
 import com.gifsart.studio.helper.RecyclerItemClickListener;
 import com.gifsart.studio.item.GiphyItem;
-import com.gifsart.studio.utils.CheckSpaceSingleton;
+import com.gifsart.studio.utils.CheckFreeSpaceSingleton;
 import com.gifsart.studio.utils.GifsArtConst;
 import com.gifsart.studio.utils.SpacesItemDecoration;
 import com.gifsart.studio.utils.Utils;
@@ -87,7 +87,7 @@ public class GiphyActivity extends AppCompatActivity {
             @Override
             public void onItemClick(View view, int position) {
                 if (lastSelectedPosition == -1) {
-                    if (CheckSpaceSingleton.getInstance().haveEnoughSpaceInt(giphyItems.get(position).getFramesCount())) {
+                    if (CheckFreeSpaceSingleton.getInstance().haveEnoughSpaceInt(giphyItems.get(position).getFramesCount())) {
                         giphyItems.get(position).setIsSelected(true);
                         giphyAdapter.notifyItemChanged(lastSelectedPosition);
                         giphyAdapter.notifyItemChanged(position);
@@ -102,7 +102,7 @@ public class GiphyActivity extends AppCompatActivity {
                         giphyAdapter.notifyItemChanged(lastSelectedPosition);
                         lastSelectedPosition = -1;
                     } else {
-                        if (CheckSpaceSingleton.getInstance().haveEnoughSpaceInt(giphyItems.get(position).getFramesCount())) {
+                        if (CheckFreeSpaceSingleton.getInstance().haveEnoughSpaceInt(giphyItems.get(position).getFramesCount())) {
                             giphyItems.get(lastSelectedPosition).setIsSelected(false);
                             giphyItems.get(position).setIsSelected(true);
                             giphyAdapter.notifyItemChanged(lastSelectedPosition);
@@ -197,7 +197,7 @@ public class GiphyActivity extends AppCompatActivity {
             public void onDownloaded(boolean isDownladed) {
                 if (isDownladed) {
                     intent.putExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, GifsArtConst.INDEX_GIPHY_TO_GIF);
-                    CheckSpaceSingleton.getInstance().addAllocatedSpaceInt(GifUtils.getGifFramesCountFromByteArray(GiphyToByteArray.buffer));
+                    CheckFreeSpaceSingleton.getInstance().addAllocatedSpaceInt(GifUtils.getGifFramesCountFromByteArray(GiphyToByteArray.buffer));
                     if (isOpened) {
                         setResult(RESULT_OK, intent);
                     } else {

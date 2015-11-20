@@ -51,7 +51,7 @@ public class GifsArtConst {
     public static String DIR_GPU_IMAGES = "Pictures/GPUImage";
 
 
-    public static int VIDEO_FRAME_SCALE_SIZE = 2;
+    public static int VIDEO_FRAME_SCALE_SIZE = 3;
     public static int VIDEO_MAX_DURATION = 300000; // Set max duration 30 sec.
     public static int VIDEO_FILE_MAX_SIZE = 40000000; // Set max file size 40M
     public static int VIDEO_OUTPUT_ORIENTATION = 90;
@@ -71,7 +71,6 @@ public class GifsArtConst {
     public static int IMAGE_FRAME_DURATION = 200;   // 200 mls
 
     public static int GIPHY_LIMIT_COUNT = 30;
-    public static int GIF_MAX_FRAMES_COUNT = 150;
 
 
 }

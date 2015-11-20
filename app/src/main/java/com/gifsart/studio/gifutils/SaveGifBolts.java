@@ -7,6 +7,7 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.os.Environment;
+import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
 import com.gifsart.studio.activity.MakeGifActivity;
@@ -31,7 +32,6 @@ import java.util.concurrent.Callable;
 import bolts.Task;
 import jp.co.cyberagent.android.gpuimage.GPUImage;
 import jp.co.cyberagent.android.gpuimage.GPUImageFilter;
-import jp.co.cyberagent.android.gpuimage.GPUImageView;
 
 /**
  * Created by Tigran on 11/3/15.
@@ -153,10 +153,12 @@ public class SaveGifBolts {
                         if (gifItems.get(i).getType() == Type.IMAGE) {
                             gpuImage.setImage(gifItems.get(i).getBitmap());
                             gifItems.get(i).setBitmap(gpuImage.getBitmapWithFilterApplied());
+                            gpuImage.deleteImage();
                         } else {
                             for (int j = 0; j < gifItems.get(i).getBitmaps().size(); j++) {
                                 gpuImage.setImage(gifItems.get(i).getBitmaps().get(j));
                                 gifItems.get(i).getBitmaps().set(j, gpuImage.getBitmapWithFilterApplied());
+                                gpuImage.deleteImage();
                             }
                         }
                     }

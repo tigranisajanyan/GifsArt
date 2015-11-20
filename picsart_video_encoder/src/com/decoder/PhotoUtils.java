@@ -102,7 +102,6 @@ public class PhotoUtils {
     }
 
     public static Bitmap fromBufferToBitmap(int w, int h, ByteBuffer buffer) {
-
         Bitmap result = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
         buffer.rewind();
         result.copyPixelsFromBuffer(buffer);

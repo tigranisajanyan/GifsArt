@@ -1,17 +1,20 @@
 package com.gifsart.studio.activity;
 
+import android.app.LoaderManager;
 import android.content.Intent;
+import android.content.Loader;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.MediaMetadataRetriever;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -26,9 +29,13 @@ import com.gifsart.studio.R;
 import com.gifsart.studio.adapter.GalleryAdapter;
 import com.gifsart.studio.adapter.GalleryItemCategoryAdapter;
 import com.gifsart.studio.helper.RecyclerItemClickListener;
+import com.gifsart.studio.image_picker.ImageData;
+import com.gifsart.studio.image_picker.OnImagesRetrievedListener;
+import com.gifsart.studio.image_picker.PhoneImagesRetriever;
 import com.gifsart.studio.item.GalleryCategoryItem;
 import com.gifsart.studio.item.GalleryItem;
 import com.gifsart.studio.utils.AnimatedProgressDialog;
+import com.gifsart.studio.utils.BoltsVideoDecode;
 import com.gifsart.studio.utils.GifsArtConst;
 import com.gifsart.studio.utils.SpacesItemDecoration;
 import com.gifsart.studio.utils.Type;
@@ -36,7 +43,12 @@ import com.gifsart.studio.utils.Utils;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.io.File;
+import java.io.FileDescriptor;
+import java.io.PrintWriter;
 import java.util.ArrayList;
+
+import bolts.Continuation;
+import bolts.Task;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -60,6 +72,8 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean containerIsOpened = false;
     private int currentCategoryPosition = 0;
+
+    ArrayList<Bitmap> rev;
 
 
     @Override
@@ -195,28 +209,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
-        /*GalleryItem galleryItem1 = new GalleryItem(BitmapFactory.decodeResource(getResources(), R.drawable.camera_icon));
-        galleryItem1.setIsSeleted(false);
-        GalleryItem galleryItem2 = new GalleryItem(BitmapFactory.decodeResource(getResources(), R.drawable.giphy_icon));
-        galleryItem2.setIsSeleted(false);
-
-        imageItemsArrayList.add(galleryItem1);
-        imageItemsArrayList.add(galleryItem2);
-
-        PhoneImagesRetriever retriever = new PhoneImagesRetriever(getLoaderManager(), getApplicationContext());
-        retriever.retrieveImages(new OnImagesRetrievedListener() {
-            @Override
-            public void onImagesRetrieved(ArrayList<ImageData> data) {
-                for (int i = 0; i < data.size(); i++) {
-
-                    imageItemsArrayList.add(new GalleryItem(data.get(i).getFilePath()));
-                }
-                galleryAdapter.notifyDataSetChanged();
-                progressBar.setVisibility(View.GONE);
-            }
-        });*/
-
     }
 
     @Override
@@ -332,6 +324,10 @@ public class MainActivity extends AppCompatActivity {
     public boolean sendIntentWithVideo(final Intent intent, String path, final GalleryAdapter galleryAdapter, final AnimatedProgressDialog progressDialog, final boolean isOpened) {
         File file = new File(GifsArtConst.VIDEOS_DECODED_FRAMES_DIR);
         file.mkdirs();
+        /*final File file2 = new File(Environment.getExternalStorageDirectory() + "/" + GifsArtConst.MY_DIR + "/video_frames1");
+        file2.mkdirs();
+        final File file3 = new File(Environment.getExternalStorageDirectory() + "/" + GifsArtConst.MY_DIR + "/video_frames2");
+        file3.mkdirs();*/
 
         VideoDecoder videoDecoder = new VideoDecoder(MainActivity.this, path, Integer.MAX_VALUE, GifsArtConst.VIDEO_FRAME_SCALE_SIZE, GifsArtConst.VIDEOS_DECODED_FRAMES_DIR);
         videoDecoder.extractVideoFrames();
@@ -354,6 +350,25 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+        /*BoltsVideoDecode.decodeVideo(galleryAdapter.getSelected().get(0), file.getAbsolutePath(), MainActivity.this).continueWithTask(new Continuation<Void, Task<Void>>() {
+            @Override
+            public Task<Void> then(Task<Void> task) throws Exception {
+                Log.d("gaga", "1" + task.getResult());
+                return BoltsVideoDecode.decodeVideo(galleryAdapter.getSelected().get(1), file2.getAbsolutePath(), MainActivity.this);
+            }
+        }).continueWithTask(new Continuation<Void, Task<Void>>() {
+            @Override
+            public Task<Void> then(Task<Void> task) throws Exception {
+                Log.d("gaga", "2" + task.getError());
+                return null;
+            }
+        }).onSuccess(new Continuation<Void, Task<Void>>() {
+            @Override
+            public Task<Void> then(Task<Void> task) throws Exception {
+                Log.d("gagag", "done");
+                return null;
+            }
+        });*/
         return true;
     }
 

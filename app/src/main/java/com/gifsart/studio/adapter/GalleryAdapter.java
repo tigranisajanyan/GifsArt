@@ -19,7 +19,7 @@ import com.gifsart.studio.R;
 import com.gifsart.studio.activity.GiphyActivity;
 import com.gifsart.studio.activity.ShootingGifActivity;
 import com.gifsart.studio.item.GalleryItem;
-import com.gifsart.studio.utils.CheckSpaceSingleton;
+import com.gifsart.studio.utils.CheckFreeSpaceSingleton;
 import com.gifsart.studio.utils.GifsArtConst;
 import com.gifsart.studio.utils.Type;
 import com.gifsart.studio.utils.Utils;
@@ -92,7 +92,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
                 @Override
                 public void onClick(View v) {
                     if (array.get(position).isSeleted()) {
-                        CheckSpaceSingleton.getInstance().removeAllocatedSpace(array.get(position).getFilePath());
+                        CheckFreeSpaceSingleton.getInstance().deleteAllocatedSpace(array.get(position).getFilePath());
                         array.get(position).setIsSeleted(false);
                         updateSelecetedItems(position);
                         selected.remove(array.get(position));
@@ -104,15 +104,15 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
                         }
 
                     } else {
-                        if (CheckSpaceSingleton.getInstance().haveEnoughSpace(array.get(position).getFilePath())) {
-                            CheckSpaceSingleton.getInstance().addAllocatedSpaceFromFilePath(array.get(position).getFilePath());
-                            array.get(position).setIsSeleted(true);
-                            selected.add(array.get(position));
-                            ((TextView) activity.findViewById(R.id.maic_activity_toolbar_selected_text)).setText(getSelected().size() + " Selected");
-                            notifyItemChanged(position);
-                        } else {
-                            Toast.makeText(activity, "No Enough Space", Toast.LENGTH_SHORT).show();
-                        }
+                        //if (CheckFreeSpaceSingleton.getInstance().haveEnoughSpace(array.get(position).getFilePath())) {
+                        CheckFreeSpaceSingleton.getInstance().addAllocatedSpaceFromFilePath(array.get(position).getFilePath());
+                        array.get(position).setIsSeleted(true);
+                        selected.add(array.get(position));
+                        ((TextView) activity.findViewById(R.id.maic_activity_toolbar_selected_text)).setText(getSelected().size() + " Selected");
+                        notifyItemChanged(position);
+                        //} else {
+                        //Toast.makeText(activity, "No Enough Space", Toast.LENGTH_SHORT).show();
+                        //}
                     }
 
                     holder.textView.setSelected(array

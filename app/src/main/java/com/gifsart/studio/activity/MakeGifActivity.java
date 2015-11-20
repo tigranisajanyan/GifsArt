@@ -48,11 +48,10 @@ import com.gifsart.studio.helper.RecyclerItemClickListener;
 import com.gifsart.studio.item.GifItem;
 import com.gifsart.studio.gifutils.GifImitation;
 import com.gifsart.studio.item.GiphyItem;
-import com.gifsart.studio.textart.TextArt;
 import com.gifsart.studio.textart.TextArtStyle;
 import com.gifsart.studio.textart.TextArtView;
 import com.gifsart.studio.utils.AnimatedProgressDialog;
-import com.gifsart.studio.utils.CheckSpaceSingleton;
+import com.gifsart.studio.utils.CheckFreeSpaceSingleton;
 import com.gifsart.studio.utils.GifsArtConst;
 import com.gifsart.studio.utils.MaskRes;
 import com.gifsart.studio.utils.SpacesItemDecoration;
@@ -313,7 +312,7 @@ public class MakeGifActivity extends ActionBarActivity {
                     gifSavedDialogBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            CheckSpaceSingleton.getInstance().clearAllocatedSpace();
+                            CheckFreeSpaceSingleton.getInstance().clearAllocatedSpace();
                             finish();
                         }
                     });
@@ -338,7 +337,7 @@ public class MakeGifActivity extends ActionBarActivity {
                     }
                     slideDownContainer();
                 } else {
-                    CheckSpaceSingleton.getInstance().clearAllocatedSpace();
+                    CheckFreeSpaceSingleton.getInstance().clearAllocatedSpace();
                     gifItems.remove(gifItems.size() - 1);
                     gifImitation.cancel(true);
 
@@ -352,7 +351,7 @@ public class MakeGifActivity extends ActionBarActivity {
                         @Override
                         public Task<Void> then(final Task<Void> task) throws Exception {
                             Log.d("gagg", "1");
-                            return null;
+                            return SaveGifBolts.applyEffect(gifItems, gpuImageFilter, MakeGifActivity.this);
                         }
                     }).continueWithTask(new Continuation<Void, Task<Void>>() {
                         @Override
@@ -417,7 +416,7 @@ public class MakeGifActivity extends ActionBarActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        CheckSpaceSingleton.getInstance().clearAllocatedSpace();
+        CheckFreeSpaceSingleton.getInstance().clearAllocatedSpace();
         gifImitation.cancel(true);
         editor.clear();
         editor.commit();
@@ -427,7 +426,7 @@ public class MakeGifActivity extends ActionBarActivity {
     public void onBackPressed() {
         super.onBackPressed();
         if (!sharedPreferences.getBoolean(GifsArtConst.SHARED_PREFERENCES_IS_OPENED, false)) {
-            CheckSpaceSingleton.getInstance().clearAllocatedSpace();
+            CheckFreeSpaceSingleton.getInstance().clearAllocatedSpace();
         }
     }
 
@@ -540,6 +539,7 @@ public class MakeGifActivity extends ActionBarActivity {
 
         container.findViewById(R.id.opacity_seek_bar).setVisibility(
                 mFilterAdjuster.canAdjust() ? View.VISIBLE : View.INVISIBLE);
+
         ((SeekBar) container.findViewById(R.id.opacity_seek_bar)).setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -862,7 +862,7 @@ public class MakeGifActivity extends ActionBarActivity {
 
             init();
             animatedProgressDialog.dismiss();
-            Log.d("gaggagagag", "Frames Count: " + CheckSpaceSingleton.getInstance().getAllocatedSpace());
+            Log.d("gaggagagag", "Frames Count: " + CheckFreeSpaceSingleton.getInstance().getAllocatedSpace());
         }
     }
 
@@ -911,7 +911,7 @@ public class MakeGifActivity extends ActionBarActivity {
             slideAdapter.notifyDataSetChanged();
             animatedProgressDialog.dismiss();
             gifImitation.onResume();
-            Log.d("gaggagagag", "Frames Count: " + CheckSpaceSingleton.getInstance().getAllocatedSpace());
+            Log.d("gaggagagag", "Frames Count: " + CheckFreeSpaceSingleton.getInstance().getAllocatedSpace());
         }
     }
 

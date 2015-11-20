@@ -27,7 +27,7 @@ import com.gifsart.studio.R;
 import com.gifsart.studio.camera.BurstModeFramesSaving;
 import com.gifsart.studio.utils.AnimatedProgressDialog;
 import com.gifsart.studio.camera.CameraPreview;
-import com.gifsart.studio.utils.CheckSpaceSingleton;
+import com.gifsart.studio.utils.CheckFreeSpaceSingleton;
 import com.gifsart.studio.utils.GifsArtConst;
 import com.gifsart.studio.utils.Utils;
 
@@ -52,9 +52,9 @@ public class ShootingGifActivity extends ActionBarActivity {
     private ArrayList<Integer> burstModeCounts = new ArrayList();
 
     private SharedPreferences sharedPreferences;
-    private ArrayList<byte[]> bytes = new ArrayList<>();
+    private ArrayList<byte[]> burstModeFrameBytes = new ArrayList<>();
 
-    private MyCountDownTimer myCountDownTimer;
+    private VideoCaptureCountDownTimer videoCaptureCountDownTimer;
 
     public String[] flashLightModes = new String[]{
             Camera.Parameters.FLASH_MODE_OFF,
@@ -123,11 +123,6 @@ public class ShootingGifActivity extends ActionBarActivity {
         screenModeBtn = (ImageButton) findViewById(R.id.screen_mode);
 
         captureCicrleButtonProgressBar = (ProgressBar) findViewById(R.id.circle_progress_bar);
-
-        ViewGroup.LayoutParams layoutParams = cameraPreviewLayout.getLayoutParams();
-        layoutParams.width = getResources().getDisplayMetrics().widthPixels;
-        layoutParams.height = getResources().getDisplayMetrics().widthPixels * 4 / 3;
-        cameraPreviewLayout.setLayoutParams(layoutParams);
 
         findViewById(R.id.screen_mode).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -315,7 +310,7 @@ public class ShootingGifActivity extends ActionBarActivity {
                             finish = true;
                             recording = false;
                             cameraPreview.refreshCamera(camera);
-                            myCountDownTimer.cancel();
+                            videoCaptureCountDownTimer.cancel();
                             captureCicrleButtonProgressBar.setVisibility(View.GONE);
                             visibilitySwitcher(View.VISIBLE);
                             visibiltySwitcherBurstMode(View.VISIBLE);
@@ -326,9 +321,9 @@ public class ShootingGifActivity extends ActionBarActivity {
                             releaseMediaRecorder(); // release the MediaRecorder object
                             Toast.makeText(ShootingGifActivity.this, "Video captured!", Toast.LENGTH_LONG).show();
                             recording = false;
-                            myCountDownTimer.cancel();
+                            videoCaptureCountDownTimer.cancel();
                             captureCicrleButtonProgressBar.setVisibility(View.INVISIBLE);
-                            if (CheckSpaceSingleton.getInstance().haveEnoughSpace(GifsArtConst.SHOOTING_VIDEO_OUTPUT_DIR + "/" + GifsArtConst.VIDEO_NAME)) {
+                            if (CheckFreeSpaceSingleton.getInstance().haveEnoughSpace(GifsArtConst.SHOOTING_VIDEO_OUTPUT_DIR + "/" + GifsArtConst.VIDEO_NAME)) {
                                 saveCapturedVideoFrames();
                             } else {
                                 setResult(RESULT_CANCELED);
@@ -363,8 +358,8 @@ public class ShootingGifActivity extends ActionBarActivity {
             visibiltySwitcherBurstMode(View.INVISIBLE);
             mediaRecorder.start();
             recording = true;
-            myCountDownTimer = new MyCountDownTimer(7100, 1000);
-            myCountDownTimer.start();
+            videoCaptureCountDownTimer = new VideoCaptureCountDownTimer(7100, 1000);
+            videoCaptureCountDownTimer.start();
             captureCicrleButtonProgressBar.setProgress(0);
             captureCicrleButtonProgressBar.setVisibility(View.VISIBLE);
             return false;
@@ -386,7 +381,7 @@ public class ShootingGifActivity extends ActionBarActivity {
                     sendCapturedVideoFramesWithIntent(new Intent());
                 }
                 File file = new File(GifsArtConst.VIDEOS_DECODED_FRAMES_DIR);
-                CheckSpaceSingleton.getInstance().addAllocatedSpaceInt(file.listFiles().length * 2 / 3);
+                CheckFreeSpaceSingleton.getInstance().addAllocatedSpaceInt(file.listFiles().length * 2 / 3);
                 animatedProgressDialog.dismiss();
                 finish();
             }
@@ -397,7 +392,7 @@ public class ShootingGifActivity extends ActionBarActivity {
         final AnimatedProgressDialog animatedProgressDialog = new AnimatedProgressDialog(ShootingGifActivity.this);
         animatedProgressDialog.setCancelable(false);
         animatedProgressDialog.show();
-        BurstModeFramesSaving burstModeFramesSaving = new BurstModeFramesSaving(bytes);
+        BurstModeFramesSaving burstModeFramesSaving = new BurstModeFramesSaving(burstModeFrameBytes);
         burstModeFramesSaving.setFramesSavedListener(new BurstModeFramesSaving.FramesSaved() {
             @Override
             public void done(boolean done) {
@@ -421,7 +416,7 @@ public class ShootingGifActivity extends ActionBarActivity {
                         intent.putExtra(GifsArtConst.INTENT_FRONT_CAMERA, cameraFront);
                         setResult(RESULT_OK, intent);
                     }
-                    CheckSpaceSingleton.getInstance().addAllocatedSpaceInt(burstMode);
+                    CheckFreeSpaceSingleton.getInstance().addAllocatedSpaceInt(burstMode);
                     animatedProgressDialog.dismiss();
                     finish();
                 }
@@ -460,7 +455,7 @@ public class ShootingGifActivity extends ActionBarActivity {
     public void burstModeRecursion(final int n) {
         if (n == 0) {
             findViewById(R.id.burst_count).setVisibility(View.INVISIBLE);
-            if (CheckSpaceSingleton.getInstance().haveEnoughSpaceInt(burstMode)) {
+            if (CheckFreeSpaceSingleton.getInstance().haveEnoughSpaceInt(burstMode)) {
                 saveBurstModeFrames();
             } else {
                 setResult(RESULT_CANCELED);
@@ -473,7 +468,7 @@ public class ShootingGifActivity extends ActionBarActivity {
                 @Override
                 public void onPictureTaken(byte[] data, Camera camera) {
                     camera.startPreview();
-                    bytes.add(data);
+                    burstModeFrameBytes.add(data);
                     ((TextView) findViewById(R.id.burst_count)).setText(n + "");
                     burstModeRecursion(n - 1);
                 }
@@ -508,8 +503,8 @@ public class ShootingGifActivity extends ActionBarActivity {
         }
     }
 
-    public class MyCountDownTimer extends CountDownTimer {
-        public MyCountDownTimer(long startTime, long interval) {
+    public class VideoCaptureCountDownTimer extends CountDownTimer {
+        public VideoCaptureCountDownTimer(long startTime, long interval) {
             super(startTime, interval);
         }
 
@@ -533,7 +528,7 @@ public class ShootingGifActivity extends ActionBarActivity {
                     releaseMediaRecorder(); // release the MediaRecorder object
                     recording = false;
                     captureCicrleButtonProgressBar.setVisibility(View.INVISIBLE);
-                    if (CheckSpaceSingleton.getInstance().haveEnoughSpace(GifsArtConst.SHOOTING_VIDEO_OUTPUT_DIR + "/" + GifsArtConst.VIDEO_NAME)) {
+                    if (CheckFreeSpaceSingleton.getInstance().haveEnoughSpace(GifsArtConst.SHOOTING_VIDEO_OUTPUT_DIR + "/" + GifsArtConst.VIDEO_NAME)) {
                         saveCapturedVideoFrames();
                     } else {
                         setResult(RESULT_CANCELED);

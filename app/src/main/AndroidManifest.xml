@@ -52,7 +52,8 @@
             android:name=".activity.GifPreviewActivity"
             android:label="@string/title_activity_gif_preview" />
         <activity android:name=".activity.GiphyStickerActivity" />
-        <activity android:name=".activity.ShareGifActivity"></activity>
+        <activity android:name=".activity.ShareGifActivity" />
+        <activity android:name=".activity.CameraPreviewSampleActivity" />
     </application>
 
 </manifest>

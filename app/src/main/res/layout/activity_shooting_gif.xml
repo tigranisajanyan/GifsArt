@@ -84,7 +84,7 @@
 
         <LinearLayout
             android:id="@+id/camera_preview"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@android:color/background_light"
             android:orientation="horizontal" />
@@ -104,7 +104,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_below="@+id/camera_preview_container"
         android:background="@color/navigation_bar_color"
         android:gravity="center">
 

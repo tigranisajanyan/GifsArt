@@ -17,7 +17,6 @@ import com.facebook.drawee.view.SimpleDraweeView;
 import com.gifsart.studio.R;
 import com.gifsart.studio.gifutils.Giphy;
 import com.gifsart.studio.item.GiphyItem;
-import com.gifsart.studio.utils.CheckSpaceSingleton;
 import com.gifsart.studio.utils.GifsArtConst;
 import com.gifsart.studio.utils.Utils;
 

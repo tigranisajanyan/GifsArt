@@ -9,7 +9,8 @@
         android:id="@+id/opacity_seek_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:max="100" />
+        android:max="100"
+        android:progress="100" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/effects_rec_view"

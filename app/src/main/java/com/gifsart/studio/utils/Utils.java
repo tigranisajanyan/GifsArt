@@ -1,6 +1,7 @@
 package com.gifsart.studio.utils;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -47,9 +48,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class Utils {
@@ -491,5 +495,24 @@ public class Utils {
                 bitmap.getHeight() / 2, matrix, true);
     }
 
+    public static long getTotalRAMinMB() {
+        RandomAccessFile reader = null;
+        String load = null;
+        try {
+            reader = new RandomAccessFile("/proc/meminfo", "r");
+            load = reader.readLine();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        } finally {
+            // Streams.close(reader);
+        }
+        Pattern pattern = Pattern.compile("\\w+([0-9]+)\\w+([0-9]+)");
+        Matcher matcher = pattern.matcher(load);
+        for (int i = 0; i < matcher.groupCount(); i++) {
+            matcher.find();
+            return Integer.parseInt(matcher.group()) / 1000;
+        }
+        return 0;
+    }
 
 }
