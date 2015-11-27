@@ -30,7 +30,7 @@
             android:layout_centerInParent="true">
 
             <LinearLayout
-                android:id="@+id/burst_mode_image"
+                android:id="@+id/burst_mode_image_container"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/burst_mode_corner"
@@ -90,7 +90,7 @@
             android:orientation="horizontal" />
 
         <TextView
-            android:id="@+id/burst_count"
+            android:id="@+id/burst_counter"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -100,7 +100,7 @@
     </FrameLayout>
 
     <RelativeLayout
-        android:id="@+id/relativeLayout"
+        android:id="@+id/capture_button_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"

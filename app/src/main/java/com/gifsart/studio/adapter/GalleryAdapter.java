@@ -1,8 +1,6 @@
 package com.gifsart.studio.adapter;
 
 import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,11 +14,8 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.gifsart.studio.R;
-import com.gifsart.studio.activity.GiphyActivity;
-import com.gifsart.studio.activity.ShootingGifActivity;
 import com.gifsart.studio.item.GalleryItem;
 import com.gifsart.studio.utils.CheckFreeSpaceSingleton;
-import com.gifsart.studio.utils.GifsArtConst;
 import com.gifsart.studio.utils.Type;
 import com.gifsart.studio.utils.Utils;
 
@@ -49,7 +44,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
 
-        if (position == 0) {
+        /*if (position == 0) {
             Glide.clear(holder.mainFrameImageView);
             array.get(position).setIsSeleted(false);
             holder.fileTypeImageView.setImageBitmap(null);
@@ -87,65 +82,64 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
                     }
                 }
             });
-        } else {
-            holder.mainFrameImageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (array.get(position).isSeleted()) {
-                        CheckFreeSpaceSingleton.getInstance().deleteAllocatedSpace(array.get(position).getFilePath());
-                        array.get(position).setIsSeleted(false);
-                        updateSelecetedItems(position);
-                        selected.remove(array.get(position));
-                        ((TextView) activity.findViewById(R.id.maic_activity_toolbar_selected_text)).setText(getSelected().size() + " Selected");
-                        if (getSelected().size() < 1) {
-                            ((TextView) activity.findViewById(R.id.maic_activity_toolbar_selected_text)).setText("");
-                            ((TextView) activity.findViewById(R.id.main_activity_toolbar_cancel)).setText("Cancel");
-                            ((Button) activity.findViewById(R.id.main_activity_toolbar_done)).setTextColor(activity.getResources().getColor(R.color.font_main_color));
-                        }
+        } else {*/
+        holder.mainFrameImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (array.get(position).isSeleted()) {
+                    CheckFreeSpaceSingleton.getInstance().deleteAllocatedSpace(array.get(position).getFilePath());
+                    array.get(position).setIsSeleted(false);
+                    updateSelecetedItems(position);
+                    selected.remove(array.get(position));
+                    ((TextView) activity.findViewById(R.id.main_activity_toolbar_selected_text)).setText(getSelected().size() + " Selected");
+                    if (getSelected().size() < 1) {
+                        ((TextView) activity.findViewById(R.id.main_activity_toolbar_selected_text)).setText("");
+                        ((TextView) activity.findViewById(R.id.main_activity_toolbar_cancel)).setText("Cancel");
+                        ((Button) activity.findViewById(R.id.main_activity_toolbar_done)).setTextColor(activity.getResources().getColor(R.color.font_main_color));
+                    }
 
-                    } else {
-                        //if (CheckFreeSpaceSingleton.getInstance().haveEnoughSpace(array.get(position).getFilePath())) {
+                } else {
+                    if (CheckFreeSpaceSingleton.getInstance().haveEnoughSpace(array.get(position).getFilePath())) {
                         CheckFreeSpaceSingleton.getInstance().addAllocatedSpaceFromFilePath(array.get(position).getFilePath());
                         array.get(position).setIsSeleted(true);
                         selected.add(array.get(position));
-                        ((TextView) activity.findViewById(R.id.maic_activity_toolbar_selected_text)).setText(getSelected().size() + " Selected");
+                        ((TextView) activity.findViewById(R.id.main_activity_toolbar_selected_text)).setText(getSelected().size() + " Selected");
                         notifyItemChanged(position);
-                        //} else {
-                        //Toast.makeText(activity, "No Enough Space", Toast.LENGTH_SHORT).show();
-                        //}
+                    } else {
+                        Toast.makeText(activity, "No Enough Space", Toast.LENGTH_SHORT).show();
                     }
-
-                    holder.textView.setSelected(array
-                            .get(position).isSeleted());
                 }
-            });
 
-            ((Button) activity.findViewById(R.id.main_activity_toolbar_done)).setTextColor(((selected.size() > 0) ? activity.getResources().getColor(R.color.pink) : activity.getResources().getColor(R.color.font_main_color)));
-            ((Button) activity.findViewById(R.id.main_activity_toolbar_cancel)).setText(((selected.size() > 0) ? "Deselect" : "Cancel"));
-
-            try {
-                Glide.with(activity).load(array.get(position).getFilePath()).asBitmap().centerCrop().into(holder.mainFrameImageView);
-                holder.textView
-                        .setSelected(array.get(position).isSeleted());
-
-            } catch (Exception e) {
-                e.printStackTrace();
+                holder.textView.setSelected(array
+                        .get(position).isSeleted());
             }
-            if (Utils.getMimeType(array.get(position).getFilePath()) != null && Utils.getMimeType(array.get(position).getFilePath()) == Type.GIF) {
-                holder.fileTypeImageView.setImageDrawable(activity.getResources().getDrawable(R.drawable.gif_icon));
-            } else if (Utils.getMimeType(array.get(position).getFilePath()) != null && Utils.getMimeType(array.get(position).getFilePath()) == Type.VIDEO) {
-                Glide.with(activity).load(array.get(position).getFilePath()).into(holder.mainFrameImageView);
-                holder.fileTypeImageView.setImageDrawable(activity.getResources().getDrawable(R.drawable.video_icon));
-            } else {
-                holder.fileTypeImageView.setImageBitmap(null);
-            }
+        });
 
-            if (array.get(position).isSeleted()) {
-                holder.textView.setVisibility(View.VISIBLE);
-                holder.textView.setText(selected.indexOf(array.get(position)) + 1 + "");
-            } else {
-                holder.textView.setVisibility(View.GONE);
-            }
+        ((Button) activity.findViewById(R.id.main_activity_toolbar_done)).setTextColor(((selected.size() > 0) ? activity.getResources().getColor(R.color.pink) : activity.getResources().getColor(R.color.font_main_color)));
+        ((Button) activity.findViewById(R.id.main_activity_toolbar_cancel)).setText(((selected.size() > 0) ? "Deselect" : "Cancel"));
+
+        try {
+            Glide.with(activity).load(array.get(position).getFilePath()).asBitmap().centerCrop().into(holder.mainFrameImageView);
+            holder.textView
+                    .setSelected(array.get(position).isSeleted());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (Utils.getMimeType(array.get(position).getFilePath()) != null && Utils.getMimeType(array.get(position).getFilePath()) == Type.GIF) {
+            holder.fileTypeImageView.setImageDrawable(activity.getResources().getDrawable(R.drawable.gif_icon));
+        } else if (Utils.getMimeType(array.get(position).getFilePath()) != null && Utils.getMimeType(array.get(position).getFilePath()) == Type.VIDEO) {
+            Glide.with(activity).load(array.get(position).getFilePath()).into(holder.mainFrameImageView);
+            holder.fileTypeImageView.setImageDrawable(activity.getResources().getDrawable(R.drawable.video_icon));
+        } else {
+            holder.fileTypeImageView.setImageBitmap(null);
+        }
+
+        if (array.get(position).isSeleted()) {
+            holder.textView.setVisibility(View.VISIBLE);
+            holder.textView.setText(selected.indexOf(array.get(position)) + 1 + "");
+        } else {
+            holder.textView.setVisibility(View.GONE);
         }
     }
 
@@ -205,7 +199,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
                 }
             }
             selected.clear();
-            ((TextView) activity.findViewById(R.id.maic_activity_toolbar_selected_text)).setText("");
+            ((TextView) activity.findViewById(R.id.main_activity_toolbar_selected_text)).setText("");
             ((TextView) activity.findViewById(R.id.main_activity_toolbar_cancel)).setText("Cancel");
             notifyDataSetChanged();
         }

@@ -17,6 +17,15 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    packagingOptions{
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/DEPENDENCIES.txt'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/DEPENDENCIES'
+    }
 }
 
 task nativeLibsToJar(type: Zip, description: 'create a jar archive of the native libs') {
@@ -48,4 +57,12 @@ dependencies {
     compile fileTree(include: '*.jar', dir: 'libs')
     compile 'com.mcxiaoke.volley:library:1.0.19'
     compile files('libs/universal-image-loader-1.9.4.jar')
+    compile files('libs/httpmime-4.3.3.jar')
+    compile files('libs/httpclient-4.3.3.jar')
+    compile files('libs/httpcore-4.4.jar')
+    compile files('libs/mygson-2.1.jar')
+
+    compile 'com.facebook.android:facebook-android-sdk:4.7.0'
+
+
 }

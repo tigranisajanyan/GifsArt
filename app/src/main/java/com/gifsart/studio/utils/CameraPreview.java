@@ -1,6 +1,7 @@
 package com.gifsart.studio.utils;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
@@ -13,9 +14,13 @@ import android.view.Display;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.gifsart.studio.R;
 
 /**
  * This class assumes the parent layout is RelativeLayout.LayoutParams.
@@ -39,14 +44,15 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     private int mCenterPosX = -1;
     private int mCenterPosY;
 
+    private boolean cameraFront = false;
+
     PreviewReadyCallback mPreviewReadyCallback = null;
+    private ArrayList<byte[]> burstModeFrameBytes = new ArrayList<>();
 
     public static enum LayoutMode {
         FitToParent, // Scale to the size that no side is larger than the parent
         NoBlank // Scale to the size that no side is smaller than the parent
     }
-
-    ;
 
     public interface PreviewReadyCallback {
         public void onPreviewReady();
@@ -131,7 +137,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
             }
         }
 
-        configureCameraParameters(cameraParams, portrait);
+        configureCameraParameters(cameraParams);
         mSurfaceConfiguring = false;
 
         try {
@@ -337,36 +343,29 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
         return cameraId;
     }
 
-    protected void configureCameraParameters(Camera.Parameters cameraParams, boolean portrait) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.FROYO) { // for 2.1 and before
-            if (portrait) {
-                cameraParams.set(CAMERA_PARAM_ORIENTATION, CAMERA_PARAM_PORTRAIT);
-            } else {
-                cameraParams.set(CAMERA_PARAM_ORIENTATION, CAMERA_PARAM_LANDSCAPE);
-            }
-        } else { // for 2.2 and later
-            int angle;
-            Display display = mActivity.getWindowManager().getDefaultDisplay();
-            switch (display.getRotation()) {
-                case Surface.ROTATION_0: // This is display orientation
-                    angle = 90; // This is camera orientation
-                    break;
-                case Surface.ROTATION_90:
-                    angle = 0;
-                    break;
-                case Surface.ROTATION_180:
-                    angle = 270;
-                    break;
-                case Surface.ROTATION_270:
-                    angle = 180;
-                    break;
-                default:
-                    angle = 90;
-                    break;
-            }
-            Log.v(LOG_TAG, "angle: " + angle);
-            mCamera.setDisplayOrientation(angle);
+    protected void configureCameraParameters(Camera.Parameters cameraParams) {
+
+        int angle;
+        Display display = mActivity.getWindowManager().getDefaultDisplay();
+        switch (display.getRotation()) {
+            case Surface.ROTATION_0: // This is display orientation
+                angle = 90; // This is camera orientation
+                break;
+            case Surface.ROTATION_90:
+                angle = 0;
+                break;
+            case Surface.ROTATION_180:
+                angle = 270;
+                break;
+            case Surface.ROTATION_270:
+                angle = 180;
+                break;
+            default:
+                angle = 90;
+                break;
         }
+        Log.v(LOG_TAG, "angle: " + angle);
+        mCamera.setDisplayOrientation(angle);
 
         cameraParams.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
         cameraParams.setPictureSize(mPictureSize.width, mPictureSize.height);
@@ -420,5 +419,26 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 
     public void setOnPreviewReady(PreviewReadyCallback cb) {
         mPreviewReadyCallback = cb;
+    }
+
+    public void takePicture() {
+
+    }
+
+
+    public void burstModeRecursion(final int n) {
+        if (n == 0) {
+            return;
+        } else {
+            mCamera.takePicture(null, null, new Camera.PictureCallback() {
+                @Override
+                public void onPictureTaken(byte[] data, Camera camera) {
+                    camera.startPreview();
+                    burstModeFrameBytes.add(data);
+                    burstModeRecursion(n - 1);
+                }
+            });
+            mCamera.startPreview();
+        }
     }
 }

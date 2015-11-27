@@ -1,19 +1,22 @@
 package com.gifsart.studio.camera;
 
 import android.content.Context;
-import android.content.res.Configuration;
 import android.hardware.Camera;
-import android.os.Build;
+import android.media.CamcorderProfile;
+import android.media.MediaRecorder;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.Display;
-import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.ViewGroup;
-import android.widget.LinearLayout;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.gifsart.studio.R;
+import com.gifsart.studio.utils.CheckFreeSpaceSingleton;
+import com.gifsart.studio.utils.GifsArtConst;
+
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -25,6 +28,8 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     protected Camera.Size mPreviewSize;
     protected Camera.Size mPictureSize;
     int orientation = 90;
+
+    private MediaRecorder mediaRecorder;
 
     public CameraPreview(Context context) {
         super(context);
@@ -74,9 +79,6 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
             parameters.setPictureSize(mPictureSize.width, mPictureSize.height);
             parameters.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
 
-            //LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(mPreviewSize.height, mPreviewSize.width);
-            //this.setLayoutParams(lp);
-
             if (parameters.getSupportedFocusModes().contains(
                     Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
                 parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
@@ -92,10 +94,80 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
             Log.d("GifsArt", "camera_preview_size :   " + mPreviewSize.width + "  /  " + mPreviewSize.height);
             Log.d("GifsArt", "camera_picture_size :   " + mPictureSize.width + "  /  " + mPictureSize.height);
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             Log.d(VIEW_LOG_TAG, "Error starting camera preview: " + e.getMessage());
         }
     }
+
+    public void releaseCamera() {
+        // stop and release camera
+        if (mCamera != null) {
+            mCamera.release();
+            mCamera = null;
+        }
+    }
+
+    /*public void chooseCamera() {
+        // if the camera preview is the front
+        if (cameraFront) {
+            int cameraId = findBackFacingCamera();
+            if (cameraId >= 0) {
+                // open the backFacingCamera
+                // set a picture callback
+                // refresh the preview
+
+                mCamera = Camera.open(cameraId);
+                // mPicture = getPictureCallback();
+                refreshCamera(mCamera);
+            }
+        } else {
+            int cameraId = findFrontFacingCamera();
+            if (cameraId >= 0) {
+                // open the backFacingCamera
+                // set a picture callback
+                // refresh the preview
+
+                mCamera = Camera.open(cameraId);
+                // mPicture = getPictureCallback();
+                refreshCamera(mCamera);
+            }
+        }
+    }*/
+
+
+    /*public int findFrontFacingCamera() {
+        int cameraId = -1;
+        // Search for the front facing camera
+        int numberOfCameras = Camera.getNumberOfCameras();
+        for (int i = 0; i < numberOfCameras; i++) {
+            Camera.CameraInfo info = new Camera.CameraInfo();
+            Camera.getCameraInfo(i, info);
+            if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+                cameraId = i;
+                cameraFront = true;
+                break;
+            }
+        }
+        return cameraId;
+    }
+
+    public int findBackFacingCamera() {
+        int cameraId = -1;
+        // Search for the corner facing camera
+        // get the number of cameras
+        int numberOfCameras = Camera.getNumberOfCameras();
+        // for every camera check
+        for (int i = 0; i < numberOfCameras; i++) {
+            Camera.CameraInfo info = new Camera.CameraInfo();
+            Camera.getCameraInfo(i, info);
+            if (info.facing == Camera.CameraInfo.CAMERA_FACING_BACK) {
+                cameraId = i;
+                cameraFront = false;
+                break;
+            }
+        }
+        return cameraId;
+    }*/
 
 
     public void surfaceCreated(SurfaceHolder holder) {
@@ -104,6 +176,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
             if (mCamera == null) {
                 mCamera.setPreviewDisplay(holder);
                 mCamera.startPreview();
+                Log.d("gagag", "surface_created");
             }
         } catch (IOException e) {
             Log.d(VIEW_LOG_TAG, "Error setting camera preview: " + e.getMessage());
@@ -113,7 +186,8 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
         // If your preview can change or rotate, take care of those events here.
         // Make sure to stop the preview before resizing or reformatting it.
-        mPreviewSize = determinePreviewSize(true, w, h);
+        Log.d("gagag", "surface_changed");
+        mPreviewSize = getOptimalPreviewSize(mPreviewSizeList, w, h);
         mPictureSize = getBestPictureSize(mPictureSizeList, mPreviewSize.width, mPreviewSize.height);
         refreshCamera(mCamera);
     }
@@ -121,7 +195,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
         // TODO Auto-generated method stub
-        mCamera.release();
+        //mCamera.release();
     }
 
 
@@ -259,41 +333,46 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
         return optimalSize;
     }
 
-    private float scaleX = 1f;
-    private float scaleY = 1f;
 
-    /*public void updateScaling(int width, int height, boolean isPortrait) {
-        //Camera.Size mPreviewSize = getOptimalPreviewSize(mCamera.getParameters().getSupportedPreviewSizes(), 960, 1280);
-        float ratioSurface = width > height ? (float) width / height : (float) height / width;
-        float ratioPreview = (float) mPreviewSize.getWidth() / mPreviewSize.getHeight();
-        int scaledHeight = 0;
-        int scaledWidth = 0;
-
-        if (mPreviewSize != null) {
-
-            if (isPortrait && ratioPreview > ratioSurface) {
-                scaledWidth = width;
-                scaledHeight = (int) (((float) mPreviewSize.getWidth() / mPreviewSize.getHeight()) * width);
-                scaleX = 1f;
-                scaleY = (float) scaledHeight / height;
-            } else if (isPortrait && ratioPreview < ratioSurface) {
-                scaledWidth = (int) (height / ((float) mPreviewSize.getWidth() / mPreviewSize.getHeight()));
-                scaledHeight = height;
-                scaleX = (float) scaledWidth / width;
-                scaleY = 1f;
-            } else if (!isPortrait && ratioPreview < ratioSurface) {
-                scaledWidth = width;
-                scaledHeight = (int) (width / ((float) mPreviewSize.getWidth() / mPreviewSize.getHeight()));
-                scaleX = 1f;
-                scaleY = (float) scaledHeight / height;
-            } else if (!isPortrait && ratioPreview > ratioSurface) {
-                scaledWidth = (int) (((float) mPreviewSize.getWidth() / mPreviewSize.getHeight()) * width);
-                scaledHeight = height;
-                scaleX = (float) scaledWidth / width;
-                scaleY = 1f;
-            }
+    public void releaseMediaRecorder() {
+        if (mediaRecorder != null) {//TODO add other expression (&&)
+            mediaRecorder.reset(); // clear recorder configuration
+            mediaRecorder.release(); // release the recorder object
+            mediaRecorder = null;
+            mCamera.lock(); // lock camera for later use
         }
+    }
 
-    }*/
+    public boolean prepareMediaRecorder() {
+        File file = new File(GifsArtConst.SHOOTING_VIDEO_OUTPUT_DIR, GifsArtConst.VIDEO_NAME);
+        mCamera.unlock();
+
+        mediaRecorder = new MediaRecorder();
+        mediaRecorder.setCamera(mCamera);
+        mediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
+        mediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
+
+        CamcorderProfile profile = CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH);
+        if (profile.videoFrameHeight > 720) {
+            mediaRecorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_720P));
+        } else {
+            mediaRecorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH));
+        }
+        mediaRecorder.setOrientationHint(GifsArtConst.VIDEO_OUTPUT_ORIENTATION);
+        mediaRecorder.setOutputFile(file.getAbsolutePath());
+        mediaRecorder.setMaxDuration(GifsArtConst.VIDEO_MAX_DURATION); // Set max duration 30 sec.
+        mediaRecorder.setMaxFileSize(GifsArtConst.VIDEO_FILE_MAX_SIZE); // Set max file size 40M
+
+        try {
+            mediaRecorder.prepare();
+        } catch (IllegalStateException e) {
+            releaseMediaRecorder();
+            return false;
+        } catch (IOException e) {
+            releaseMediaRecorder();
+            return false;
+        }
+        return true;
+    }
 
 }

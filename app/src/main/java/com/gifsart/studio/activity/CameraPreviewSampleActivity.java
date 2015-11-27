@@ -30,6 +30,13 @@ public class CameraPreviewSampleActivity extends Activity {
         setContentView(R.layout.activity_shooting_gif);
 
         mLayout = (LinearLayout) findViewById(R.id.camera_preview);
+
+        findViewById(R.id.button_capture).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mPreview.burstModeRecursion(5);
+            }
+        });
     }
 
     @Override

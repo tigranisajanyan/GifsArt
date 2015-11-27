@@ -24,11 +24,12 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:largeHeap="true"
-        android:theme="@style/AppThemeNoActionBar">
+        android:theme="@style/AppThemeNoStatusBar">
         <activity
             android:name=".activity.MainActivity"
             android:configChanges="orientation|screenSize"
-            android:label="@string/app_name">
+            android:label="@string/app_name"
+            android:theme="@style/AppThemeNoStatusBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -54,6 +55,19 @@
         <activity android:name=".activity.GiphyStickerActivity" />
         <activity android:name=".activity.ShareGifActivity" />
         <activity android:name=".activity.CameraPreviewSampleActivity" />
+        <activity android:name=".activity.ProfileActivity" />
+        <activity android:name=".activity.SignUpActivity" />
+        <activity android:name=".activity.SignInActivity" />
+        <activity
+            android:name="com.facebook.FacebookActivity"
+            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+            android:label="@string/app_name"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/facebook_app_id" />
+
     </application>
 
 </manifest>

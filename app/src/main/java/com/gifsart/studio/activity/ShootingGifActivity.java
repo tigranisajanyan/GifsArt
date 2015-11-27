@@ -15,7 +15,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -137,7 +136,7 @@ public class ShootingGifActivity extends ActionBarActivity {
             }
         });
 
-        findViewById(R.id.burst_mode_image).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.burst_mode_image_container).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 burstMode = burstModeCounts.get((burstModeCounts.indexOf(burstMode) + 1) % burstModeCounts.size());
@@ -332,7 +331,7 @@ public class ShootingGifActivity extends ActionBarActivity {
                             }
                         }
                     } else {
-                        findViewById(R.id.burst_mode_image).setOnClickListener(null);
+                        findViewById(R.id.burst_mode_image_container).setOnClickListener(null);
                         captureButton.setOnTouchListener(null);
                         captureButton.setOnLongClickListener(null);
                         visibilitySwitcher(View.INVISIBLE);
@@ -446,15 +445,15 @@ public class ShootingGifActivity extends ActionBarActivity {
     }
 
     public void visibiltySwitcherBurstMode(int visibility) {
-        findViewById(R.id.burst_mode_image).setVisibility(visibility);
+        findViewById(R.id.burst_mode_image_container).setVisibility(visibility);
         findViewById(R.id.capture_time).setVisibility(visibility);
-        findViewById(R.id.burst_count).setVisibility(visibility);
+        findViewById(R.id.burst_counter).setVisibility(visibility);
         findViewById(R.id.capture_time).setVisibility(visibility == View.VISIBLE ? View.INVISIBLE : View.VISIBLE);
     }
 
     public void burstModeRecursion(final int n) {
         if (n == 0) {
-            findViewById(R.id.burst_count).setVisibility(View.INVISIBLE);
+            findViewById(R.id.burst_counter).setVisibility(View.INVISIBLE);
             if (CheckFreeSpaceSingleton.getInstance().haveEnoughSpaceInt(burstMode)) {
                 saveBurstModeFrames();
             } else {
@@ -469,7 +468,7 @@ public class ShootingGifActivity extends ActionBarActivity {
                 public void onPictureTaken(byte[] data, Camera camera) {
                     camera.startPreview();
                     burstModeFrameBytes.add(data);
-                    ((TextView) findViewById(R.id.burst_count)).setText(n + "");
+                    ((TextView) findViewById(R.id.burst_counter)).setText(n + "");
                     burstModeRecursion(n - 1);
                 }
             });

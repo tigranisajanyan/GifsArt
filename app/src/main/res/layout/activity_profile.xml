@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_color"
+    tools:context="com.gifsart.studio.activity.ProfileActivity">
+
+    <RelativeLayout
+        android:id="@+id/profile_activity_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/abc_action_bar_default_height_material"
+        android:layout_alignParentTop="true"
+        android:background="@color/navigation_bar_color">
+
+        <Button
+            android:id="@+id/profile_activity_toolbar_signin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:background="@android:color/transparent"
+            android:gravity="center"
+            android:text="Sign In"
+            android:textAllCaps="false"
+            android:textColor="@color/pink" />
+
+        <ImageButton
+            android:id="@+id/profile_activity_toolbar_add"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="10dp"
+            android:background="@android:color/transparent"
+            android:gravity="center"
+            android:src="@drawable/add_icon" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/profile_activity_user_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"
+        android:layout_below="@+id/profile_activity_toolbar"
+        android:layout_marginTop="10dp">
+
+        <ImageView
+            android:id="@+id/profile_image_view"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_alignParentLeft="true" />
+
+        <TextView
+            android:id="@+id/username_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_toRightOf="@+id/profile_image_view"
+            android:text="gago"
+            android:textColor="@color/font_main_color" />
+
+        <TextView
+            android:id="@+id/picsart_deeplink"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/username_text_view"
+            android:layout_marginTop="10dp"
+            android:layout_toRightOf="@+id/profile_image_view"
+            android:text="Full Profile"
+            android:textColor="@color/font_main_color" />
+
+    </RelativeLayout>
+
+    <Button
+        android:id="@+id/get_started"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/profile_activity_user_container"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="40dp"
+        android:background="@color/navigation_bar_color"
+        android:gravity="center"
+        android:text="Get started"
+        android:textColor="@color/pink" />
+
+    <ImageView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_below="@+id/get_started"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="40dp"
+        android:text="You haven't created any Gif"
+        android:textColor="@color/font_main_color" />
+
+</RelativeLayout>

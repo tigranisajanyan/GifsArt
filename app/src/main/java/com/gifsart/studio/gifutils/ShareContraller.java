@@ -161,4 +161,16 @@ public class ShareContraller {
         }
     }
 
+
+    /*
+
+ D/gagag: {"status":"success","key":"82e91e1d-e3c6-4eec-8de5-2320a2130fc3","id":186308506001102,"name":"","username":"509549572540494","photo":"https://graph.facebook.com/509549572540494/picture?type=normal","streams_count":0,"provider":"facebook","likes_count":0,"photos_count":0,"following_count":5,"followers_count":0,"mature":false,"username_changed":false,"is_verified":false,"connections":[{"provider":"facebook","id":"509549572540494","token":"CAAHqVtEZAcJsBAHcxhaZCZBP3K3PmC5EZBqetfZCJ6v6YYtkO7Iea0fY4FJLZCs2oLoFHQDV28983Net3Oib5oOHKoxe3AMZAmPsxLoaLPKHHSqtmtzewcEPzclkG1CJiPHmxkKNe4ntK6Dfw6GOZBpOxt8oyzxy6uSMbiq4I0BSQF9pHdkEl5ZC55noZAun8bDJ8q63z8DtL6MhcrTGR7Bf3I","_id":"5658129aa621647c4027d95e","settings":{"enable_action_follow":true,"enable_action_add":true,"enable_action_comment":true,"enable_action_like":true,"enable_action_all":true}}],"type":"user","permissions":[],"location":{"place":"","street":"","city":"","state":"","zip":"","country":""},"registered":false}
+ I/WebViewFactory: Loading com.google.android.webview version 46.0.2490.76 (code 249007600)
+ I/cr.library_loader: Time to load native libraries: 1 ms (timestamps 6441-6442)
+ I/cr.library_loader: Expected native library version number "46.0.2490.76", actual native library version number "46.0.2490.76"
+ D/gagag: {"status":"error","reason":"username_already_exist","message":"Username already exists"}
+
+
+     */
+
 }

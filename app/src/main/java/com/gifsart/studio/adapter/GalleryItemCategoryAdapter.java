@@ -39,9 +39,18 @@ public class GalleryItemCategoryAdapter extends RecyclerView.Adapter<GalleryItem
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
-        Glide.with(context).load(galleryCategoryItems.get(position).getCategoryCover()).asBitmap().fitCenter().into(holder.galleryCategoryItemImageView);
+        if (galleryCategoryItems.get(position).getCategoryCover() != "") {
+            Glide.with(context).load(galleryCategoryItems.get(position).getCategoryCover()).asBitmap().fitCenter().into(holder.galleryCategoryItemImageView);
+        } else if (galleryCategoryItems.get(position).getThumbnail() != null) {
+            holder.galleryCategoryItemImageView.setImageBitmap(galleryCategoryItems.get(position).getThumbnail());
+        }
         holder.galleryCategoryItemTitle.setText(galleryCategoryItems.get(position).getCategoryTitle());
-        holder.galleryCategoryItemsCount.setText("" + galleryCategoryItems.get(position).getCategoryItemsCount());
+        if (galleryCategoryItems.get(position).getCategoryItemsCount() > 0) {
+            holder.galleryCategoryItemsCount.setVisibility(View.VISIBLE);
+            holder.galleryCategoryItemsCount.setText("" + galleryCategoryItems.get(position).getCategoryItemsCount());
+        }else {
+            holder.galleryCategoryItemsCount.setVisibility(View.INVISIBLE);
+        }
         if (galleryCategoryItems.get(position).isSelected()) {
             holder.galleryCategoryItemSelected.setVisibility(View.VISIBLE);
         } else {

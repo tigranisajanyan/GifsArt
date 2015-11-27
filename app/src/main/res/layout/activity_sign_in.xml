@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_color"
+    tools:context="com.gifsart.studio.activity.SignInActivity">
+
+    <RelativeLayout
+        android:id="@+id/signin_activity_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/abc_action_bar_default_height_material"
+        android:layout_alignParentTop="true"
+        android:background="@color/navigation_bar_color">
+
+        <ImageButton
+            android:id="@+id/signin_activity_toolbar_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:background="@android:color/transparent"
+            android:gravity="center"
+            android:src="@drawable/back_icon" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="Sign In"
+            android:textColor="@color/font_main_color"
+            android:textSize="25dp" />
+    </RelativeLayout>
+
+    <!--<com.facebook.login.widget.LoginButton
+        android:id="@+id/login_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/signin_activity_toolbar"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="40dp" />-->
+    
+    <Button
+        android:layout_below="@+id/signin_activity_toolbar"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="40dp"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:text="facebook"
+        android:id="@+id/login_button"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/login_button"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:text="or"
+        android:textColor="@color/font_main_color"
+        android:textSize="20dp" />
+
+    <EditText
+        android:id="@+id/username_edit_text"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/login_button"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="60dp"
+        android:background="@color/font_main_color"
+        android:drawableLeft="@drawable/name_icon"
+        android:drawablePadding="5dp"
+        android:hint="Username"
+        android:singleLine="true" />
+
+    <EditText
+        android:id="@+id/password_edit_text"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/username_edit_text"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="1dp"
+        android:background="@color/font_main_color"
+        android:drawableLeft="@drawable/password_icon"
+        android:drawablePadding="5dp"
+        android:hint="Password"
+        android:singleLine="true" />
+
+    <Button
+        android:id="@+id/signup_button"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/password_edit_text"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:background="@color/pink"
+        android:text="Sign In"
+        android:textColor="@color/font_main_color" />
+
+</RelativeLayout>

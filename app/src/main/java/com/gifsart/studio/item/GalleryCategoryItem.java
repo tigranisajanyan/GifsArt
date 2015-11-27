@@ -7,7 +7,8 @@ import android.graphics.Bitmap;
  */
 public class GalleryCategoryItem {
 
-    private String filePath;
+    private Bitmap thumbnail = null;
+    private String filePath = "";
     private String categoryTitle;
     private int categoryItemsCount = 0;
     private boolean isSelected = false;
@@ -21,6 +22,22 @@ public class GalleryCategoryItem {
         this.categoryTitle = categoryTitle;
         this.categoryItemsCount = categoryItemsCount;
         this.isSelected = isSelected;
+    }
+
+    public Bitmap getThumbnail() {
+        return thumbnail;
+    }
+
+    public void setThumbnail(Bitmap thumbnail) {
+        this.thumbnail = thumbnail;
+    }
+
+    public String getFilePath() {
+        return filePath;
+    }
+
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
     }
 
     public String getCategoryCover() {

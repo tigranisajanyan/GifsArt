@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_color"
+    tools:context="com.gifsart.studio.activity.SignUpActivity">
+
+    <RelativeLayout
+        android:id="@+id/signup_activity_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/abc_action_bar_default_height_material"
+        android:layout_alignParentTop="true"
+        android:background="@color/navigation_bar_color">
+
+        <ImageButton
+            android:id="@+id/signup_activity_toolbar_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:background="@android:color/transparent"
+            android:gravity="center"
+            android:src="@drawable/back_icon" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="Create Account"
+            android:textColor="@color/font_main_color"
+            android:textSize="25dp" />
+    </RelativeLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/signup_activity_toolbar"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="40dp"
+        android:text="Register to share your GIFs within millions"
+        android:textColor="@color/font_main_color" />
+
+    <EditText
+        android:id="@+id/username_edit_text"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/signup_activity_toolbar"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="90dp"
+        android:background="@color/font_main_color"
+        android:drawableLeft="@drawable/username_icon"
+        android:drawablePadding="5dp"
+        android:hint="Username"
+        android:singleLine="true" />
+
+    <EditText
+        android:id="@+id/email_edit_text"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/username_edit_text"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="1dp"
+        android:background="@color/font_main_color"
+        android:drawableLeft="@drawable/email_icon"
+        android:drawablePadding="5dp"
+        android:hint="Email"
+        android:singleLine="true" />
+
+    <EditText
+        android:id="@+id/password_edit_text"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/email_edit_text"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="1dp"
+        android:background="@color/font_main_color"
+        android:drawableLeft="@drawable/password_icon"
+        android:drawablePadding="5dp"
+        android:hint="Password"
+        android:singleLine="true" />
+
+    <Button
+        android:id="@+id/signup_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/password_edit_text"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="30dp"
+        android:background="@color/pink"
+        android:text="Sign Up"
+        android:textColor="@color/font_main_color" />
+
+
+</RelativeLayout>
