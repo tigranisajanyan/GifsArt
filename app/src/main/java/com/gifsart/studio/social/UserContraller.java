@@ -1,6 +1,10 @@
 package com.gifsart.studio.social;
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 
 import com.android.volley.AuthFailureError;
@@ -10,10 +14,22 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.gifsart.studio.R;
+import com.gifsart.studio.utils.AnimatedProgressDialog;
+import com.gifsart.studio.utils.Utils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OptionalDataException;
+import java.io.StreamCorruptedException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,22 +40,30 @@ public class UserContraller {
 
     private Context context;
 
-    private static final String API_KEY = "c985ce04-f6dd-448e-95f2-6a58d0d50431";
+    public static final String LOG_TAG = "user_contraller";
 
-    private static final String USER_PROFILE_PICTURE_URL = "https://api.picsart.com/users/show/me.json?key=";
+    //private static final String API_KEY = "c985ce04-f6dd-448e-95f2-6a58d0d50431";
+
     private static final String USER_LOGIN_URL = "https://api.picsart.com/users/signin.json";
     private static final String USER_SIGNUP_URL = "https://api.picsart.com/users/signup.json";
     private static final String USER_UPDATE_INFO = "https://api.picsart.com/users/update.json?key=";
+    private static final String USER_PROFILE_REQUEST = "https://api.picsart.com/users/show/me.json?key=";
+    private static final String USER_PROFILE_PHOTOS = "https://api.picsart.com/photos/show/me.json?key=";
+
+    private static final String RESET_USER_PASSWORD = "https://api.picsart.com/users/reset.json";
+    private static final String JSON_PREFIX = ".json";
+    private static final String SAVED_USER_FILENAME = "user.srl";
+
+    private static final String LIMIT_PREFIX = "&limit=";
+    private static final String OFFSET_PREFIX = "&offset=";
+
+    private static final String LOCAL = "http://192.168.3.11:3000/api/users/signup.json";
 
     private UserRequest userRequest;
 
+    private User user;
+    private ArrayList<Photo> userPhotos;
 
-    private String name;
-    private String userId;
-    private String userApiKey;
-    private String userPictureUrl;
-
-    public static final String LOG_TAG = "user_contraller";
 
     public UserContraller(Context context) {
         this.context = context;
@@ -49,29 +73,31 @@ public class UserContraller {
      *
      */
     public synchronized void requestUser(final String apiKey) {
-        RequestQueue queue = Volley.newRequestQueue(context);
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, USER_PROFILE_PICTURE_URL + apiKey,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        Log.d(LOG_TAG, "request_user: " + response);
-                        JSONObject jsonObject = null;
-                        try {
-                            jsonObject = new JSONObject(response.toString());
-                            userPictureUrl = jsonObject.getString("photo");
-                        } catch (JSONException e) {
-                            e.printStackTrace();
+        if (Utils.haveNetworkConnection(context)) {
+            String url = USER_PROFILE_REQUEST + apiKey;
+            RequestQueue queue = Volley.newRequestQueue(context);
+            StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            Log.d(LOG_TAG, "request_user: " + response);
+                            if (ErrorHandler.statusIsError(response)) {
+                                userRequest.onRequestReady(RequestConstants.REQUEST_USER_ERROR_CODE, response);
+                            } else {
+                                user = UserFactory.parseFrom(response);
+                                userRequest.onRequestReady(RequestConstants.REQUEST_USER_SUCCESS_CODE, response);
+                            }
                         }
-                        userRequest.onRequestReady(RequestConstants.REQUEST_USER_SUCCESS_CODE, response);
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                error.printStackTrace();
-                userRequest.onRequestReady(RequestConstants.REQUEST_USER_ERROR_CODE, error.getMessage());
-            }
-        });
-        queue.add(stringRequest);
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    userRequest.onRequestReady(RequestConstants.REQUEST_USER_ERROR_CODE, error.getMessage());
+                }
+            });
+            queue.add(stringRequest);
+        } else {
+            userRequest.onRequestReady(RequestConstants.REQUEST_USER_ERROR_CODE, context.getString(R.string.no_internet_connection));
+        }
     }
 
 
@@ -80,101 +106,93 @@ public class UserContraller {
      * @param password
      */
     public synchronized void loginUser(final String userName, final String password) {
-        String url = USER_LOGIN_URL;
-        RequestQueue queue = Volley.newRequestQueue(context);
-        StringRequest sr = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-
-                Log.d(LOG_TAG, "login_user: " + response);
-                JSONObject jsonObject = null;
-                try {
-                    jsonObject = new JSONObject(response.toString());
-                    if (jsonObject.getString("status").equals("success")) {
-                        userPictureUrl = jsonObject.getString("photo");
-                        userApiKey = jsonObject.getString("key");
-                        userId = jsonObject.getString("id");
-                        name = userName;
-                        userRequest.onRequestReady(RequestConstants.LOGIN_USER_SUCCESS_CODE, response);
-                    } else {
+        if (Utils.haveNetworkConnection(context)) {
+            String url = USER_LOGIN_URL;
+            RequestQueue queue = Volley.newRequestQueue(context);
+            StringRequest sr = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    Log.d(LOG_TAG, "login_user: " + response);
+                    if (ErrorHandler.statusIsError(response)) {
                         userRequest.onRequestReady(RequestConstants.LOGIN_USER_ERROR_CODE, response);
+                    } else {
+                        user = UserFactory.parseFrom(response);
+                        userRequest.onRequestReady(RequestConstants.LOGIN_USER_SUCCESS_CODE, response);
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
                 }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                error.printStackTrace();
-                userRequest.onRequestReady(RequestConstants.LOGIN_USER_ERROR_CODE, error.getMessage());
-            }
-        }) {
-            @Override
-            protected Map<String, String> getParams() {
-                Map<String, String> params = new HashMap<>();
-                params.put("provider", "site");
-                params.put("username", userName);
-                params.put("password", password);
-                return params;
-            }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    userRequest.onRequestReady(RequestConstants.LOGIN_USER_ERROR_CODE, error.getMessage());
+                }
+            }) {
+                @Override
+                protected Map<String, String> getParams() {
+                    Map<String, String> params = new HashMap<>();
+                    params.put("provider", "site");
+                    params.put("username", userName);
+                    params.put("password", password);
+                    return params;
+                }
 
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String> params = new HashMap<>();
-                params.put("Content-Type", "application/x-www-form-urlencoded");
-                return params;
-            }
-        };
-        queue.add(sr);
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    Map<String, String> params = new HashMap<>();
+                    params.put("Content-Type", "application/x-www-form-urlencoded");
+                    return params;
+                }
+            };
+            queue.add(sr);
+        } else {
+            userRequest.onRequestReady(RequestConstants.LOGIN_USER_ERROR_CODE, context.getString(R.string.no_internet_connection));
+        }
     }
 
+    /**
+     * @param token
+     * @param jsonUser
+     */
     public synchronized void loginUserWithFacebook(final String token, final String jsonUser) {
-        String url = USER_LOGIN_URL;
-        RequestQueue queue = Volley.newRequestQueue(context);
-        StringRequest sr = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                Log.d(LOG_TAG, "login_user_facebook: " + response);
-                JSONObject jsonObject = null;
-                try {
-                    jsonObject = new JSONObject(response.toString());
-                    if (jsonObject.getString("status").equals("success")) {
-                        userPictureUrl = jsonObject.getString("photo");
-                        userApiKey = jsonObject.getString("key");
-                        userId = jsonObject.getString("id");
-                        userRequest.onRequestReady(RequestConstants.LOGIN_USER_SUCCESS_CODE, response);
-                    } else {
+        if (Utils.haveNetworkConnection(context)) {
+            String url = USER_LOGIN_URL;
+            RequestQueue queue = Volley.newRequestQueue(context);
+            StringRequest sr = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    Log.d(LOG_TAG, "login_user_facebook: " + response);
+                    if (ErrorHandler.statusIsError(response)) {
                         userRequest.onRequestReady(RequestConstants.LOGIN_USER_ERROR_CODE, response);
+                    } else {
+                        user = UserFactory.parseFrom(response);
+                        userRequest.onRequestReady(RequestConstants.LOGIN_USER_SUCCESS_CODE, response);
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
                 }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                error.printStackTrace();
-                userRequest.onRequestReady(RequestConstants.LOGIN_USER_ERROR_CODE, error.getMessage());
-            }
-        }) {
-            @Override
-            protected Map<String, String> getParams() {
-                Map<String, String> params = new HashMap<>();
-                params.put("provider", "facebook");
-                params.put("username", token);
-                params.put("password", jsonUser);
-                return params;
-            }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    userRequest.onRequestReady(RequestConstants.LOGIN_USER_ERROR_CODE, error.getMessage());
+                }
+            }) {
+                @Override
+                protected Map<String, String> getParams() {
+                    Map<String, String> params = new HashMap<>();
+                    params.put("provider", "facebook");
+                    params.put("token", token);
+                    params.put("auth", jsonUser);
+                    return params;
+                }
 
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String> params = new HashMap<>();
-                params.put("Content-Type", "application/x-www-form-urlencoded");
-                return params;
-            }
-        };
-        queue.add(sr);
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    Map<String, String> params = new HashMap<>();
+                    params.put("Content-Type", "application/x-www-form-urlencoded");
+                    return params;
+                }
+            };
+            queue.add(sr);
+        } else {
+            userRequest.onRequestReady(RequestConstants.LOGIN_USER_ERROR_CODE, context.getString(R.string.no_internet_connection));
+        }
     }
 
 
@@ -184,213 +202,338 @@ public class UserContraller {
      * @param email
      */
     public synchronized void signUpToPicsArt(final String userName, final String password, final String email) {
-        String url = USER_SIGNUP_URL;
-        RequestQueue queue = Volley.newRequestQueue(context);
-        StringRequest sr = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                Log.d(LOG_TAG, "sign_up: " + response);
-                JSONObject jsonObject = null;
-                try {
-                    jsonObject = new JSONObject(response.toString());
-                    if (jsonObject.getString("status").equals("success")) {
-                        userPictureUrl = jsonObject.getString("photo");
-                        userApiKey = jsonObject.getString("key");
-                        userId = jsonObject.getString("id");
-                        name = userName;
-                        userRequest.onRequestReady(RequestConstants.SIGN_UP_PICSART_SUCCESS_CODE, response);
-                    } else {
+        if (Utils.haveNetworkConnection(context)) {
+            String url = USER_SIGNUP_URL;
+            RequestQueue queue = Volley.newRequestQueue(context);
+            StringRequest sr = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    Log.d(LOG_TAG, "sign_up: " + response);
+                    if (ErrorHandler.statusIsError(response)) {
                         userRequest.onRequestReady(RequestConstants.SIGN_UP_PICSART_ERROR_CODE, response);
+                    } else {
+                        user = UserFactory.parseFrom(response);
+                        userRequest.onRequestReady(RequestConstants.SIGN_UP_PICSART_SUCCESS_CODE, response);
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
                 }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                error.printStackTrace();
-                userRequest.onRequestReady(RequestConstants.SIGN_UP_PICSART_ERROR_CODE, error.getMessage());
-            }
-        }) {
-            @Override
-            protected Map<String, String> getParams() {
-                Map<String, String> params = new HashMap<>();
-                params.put("provider", "site");
-                params.put("username", userName);
-                params.put("name", userName);
-                params.put("password", password);
-                params.put("email", email);
-                return params;
-            }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    userRequest.onRequestReady(RequestConstants.SIGN_UP_PICSART_ERROR_CODE, error.getMessage());
+                }
+            }) {
+                @Override
+                protected Map<String, String> getParams() {
+                    Map<String, String> params = new HashMap<>();
+                    params.put("provider", "site");
+                    params.put("username", userName);
+                    params.put("name", userName);
+                    params.put("password", password);
+                    params.put("email", email);
+                    return params;
+                }
 
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String> params = new HashMap<>();
-                params.put("Content-Type", "application/x-www-form-urlencoded");
-                return params;
-            }
-        };
-        queue.add(sr);
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    Map<String, String> params = new HashMap<>();
+                    params.put("Content-Type", "application/x-www-form-urlencoded");
+                    return params;
+                }
+            };
+            queue.add(sr);
+        } else {
+            userRequest.onRequestReady(RequestConstants.SIGN_UP_PICSART_ERROR_CODE, context.getString(R.string.no_internet_connection));
+        }
     }
 
     /**
-     * @param name
-     * @param userId
-     * @param email
-     * @param profileUrl
-     * @param token
+     * @param facebookUser
      */
-    public synchronized void signUpWithFacebook(final String name, final String userId, final String email, final String profileUrl, final String token) {
-        String url = USER_SIGNUP_URL;
-        RequestQueue queue = Volley.newRequestQueue(context);
-        StringRequest sr = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                Log.d(LOG_TAG, "sign_up_facebook: " + response);
-                if (!response.contains("error")) {
-                    JSONObject jsonObject = null;
-                    try {
-                        jsonObject = new JSONObject(response.toString());
-                        if (jsonObject.getString("status").equals("success")) {
-                            userPictureUrl = jsonObject.getString("photo");
-                            userApiKey = jsonObject.getString("key");
-                            //name = userName;
-                            userRequest.onRequestReady(RequestConstants.SIGN_UP_PICSART_SUCCESS_CODE, response);
-                        } else {
-                            userRequest.onRequestReady(RequestConstants.SIGN_UP_PICSART_ERROR_CODE, response);
+    public synchronized void signUpWithFacebook(final FacebookUser facebookUser) {
+        if (Utils.haveNetworkConnection(context)) {
+            String url = USER_SIGNUP_URL; //LOCAL;
+            RequestQueue queue = Volley.newRequestQueue(context);
+            StringRequest sr = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    Log.d(LOG_TAG, "sign_up_facebook: " + response);
+                    if (ErrorHandler.statusIsError(response)) {
+                        userRequest.onRequestReady(RequestConstants.SIGN_UP_WITH_FACEBOOK_ERROR_CODE, response);
+                    } else {
+                        user = UserFactory.parseFrom(response);
+                        userRequest.onRequestReady(RequestConstants.SIGN_UP_WITH_FACEBOOK_SUCCESS_CODE, response);
+                    }
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    userRequest.onRequestReady(RequestConstants.SIGN_UP_WITH_FACEBOOK_ERROR_CODE, error.getMessage());
+                }
+            }) {
+                @Override
+                protected Map<String, String> getParams() {
+                    Map<String, String> params = new HashMap<>();
+                    params.put("provider", "facebook");
+                    params.put("fb_id", facebookUser.getId());
+                    params.put("fb_email", facebookUser.getEmail());
+
+                    params.put("email", facebookUser.getEmail());
+                    params.put("name", facebookUser.getName());
+                    params.put("username", facebookUser.getName());
+                    params.put("cover", facebookUser.getCoverUrl());
+                    params.put("photo", facebookUser.getProfilePicture());
+
+                    return params;
+                }
+
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    Map<String, String> params = new HashMap<>();
+                    params.put("Content-Type", "application/x-www-form-urlencoded");
+                    return params;
+                }
+            };
+            queue.add(sr);
+        } else {
+            userRequest.onRequestReady(RequestConstants.SIGN_UP_WITH_FACEBOOK_ERROR_CODE, context.getString(R.string.no_internet_connection));
+        }
+    }
+
+
+    /**
+     * @param name
+     */
+    public synchronized void uploadUserInfo(String apiKey, final String name, final String userName) {
+        if (Utils.haveNetworkConnection(context)) {
+            String url = USER_UPDATE_INFO + apiKey;
+            RequestQueue queue = Volley.newRequestQueue(context);
+            StringRequest sr = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    Log.d(LOG_TAG, "upload_info: " + response);
+                    if (ErrorHandler.statusIsError(response)) {
+                        userRequest.onRequestReady(RequestConstants.UPLOAD_USER_INFO_ERROR_CODE, response);
+                    } else {
+                        userRequest.onRequestReady(RequestConstants.UPLOAD_USER_INFO_SUCCESS_CODE, response);
+                    }
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    userRequest.onRequestReady(RequestConstants.UPLOAD_USER_INFO_ERROR_CODE, error.getMessage());
+                }
+            }) {
+                @Override
+                protected Map<String, String> getParams() {
+                    Map<String, String> params = new HashMap<>();
+                    params.put("provider", "site");
+                    params.put("name", name);
+                    if (userName != "") {
+                        params.put("username", userName);
+                    }
+                    return params;
+                }
+
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    Map<String, String> params = new HashMap<>();
+                    params.put("Content-Type", "application/x-www-form-urlencoded");
+                    return params;
+                }
+            };
+            queue.add(sr);
+        } else {
+            userRequest.onRequestReady(RequestConstants.UPLOAD_USER_INFO_ERROR_CODE, context.getString(R.string.no_internet_connection));
+        }
+    }
+
+    /**
+     * Requests Photos of the User
+     *
+     * @param apiKey ID of the User
+     * @param offset starting point
+     * @param limit  limit of users
+     *               <p/>
+     *               onResponse 209 code will be called in listener
+     *               onErrorResponse 309 code will be called in listener
+     */
+    public synchronized void requestUserPhotos(String apiKey, final int offset, final int limit) {
+        if (Utils.haveNetworkConnection(context)) {
+            String url = "https://api.picsart.com/photos/search.json?key=" + apiKey + OFFSET_PREFIX + offset + LIMIT_PREFIX + limit + "&photo_owner=1&recent=1&ext=gif";
+            RequestQueue queue = Volley.newRequestQueue(context);
+            StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            Log.d(LOG_TAG, "request_user_photos: " + response);
+                            if (ErrorHandler.statusIsError(response)) {
+                                userRequest.onRequestReady(RequestConstants.REQUEST_USER_PHOTO_ERROR_CODE, response);
+                            } else {
+                                userPhotos = UserFactory.parseFromArray(response, 0, 30);
+                                userRequest.onRequestReady(RequestConstants.REQUEST_USER_PHOTO_SUCCESS_CODE, response);
+                            }
                         }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    userRequest.onRequestReady(RequestConstants.SIGN_UP_PICSART_SUCCESS_CODE, response);
-                    //Log.d("gagag", response);
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    userRequest.onRequestReady(RequestConstants.REQUEST_USER_PHOTO_ERROR_CODE, error.getMessage());
                 }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                //userRequest.onRequestReady(RequestConstants.SIGN_UP_PICSART_ERROR_CODE, error.getMessage());
-                error.printStackTrace();
-            }
-        }) {
-            @Override
-            protected Map<String, String> getParams() {
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("provider", "facebook");
-                params.put("fb_token", token);
-                params.put("fb_id", userId);
-                params.put("fb_name", name);
-                params.put("fb_url", profileUrl);
-                params.put("fb_email", email);
-                return params;
-            }
-
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String> params = new HashMap<>();
-                params.put("Content-Type", "application/x-www-form-urlencoded");
-                return params;
-            }
-        };
-        queue.add(sr);
+            });
+            queue.add(stringRequest);
+        } else {
+            userRequest.onRequestReady(RequestConstants.REQUEST_USER_PHOTO_ERROR_CODE, context.getString(R.string.no_internet_connection));
+        }
     }
-
 
     /**
-     * @param name
+     * @param email
      */
-    public synchronized void uploadUserInfo(final String name) {
-        String url = USER_UPDATE_INFO + API_KEY;
-        RequestQueue queue = Volley.newRequestQueue(context);
-        StringRequest sr = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                userRequest.onRequestReady(RequestConstants.UPLOAD_USER_INFO_SUCCESS_CODE, response);
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                userRequest.onRequestReady(RequestConstants.UPLOAD_USER_INFO_ERROR_CODE, error.getMessage());
-            }
-        }) {
-            @Override
-            protected Map<String, String> getParams() {
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("provider", "site");
-                params.put("name", name);
-                return params;
-            }
+    public synchronized void resetUserPassword(final String email) {
+        if (Utils.haveNetworkConnection(context)) {
+            String url = RESET_USER_PASSWORD;
+            RequestQueue queue = Volley.newRequestQueue(context);
+            StringRequest sr = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    Log.d(LOG_TAG, "reset_password: " + response);
+                    if (ErrorHandler.statusIsError(response)) {
+                        userRequest.onRequestReady(RequestConstants.REQUEST_RESET_PASSWORD_ERROR_CODE, response);
+                    } else {
+                        userRequest.onRequestReady(RequestConstants.REQUEST_RESET_PASSWORD_SUCCESS_CODE, response);
+                    }
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    userRequest.onRequestReady(RequestConstants.REQUEST_RESET_PASSWORD_ERROR_CODE, error.getMessage());
+                }
+            }) {
+                @Override
+                protected Map<String, String> getParams() {
+                    Map<String, String> params = new HashMap<>();
+                    params.put("user", email);
+                    return params;
+                }
 
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String> params = new HashMap<>();
-                params.put("Content-Type", "application/x-www-form-urlencoded");
-                return params;
-            }
-        };
-        queue.add(sr);
-    }
-
-    public synchronized void uploadPhoto(final String filePath) {
-
-        String url = USER_UPDATE_INFO + API_KEY;
-        RequestQueue queue = Volley.newRequestQueue(context);
-        StringRequest sr = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                userRequest.onRequestReady(RequestConstants.UPLOAD_USER_PHOTO_SUCCESS_CODE, response);
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                userRequest.onRequestReady(RequestConstants.UPLOAD_USER_PHOTO_ERROR_CODE, error.getMessage());
-            }
-        }) {
-            @Override
-            protected Map<String, String> getParams() {
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("provider", "site");
-                params.put("photo", filePath);
-                return params;
-            }
-
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String> params = new HashMap<>();
-                params.put("Content-Type", "application/x-www-form-urlencoded");
-                return params;
-            }
-        };
-        queue.add(sr);
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    Map<String, String> params = new HashMap<>();
+                    params.put("Content-Type", "application/x-www-form-urlencoded");
+                    return params;
+                }
+            };
+            queue.add(sr);
+        } else {
+            userRequest.onRequestReady(RequestConstants.REQUEST_RESET_PASSWORD_ERROR_CODE, context.getString(R.string.no_internet_connection));
+        }
     }
 
 
-    public String getUserApiKey() {
-        return userApiKey;
+    public User getUser() {
+        return user;
     }
 
-    public String getUserName() {
-        return name;
+    public void setUser(User user) {
+        this.user = user;
     }
 
-    public String getUserPhotoUrl() {
-        return userPictureUrl;
+    public ArrayList<Photo> getUserPhotos() {
+        return userPhotos;
     }
 
-    public String getUserId() {
-        return userId;
-    }
-
-
-    public void setOnRequestReadyListener(UserRequest userRequest) {
-        this.userRequest = userRequest;
+    public void setUserPhotos(ArrayList<Photo> userPhotos) {
+        this.userPhotos = userPhotos;
     }
 
     public interface UserRequest {
         void onRequestReady(int requestNumber, String messege);
     }
 
+    public void setOnRequestReadyListener(UserRequest userRequest) {
+        this.userRequest = userRequest;
+    }
+
+
+    public static AlertDialog.Builder setupDialogBuilder(Context context, String messege) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setMessage(messege)
+                .setCancelable(false)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                    }
+                });
+
+        return builder;
+    }
+
+    /**
+     * @param context
+     * @param user
+     */
+    public static void writeUserToFile(Context context, User user) {
+        FileOutputStream fos = null;
+        ObjectOutputStream os = null;
+        try {
+            fos = context.openFileOutput(SAVED_USER_FILENAME, Context.MODE_PRIVATE);
+            os = new ObjectOutputStream(fos);
+            os.writeObject(user);
+            os.close();
+            fos.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    /**
+     * @param context
+     * @return
+     */
+    public static User readUserFromFile(Context context) {
+        FileInputStream fis = null;
+        User user = null;
+        try {
+            fis = context.openFileInput(SAVED_USER_FILENAME);
+            ObjectInputStream is = new ObjectInputStream(fis);
+            user = (User) is.readObject();
+            is.close();
+            fis.close();
+            return user;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (OptionalDataException e) {
+            e.printStackTrace();
+        } catch (StreamCorruptedException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return user;
+    }
+
+    /*private static void saveUserData() {
+        SharedPreferences user_prefs = getPrefs();
+        if (user_prefs != null && user != null) {
+            SharedPreferences.Editor editor = user_prefs.edit();
+            editor.putString(SESSION_USER_DATA, user.toJson().toString());
+            editor.apply();
+        }
+    }
+
+    private static FacebookUser retrieveUserData() {
+        try {
+            String jsonData = getPrefs().getString(SESSION_USER_DATA, null);
+            if (jsonData != null) {
+                return new FacebookUser(new JSONObject(jsonData));
+            }
+        } catch (JSONException e) {
+            L.w(TAG, "retrieveUserData", e);
+        }
+        return null;
+    }*/
 
 }

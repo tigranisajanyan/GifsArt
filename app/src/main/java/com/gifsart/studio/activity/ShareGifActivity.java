@@ -11,20 +11,13 @@ import android.view.View;
 
 import com.gifsart.studio.R;
 import com.gifsart.studio.adapter.ShareGifAdapter;
-import com.gifsart.studio.gifutils.ShareContraller;
+import com.gifsart.studio.social.ShareContraller;
 import com.gifsart.studio.helper.RecyclerItemClickListener;
-import com.gifsart.studio.item.GifItem;
 import com.gifsart.studio.item.ShareGifItem;
 import com.gifsart.studio.utils.SpacesItemDecoration;
 import com.gifsart.studio.utils.Utils;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.concurrent.Callable;
-
-import bolts.Continuation;
-import bolts.Task;
 
 public class ShareGifActivity extends AppCompatActivity {
 

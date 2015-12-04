@@ -11,9 +11,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.facebook.drawee.backends.pipeline.Fresco;
-import com.facebook.drawee.interfaces.DraweeController;
-import com.facebook.drawee.view.SimpleDraweeView;
+import com.bumptech.glide.Glide;
 import com.gifsart.studio.R;
 import com.gifsart.studio.gifutils.Giphy;
 import com.gifsart.studio.item.GiphyItem;
@@ -64,10 +62,11 @@ public class GiphyAdapter extends RecyclerView.Adapter<GiphyAdapter.ViewHolder> 
 
         holder.simpleDraweeView.setBackgroundColor(colors.get(random.nextInt(colors.size())));
         Uri uri = Uri.parse(giphyItems.get(position).getGifUrl());
-        DraweeController controller = Fresco.newDraweeControllerBuilder()
+        Glide.with(context).load(uri).asGif().centerCrop().into(holder.simpleDraweeView);
+        /*DraweeController controller = Fresco.newDraweeControllerBuilder()
                 .setUri(uri)
                 .setAutoPlayAnimations(true).build();
-        holder.simpleDraweeView.setController(controller);
+        holder.simpleDraweeView.setController(controller);*/
         // Giphy paging duaring giphy activity scralling
         if (position + 1 == limit + offset) {
             if (Utils.haveNetworkConnection(context)) {
@@ -125,12 +124,12 @@ public class GiphyAdapter extends RecyclerView.Adapter<GiphyAdapter.ViewHolder> 
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
-        public SimpleDraweeView simpleDraweeView = null;
+        public ImageView simpleDraweeView = null;
         public ImageView corner;
 
         public ViewHolder(View itemView) {
             super(itemView);
-            simpleDraweeView = (SimpleDraweeView) itemView.findViewById(R.id.giphy_image_view);
+            simpleDraweeView = (ImageView) itemView.findViewById(R.id.giphy_image_view);
             corner = (ImageView) itemView.findViewById(R.id.giphy_corner);
             FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(context.getResources().getDisplayMetrics().widthPixels / 2, context.getResources().getDisplayMetrics().widthPixels / 2);
             simpleDraweeView.setLayoutParams(layoutParams);

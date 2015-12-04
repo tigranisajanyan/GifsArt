@@ -10,9 +10,6 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.facebook.drawee.backends.pipeline.Fresco;
-import com.facebook.drawee.interfaces.DraweeController;
-import com.facebook.drawee.view.SimpleDraweeView;
 import com.gifsart.studio.R;
 import com.gifsart.studio.gifutils.Giphy;
 import com.gifsart.studio.item.GiphyItem;
@@ -72,10 +69,11 @@ public class StickerAdapter extends RecyclerView.Adapter<StickerAdapter.ViewHold
             }
 
             Uri uri = Uri.parse((giphyItems.get(position)).getGifUrl());
-            DraweeController controller = Fresco.newDraweeControllerBuilder()
+            /*DraweeController controller = Fresco.newDraweeControllerBuilder()
                     .setUri(uri)
                     .setAutoPlayAnimations(true).build();
-            holder.stickerImageView.setController(controller);
+            holder.stickerImageView.setController(controller);*/
+            Glide.with(context).load(uri).asGif().centerCrop().into(holder.stickerImageView);
         }
     }
 
@@ -121,12 +119,12 @@ public class StickerAdapter extends RecyclerView.Adapter<StickerAdapter.ViewHold
 
     class ViewHolder extends RecyclerView.ViewHolder {
 
-        public SimpleDraweeView stickerImageView;
+        public ImageView stickerImageView;
 
         public ViewHolder(View itemView) {
             super(itemView);
 
-            stickerImageView = (SimpleDraweeView) itemView.findViewById(R.id.stiker_image_view);
+            stickerImageView = (ImageView) itemView.findViewById(R.id.stiker_image_view);
         }
     }
 

@@ -39,6 +39,7 @@
         android:layout_below="@+id/signup_activity_toolbar"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="40dp"
+        android:imeOptions="actionDone"
         android:text="Register to share your GIFs within millions"
         android:textColor="@color/font_main_color" />
 
@@ -53,6 +54,7 @@
         android:drawableLeft="@drawable/username_icon"
         android:drawablePadding="5dp"
         android:hint="Username"
+        android:imeOptions="actionDone"
         android:singleLine="true" />
 
     <EditText
@@ -66,6 +68,7 @@
         android:drawableLeft="@drawable/email_icon"
         android:drawablePadding="5dp"
         android:hint="Email"
+        android:imeOptions="actionDone"
         android:singleLine="true" />
 
     <EditText
@@ -82,8 +85,8 @@
         android:singleLine="true" />
 
     <Button
-        android:id="@+id/signup_button"
-        android:layout_width="wrap_content"
+        android:id="@+id/signin_button"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:layout_below="@+id/password_edit_text"
         android:layout_centerHorizontal="true"
@@ -92,5 +95,27 @@
         android:text="Sign Up"
         android:textColor="@color/font_main_color" />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/signin_button"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Have an account?"
+            android:textColor="#434343" />
+
+        <TextView
+            android:id="@+id/open_signin_from_signup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:text="Sign in"
+            android:textColor="@color/font_main_color" />
+    </LinearLayout>
 
 </RelativeLayout>

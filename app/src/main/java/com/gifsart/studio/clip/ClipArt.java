@@ -28,7 +28,6 @@ import android.view.MotionEvent;
 import android.view.View;
 
 
-import com.facebook.common.file.FileUtils;
 import com.gifsart.studio.R;
 import com.gifsart.studio.clipart.util.BitmapManager;
 import com.gifsart.studio.clipart.util.Geom;
@@ -42,7 +41,6 @@ import com.gifsart.studio.utils.Utils;
 import com.nostra13.universalimageloader.utils.L;
 import com.socialin.android.photo.imgop.ImageOpCommon;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;

@@ -3,7 +3,7 @@
     android:layout_height="50dp"
     android:layout_margin="5dp">
 
-    <com.facebook.drawee.view.SimpleDraweeView
+    <ImageView
         android:id="@+id/stiker_image_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

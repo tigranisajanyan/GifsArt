@@ -17,8 +17,14 @@ public class RequestConstants {
     public static final int UPLOAD_USER_INFO_SUCCESS_CODE = 104;
     public static final int UPLOAD_USER_INFO_ERROR_CODE = 204;
 
-    public static final int UPLOAD_USER_PHOTO_SUCCESS_CODE = 105;
-    public static final int UPLOAD_USER_PHOTO_ERROR_CODE = 205;
+    public static final int SIGN_UP_WITH_FACEBOOK_SUCCESS_CODE = 105;
+    public static final int SIGN_UP_WITH_FACEBOOK_ERROR_CODE = 205;
+
+    public static final int REQUEST_USER_PHOTO_SUCCESS_CODE = 106;
+    public static final int REQUEST_USER_PHOTO_ERROR_CODE = 206;
+
+    public static final int REQUEST_RESET_PASSWORD_SUCCESS_CODE = 107;
+    public static final int REQUEST_RESET_PASSWORD_ERROR_CODE = 207;
 
 
 }

@@ -47,6 +47,8 @@ public class UploadImageToPicsart extends AsyncTask<Void, Integer, JSONObject> {
     private PHOTO_IS photo_is;
     private String userApiKey;
 
+    private ImageUploaded imageUploaded;
+
     public UploadImageToPicsart(String userApiKey, String filePath, PHOTO_IS photo_is) {
         this.filePath = filePath;
         this.photo_is = photo_is;
@@ -175,7 +177,12 @@ public class UploadImageToPicsart extends AsyncTask<Void, Integer, JSONObject> {
         if (sResponse != null) {
             try {
                 Log.d("response Upload", sResponse.toString());
-                uploadedImageUrl = sResponse.getString("url");
+                if (ErrorHandler.statusIsError(sResponse)) {
+                    imageUploaded.uploadIsDone(false);
+                } else {
+                    uploadedImageUrl = sResponse.getString("url");
+                    imageUploaded.uploadIsDone(true);
+                }
             } catch (Exception e) {
                 Log.e(e.getClass().getName(), e.getMessage(), e);
             }
@@ -240,6 +247,14 @@ public class UploadImageToPicsart extends AsyncTask<Void, Integer, JSONObject> {
 
         void transferred(long num);
 
+    }
+
+    public interface ImageUploaded {
+        void uploadIsDone(boolean uploaded);
+    }
+
+    public void setOnUploadedListener(ImageUploaded listener) {
+        this.imageUploaded = listener;
     }
 
     public String getUploadedImageUrl() {

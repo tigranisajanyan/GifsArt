@@ -33,22 +33,14 @@
             android:textSize="25dp" />
     </RelativeLayout>
 
-    <!--<com.facebook.login.widget.LoginButton
-        android:id="@+id/login_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/signin_activity_toolbar"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="40dp" />-->
-    
     <Button
+        android:id="@+id/login_button"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
         android:layout_below="@+id/signin_activity_toolbar"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="40dp"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:text="facebook"
-        android:id="@+id/login_button"/>
+        android:text="facebook" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -71,6 +63,7 @@
         android:drawableLeft="@drawable/name_icon"
         android:drawablePadding="5dp"
         android:hint="Username"
+        android:imeOptions="actionDone"
         android:singleLine="true" />
 
     <EditText
@@ -84,17 +77,51 @@
         android:drawableLeft="@drawable/password_icon"
         android:drawablePadding="5dp"
         android:hint="Password"
+        android:imeOptions="actionDone"
         android:singleLine="true" />
 
-    <Button
-        android:id="@+id/signup_button"
-        android:layout_width="200dp"
+    <TextView
+        android:id="@+id/forgot_password_button"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/password_edit_text"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="15dp"
+        android:text="Forgot Password?"
+        android:textColor="#434343" />
+
+    <Button
+        android:id="@+id/signin_button"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/forgot_password_button"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="15dp"
         android:background="@color/pink"
         android:text="Sign In"
         android:textColor="@color/font_main_color" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/signin_button"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="New user?"
+            android:textColor="#434343" />
+
+        <TextView
+            android:id="@+id/open_signup_from_signin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:text="Create account"
+            android:textColor="@color/font_main_color" />
+    </LinearLayout>
 
 </RelativeLayout>

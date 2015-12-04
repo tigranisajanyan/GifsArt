@@ -40,6 +40,11 @@ public class GifsArtConst {
     public static String INTENT_SQUARE_FIT_MODE = "square_fit_mode";
     public static String INTENT_EFFECT_FILTER = "filter";
 
+
+    public static String INTENT_OPEN_SIGN_IN="open_signin";
+    public static String INTENT_OPEN_SIGN_UP="open_signup";
+
+
     public static String SHARED_PREFERENCES_IS_OPENED = "is_opened";
     public static String SHARED_PREFERENCES = "shared_preferences";
 

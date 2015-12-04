@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.gifsart.studio">
+    package="com.gifsart.studio" >
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -24,12 +24,12 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:largeHeap="true"
-        android:theme="@style/AppThemeNoStatusBar">
+        android:theme="@style/AppThemeNoStatusBar" >
         <activity
             android:name=".activity.MainActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/app_name"
-            android:theme="@style/AppThemeNoStatusBar">
+            android:theme="@style/AppThemeNoStatusBar" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -56,8 +56,16 @@
         <activity android:name=".activity.ShareGifActivity" />
         <activity android:name=".activity.CameraPreviewSampleActivity" />
         <activity android:name=".activity.ProfileActivity" />
-        <activity android:name=".activity.SignUpActivity" />
-        <activity android:name=".activity.SignInActivity" />
+        <activity
+            android:name=".activity.SignUpActivity"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:windowSoftInputMode="adjustPan" />
+        <activity
+            android:name=".activity.SignInActivity"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
@@ -68,6 +76,9 @@
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id" />
 
+        <activity android:name=".activity.PersonalizeUserActivity" />
+        <activity android:name=".activity.ResetPasswordActivity" >
+        </activity>
     </application>
 
 </manifest>

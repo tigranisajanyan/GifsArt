@@ -12,4 +12,18 @@
     <string name="please_wait">Please Wait!!!</string>
     <string name="no_images_selected">No Images Selected</string>
     <string name="facebook_app_id">539133572903067</string>
+    <string name="no_internet_connection">No internet connection</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!--ERROR-->
+    <string name="alert_invalid_username">Invalid Username</string>
+    <string name="alert_invalid_password">Invalid Password</string>
+    <string name="alert_invalid_email">Invalid Email</string>
+    <string name="alert_username_field_is_empty">Username field is empty</string>
+    <string name="alert_email_field_is_empty">Email field is empty</string>
+    <string name="alert_password_field_is_empty">Password field is empty</string>
+
+
 </resources>
