@@ -79,6 +79,8 @@
         <activity android:name=".activity.PersonalizeUserActivity" />
         <activity android:name=".activity.ResetPasswordActivity" >
         </activity>
+        <activity android:name=".activity.EditLocalPhotoActivity" >
+        </activity>
     </application>
 
 </manifest>

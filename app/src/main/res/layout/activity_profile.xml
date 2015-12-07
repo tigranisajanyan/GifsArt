@@ -24,7 +24,13 @@
             android:textAllCaps="false"
             android:textColor="@color/pink" />
 
-        <ImageButton
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:src="@drawable/logo" />
+
+        <Button
             android:id="@+id/profile_activity_toolbar_add"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -33,7 +39,9 @@
             android:layout_marginRight="10dp"
             android:background="@android:color/transparent"
             android:gravity="center"
-            android:src="@drawable/add_icon" />
+            android:text="Create"
+            android:textAllCaps="false"
+            android:textColor="@color/pink" />
     </RelativeLayout>
 
     <RelativeLayout
@@ -48,7 +56,8 @@
             android:id="@+id/profile_image_view"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:layout_alignParentLeft="true" />
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="10dp" />
 
         <TextView
             android:id="@+id/username_text_view"

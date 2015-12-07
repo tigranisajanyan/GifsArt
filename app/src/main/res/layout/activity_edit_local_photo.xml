@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_color"
+    tools:context="com.gifsart.studio.activity.EditLocalPhotoActivity">
+
+    <RelativeLayout
+        android:id="@+id/edit_local_photo_activity_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/abc_action_bar_default_height_material"
+        android:layout_alignParentTop="true"
+        android:background="@color/navigation_bar_color">
+
+        <Button
+            android:id="@+id/edit_local_photo_activity_toolbar_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:background="@android:color/transparent"
+            android:gravity="center"
+            android:text="Back"
+            android:textAllCaps="false"
+            android:textColor="@color/pink" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:src="@drawable/logo"/>
+
+        <Button
+            android:id="@+id/edit_local_photo_activity_toolbar_create"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:background="@android:color/transparent"
+            android:gravity="center"
+            android:text="Create"
+            android:textAllCaps="false"
+            android:textColor="@color/pink" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/edit_local_photo_activity_user_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/edit_local_photo_activity_toolbar"
+        android:layout_marginTop="10dp">
+
+        <ImageView
+            android:id="@+id/local_profile_image_view"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="10dp" />
+
+        <TextView
+            android:id="@+id/local_username_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_marginLeft="20dp"
+            android:layout_toRightOf="@+id/local_profile_image_view"
+            android:text=""
+            android:textColor="@color/font_main_color" />
+
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/edit_local_photo_image_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/edit_local_photo_activity_user_container"
+        android:layout_marginBottom="5dp"
+        android:layout_marginTop="5dp" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/edit_local_photo_image_view"
+        android:background="@color/navigation_bar_color">
+
+        <TextView
+            android:id="@+id/make_photo_public"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:drawableLeft="@drawable/preview_icon"
+            android:gravity="center"
+            android:text="Make it public"
+            android:textColor="@color/pink" />
+
+        <ImageButton
+            android:id="@+id/edit_photo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_toLeftOf="@+id/share_photo"
+            android:background="@android:color/transparent"
+            android:src="@drawable/edit_button" />
+
+        <ImageButton
+            android:id="@+id/share_photo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_marginLeft="10dp"
+            android:layout_toLeftOf="@+id/delete_photo"
+            android:background="@android:color/transparent"
+            android:src="@drawable/share_button" />
+
+        <ImageButton
+            android:id="@+id/delete_photo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:background="@android:color/transparent"
+            android:src="@drawable/more_button" />
+
+    </RelativeLayout>
+
+
+</RelativeLayout>

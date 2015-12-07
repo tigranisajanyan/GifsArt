@@ -49,9 +49,14 @@ public class UserContraller {
     private static final String USER_UPDATE_INFO = "https://api.picsart.com/users/update.json?key=";
     private static final String USER_PROFILE_REQUEST = "https://api.picsart.com/users/show/me.json?key=";
     private static final String USER_PROFILE_PHOTOS = "https://api.picsart.com/photos/show/me.json?key=";
+    private static final String USER_PROFILE_GIFS = "https://api.picsart.com/photos/search.json?key=";
+
+    private static final String UPDATE_PHOTO_INFO = "https://api.picsart.com/photos/update/";
+    private static final String REMOVE_USER_PHOTO = "https://api.picsart.com/photos/remove/";
 
     private static final String RESET_USER_PASSWORD = "https://api.picsart.com/users/reset.json";
     private static final String JSON_PREFIX = ".json";
+    private static final String KEY_PREFIX = "?key=";
     private static final String SAVED_USER_FILENAME = "user.srl";
 
     private static final String LIMIT_PREFIX = "&limit=";
@@ -359,13 +364,13 @@ public class UserContraller {
      */
     public synchronized void requestUserPhotos(String apiKey, final int offset, final int limit) {
         if (Utils.haveNetworkConnection(context)) {
-            String url = "https://api.picsart.com/photos/search.json?key=" + apiKey + OFFSET_PREFIX + offset + LIMIT_PREFIX + limit + "&photo_owner=1&recent=1&ext=gif";
+            String url = USER_PROFILE_GIFS + apiKey + OFFSET_PREFIX + offset + LIMIT_PREFIX + limit + "&photo_owner=1&recent=1&ext=gif";
             RequestQueue queue = Volley.newRequestQueue(context);
             StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                     new Response.Listener<String>() {
                         @Override
                         public void onResponse(String response) {
-                            Log.d(LOG_TAG, "request_user_photos: " + response);
+                            Log.d(LOG_TAG, "request_user_gifs: " + response);
                             if (ErrorHandler.statusIsError(response)) {
                                 userRequest.onRequestReady(RequestConstants.REQUEST_USER_PHOTO_ERROR_CODE, response);
                             } else {
@@ -412,6 +417,79 @@ public class UserContraller {
                 protected Map<String, String> getParams() {
                     Map<String, String> params = new HashMap<>();
                     params.put("user", email);
+                    return params;
+                }
+
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    Map<String, String> params = new HashMap<>();
+                    params.put("Content-Type", "application/x-www-form-urlencoded");
+                    return params;
+                }
+            };
+            queue.add(sr);
+        } else {
+            userRequest.onRequestReady(RequestConstants.REQUEST_RESET_PASSWORD_ERROR_CODE, context.getString(R.string.no_internet_connection));
+        }
+    }
+
+
+    public synchronized void updatePhotoInfo(final String photoId) {
+        if (Utils.haveNetworkConnection(context)) {
+            String url = UPDATE_PHOTO_INFO + photoId + JSON_PREFIX + KEY_PREFIX + readUserFromFile(context).getKey();
+            RequestQueue queue = Volley.newRequestQueue(context);
+            StringRequest sr = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    Log.d(LOG_TAG, "gag: " + response);
+
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    userRequest.onRequestReady(RequestConstants.REQUEST_RESET_PASSWORD_ERROR_CODE, error.getMessage());
+                }
+            }) {
+                @Override
+                protected Map<String, String> getParams() {
+                    Map<String, String> params = new HashMap<>();
+                    params.put("is_public", "1");
+                    return params;
+                }
+
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    Map<String, String> params = new HashMap<>();
+                    params.put("Content-Type", "application/x-www-form-urlencoded");
+                    return params;
+                }
+            };
+            queue.add(sr);
+        } else {
+            userRequest.onRequestReady(RequestConstants.REQUEST_RESET_PASSWORD_ERROR_CODE, context.getString(R.string.no_internet_connection));
+        }
+    }
+
+
+    public synchronized void removeUserPhoto(final String photoId, final String apiKey) {
+        if (Utils.haveNetworkConnection(context)) {
+            String url = REMOVE_USER_PHOTO + photoId + JSON_PREFIX + KEY_PREFIX + apiKey;
+            RequestQueue queue = Volley.newRequestQueue(context);
+            StringRequest sr = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    Log.d(LOG_TAG, "gag: " + response);
+
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    userRequest.onRequestReady(RequestConstants.REQUEST_RESET_PASSWORD_ERROR_CODE, error.getMessage());
+                }
+            }) {
+                @Override
+                protected Map<String, String> getParams() {
+                    Map<String, String> params = new HashMap<>();
                     return params;
                 }
 

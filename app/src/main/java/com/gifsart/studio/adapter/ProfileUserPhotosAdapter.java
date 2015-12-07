@@ -110,7 +110,7 @@ public class ProfileUserPhotosAdapter extends RecyclerView.Adapter<ProfileUserPh
         public ViewHolder(View itemView) {
             super(itemView);
 
-            int imageSize = context.getResources().getDisplayMetrics().widthPixels / 3;
+            int imageSize = context.getResources().getDisplayMetrics().widthPixels / 2;
             FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(imageSize, imageSize);
             userPhotoImageView = (SimpleDraweeView) itemView.findViewById(R.id.user_profile_photos_image_view);
             privateImageView = (ImageView) itemView.findViewById(R.id.private_image_view);

@@ -3,8 +3,11 @@ package com.gifsart.studio.activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -21,13 +24,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.gifsart.studio.R;
 import com.gifsart.studio.adapter.ProfileUserPhotosAdapter;
+import com.gifsart.studio.helper.RecyclerItemClickListener;
 import com.gifsart.studio.social.Photo;
 import com.gifsart.studio.social.RequestConstants;
 import com.gifsart.studio.social.UploadImageToPicsart;
 import com.gifsart.studio.social.User;
 import com.gifsart.studio.social.UserContraller;
+import com.gifsart.studio.utils.CheckFreeSpaceSingleton;
 import com.gifsart.studio.utils.GifsArtConst;
 import com.gifsart.studio.utils.SpacesItemDecoration;
 import com.gifsart.studio.utils.Utils;
@@ -77,7 +83,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         user = UserContraller.readUserFromFile(this);
 
-        gridLayoutManager = new GridLayoutManager(this, 3, GridLayoutManager.VERTICAL, false);
+        gridLayoutManager = new GridLayoutManager(this, 2, GridLayoutManager.VERTICAL, false);
         profileUserPhotosAdapter = new ProfileUserPhotosAdapter(this);
 
         userPhotosRecyclerView.setHasFixedSize(true);
@@ -87,6 +93,17 @@ public class ProfileActivity extends AppCompatActivity {
 
         userPhotosRecyclerView.setAdapter(profileUserPhotosAdapter);
         userPhotosRecyclerView.addItemDecoration(new SpacesItemDecoration((int) Utils.dpToPixel(2, this)));
+
+        userPhotosRecyclerView.addOnItemTouchListener(new RecyclerItemClickListener(getApplicationContext(), new RecyclerItemClickListener.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                Intent intent = new Intent(context, EditLocalPhotoActivity.class);
+                intent.putExtra("image_url", profileUserPhotosAdapter.getItem(position).getUrl());
+                intent.putExtra("is_public", profileUserPhotosAdapter.getItem(position).getIsPublic());
+                intent.putExtra("photo_id", profileUserPhotosAdapter.getItem(position).getId());
+                startActivity(intent);
+            }
+        }));
 
         if (user != null) {
             isSignedIn = true;
@@ -275,8 +292,17 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     public void updateUserInfo() {
-        Glide.with(ProfileActivity.this).load(user.getPhoto() + "?r240x240").asBitmap().into(profileImageView);
-        ((TextView) userProfileContainer.findViewById(R.id.username_text_view)).setText(user.getName());
+        //Glide.with(ProfileActivity.this).load(user.getPhoto() + "?r240x240").asBitmap().into(profileImageView);
+        Glide.with(context).load(user.getPhoto() + "?r240x240").asBitmap().centerCrop().into(new BitmapImageViewTarget(profileImageView) {
+            @Override
+            protected void setResource(Bitmap resource) {
+                RoundedBitmapDrawable circularBitmapDrawable =
+                        RoundedBitmapDrawableFactory.create(context.getResources(), resource);
+                circularBitmapDrawable.setCircular(true);
+                profileImageView.setImageDrawable(circularBitmapDrawable);
+            }
+        });
+        ((TextView) userProfileContainer.findViewById(R.id.username_text_view)).setText("@" + user.getName());
     }
 
     private void openPicsInLogin(String token) {
