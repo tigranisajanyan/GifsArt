@@ -14,6 +14,7 @@ import com.gifsart.studio.social.RequestConstants;
 import com.gifsart.studio.social.StringValidation;
 import com.gifsart.studio.social.User;
 import com.gifsart.studio.social.UserContraller;
+import com.gifsart.studio.utils.GifsArtConst;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -83,7 +84,7 @@ public class SignUpActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent();
-                intent.putExtra("open_signin", true);
+                intent.putExtra(GifsArtConst.INTENT_OPEN_SIGN_IN, true);
                 setResult(RESULT_CANCELED, intent);
                 finish();
             }

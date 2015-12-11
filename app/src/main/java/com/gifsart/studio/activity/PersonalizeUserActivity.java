@@ -3,6 +3,7 @@ package com.gifsart.studio.activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,6 +16,7 @@ import com.bumptech.glide.Glide;
 import com.gifsart.studio.R;
 import com.gifsart.studio.social.ErrorHandler;
 import com.gifsart.studio.social.RequestConstants;
+import com.gifsart.studio.social.StringValidation;
 import com.gifsart.studio.social.UploadImageToPicsart;
 import com.gifsart.studio.social.User;
 import com.gifsart.studio.social.UserContraller;
@@ -70,7 +72,7 @@ public class PersonalizeUserActivity extends AppCompatActivity {
                 uploadImageToPicsart.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 uploadImageToPicsart.setOnUploadedListener(new UploadImageToPicsart.ImageUploaded() {
                     @Override
-                    public void uploadIsDone(boolean uploaded) {
+                    public void uploadIsDone(boolean uploaded,String messege) {
                         if (uploaded) {
                             UserContraller userContraller = new UserContraller(PersonalizeUserActivity.this);
                             userContraller.setOnRequestReadyListener(new UserContraller.UserRequest() {
@@ -96,7 +98,8 @@ public class PersonalizeUserActivity extends AppCompatActivity {
                                 userContraller.uploadUserInfo(user.getKey(), profileNameEditText.getText().toString(), "");
                             }
                         } else {
-                            Log.d(LOG_TAG, "image doesn't uploaded, try again");
+                            AlertDialog alert = UserContraller.setupDialogBuilder(PersonalizeUserActivity.this, messege).create();
+                            alert.show();
                         }
                     }
                 });

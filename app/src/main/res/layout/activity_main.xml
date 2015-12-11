@@ -67,193 +67,144 @@
         </LinearLayout>
 
         <Button
-            android:id="@+id/main_activity_toolbar_done"
+            android:id="@+id/main_activity_toolbar_next"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:background="@android:color/transparent"
             android:gravity="center"
-            android:text="Done"
+            android:text="Next"
             android:textAllCaps="false"
-            android:textColor="@color/font_main_color" />
+            android:textColor="@color/pink" />
     </RelativeLayout>
 
-    <FrameLayout
-        android:id="@+id/camera_preview_container"
+    <com.sothree.slidinguppanel.SlidingUpPanelLayout xmlns:sothree="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/sliding_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_below="@+id/main_activity_toolbar"
-        android:layout_gravity="center"
-        android:gravity="center">
-
-        <LinearLayout
-            android:id="@+id/camera_preview"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:color/background_light"
-            android:orientation="horizontal" />
+        android:gravity="bottom"
+        sothree:umanoShadowHeight="0dp"
+        sothree:umanoOverlay="true">
 
         <FrameLayout
-            android:layout_width="wrap_content"
+            android:id="@+id/camera_preview_container"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="5dp">
+            android:layout_gravity="center"
+            android:gravity="center">
 
-            <LinearLayout
-                android:id="@+id/burst_mode_image_container"
+            <RelativeLayout
+                android:id="@+id/camera_preview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/background_light"
+                android:orientation="horizontal" />
+
+            <FrameLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@color/yellow_transparent"
-                android:gravity="center"
-                android:orientation="horizontal"
-                android:paddingLeft="5dp"
-                android:paddingRight="5dp">
+                android:layout_margin="5dp">
 
-                <ImageView
+                <LinearLayout
+                    android:id="@+id/burst_mode_image_container"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/burst_mode_icon" />
+                    android:background="@color/yellow_transparent"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:paddingLeft="5dp"
+                    android:paddingRight="5dp">
 
-                <TextView
-                    android:id="@+id/burst_mode_count"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="5dp"
-                    android:text="x5"
-                    android:textColor="@color/font_main_color" />
-            </LinearLayout>
+                    <TextView
+                        android:id="@+id/burst_mode_count"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dp"
+                        android:drawableLeft="@drawable/burst_mode_icon"
+                        android:drawablePadding="5dp"
+                        android:gravity="center"
+                        android:text="x5"
+                        android:textColor="@color/font_main_color" />
+                </LinearLayout>
+
+            </FrameLayout>
+
 
             <TextView
                 android:id="@+id/capture_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
+                android:layout_gravity="center|top"
+                android:layout_margin="5dp"
+                android:background="@color/yellow_transparent"
                 android:text="00:06"
                 android:textColor="@color/font_main_color"
-                android:visibility="invisible" />
-        </FrameLayout>
+                android:visibility="visible" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="top|right"
-            android:layout_margin="5dp"
-            android:background="@color/yellow_transparent"
-            android:padding="5dp"
-            android:text="1:1"
-            android:textColor="@color/font_main_color" />
-
-        <TextView
-            android:id="@+id/burst_counter"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:textColor="@color/font_main_color"
-            android:textSize="50dp" />
-
-    </FrameLayout>
-
-    <RelativeLayout
-        android:id="@+id/gallery_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true">
-
-        <FrameLayout
-            android:id="@+id/capture_button_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:background="@android:color/transparent"
-            android:gravity="center">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:layout_weight="1"
-                    android:background="@android:color/transparent" />
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:layout_weight="1"
-                    android:background="@color/yellow_transparent">
-
-                    <ImageButton
-                        android:id="@+id/flash_light_button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentLeft="true"
-                        android:layout_centerVertical="true"
-                        android:layout_marginLeft="20dp"
-                        android:background="@android:color/transparent"
-                        android:src="@drawable/flash_light_off" />
-
-                    <ImageButton
-                        android:id="@+id/switch_camera_button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentRight="true"
-                        android:layout_centerVertical="true"
-                        android:layout_marginRight="20dp"
-                        android:background="@android:color/transparent"
-                        android:src="@drawable/camera_rotate" />
-                </RelativeLayout>
-
-            </LinearLayout>
-
-            <RelativeLayout
-                android:id="@+id/ggg"
+            <TextView
+                android:id="@+id/aspect_ratio"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:layout_gravity="center">
+                android:layout_gravity="top|right"
+                android:layout_margin="5dp"
+                android:background="@color/yellow_transparent"
+                android:padding="5dp"
+                android:text="1:1"
+                android:textColor="@color/font_main_color" />
 
-                <ImageButton
-                    android:id="@+id/button_capture"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
-                    android:layout_centerInParent="true"
-                    android:background="@android:color/transparent"
-                    android:src="@drawable/capture" />
+            <TextView
+                android:id="@+id/burst_counter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textColor="@color/font_main_color"
+                android:textSize="50dp" />
 
-                <ProgressBar
-                    android:id="@+id/circle_progress_bar"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
-                    android:layout_centerInParent="true"
-                    android:indeterminate="true"
-                    android:indeterminateDrawable="@drawable/custom_progress_bar"
-                    android:indeterminateDuration="5970"
-                    android:visibility="gone" />
+            <ImageView
+                android:id="@+id/cover"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="bottom"
+                android:background="@color/background_color"
+                android:visibility="invisible" />
 
-            </RelativeLayout>
         </FrameLayout>
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/gallery_rec_view"
+        <RelativeLayout
+            android:id="@+id/gallery_container"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/capture_button_container"
-            android:background="@color/background_color"
-            android:padding="2dp"
-            android:scrollbars="vertical" />
+            android:layout_height="match_parent"
+            android:layout_alignParentBottom="true">
 
-        <ProgressBar
-            android:id="@+id/main_activity_progress_bar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:visibility="visible" />
+            <include
+                android:id="@+id/capture_container"
+                layout="@layout/capture_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom" />
 
-    </RelativeLayout>
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/gallery_rec_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@+id/capture_container"
+                android:background="@color/background_color"
+                android:padding="2dp"
+                android:scrollbars="vertical" />
+
+            <ProgressBar
+                android:id="@+id/main_activity_progress_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:visibility="visible" />
+
+        </RelativeLayout>
+    </com.sothree.slidinguppanel.SlidingUpPanelLayout>
 
     <LinearLayout
-        android:id="@+id/main_activity_container"
+        android:id="@+id/category_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentBottom="true"

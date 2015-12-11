@@ -178,10 +178,10 @@ public class UploadImageToPicsart extends AsyncTask<Void, Integer, JSONObject> {
             try {
                 Log.d("response Upload", sResponse.toString());
                 if (ErrorHandler.statusIsError(sResponse)) {
-                    imageUploaded.uploadIsDone(false);
+                    imageUploaded.uploadIsDone(false, "error");
                 } else {
                     uploadedImageUrl = sResponse.getString("url");
-                    imageUploaded.uploadIsDone(true);
+                    imageUploaded.uploadIsDone(true, "success");
                 }
             } catch (Exception e) {
                 Log.e(e.getClass().getName(), e.getMessage(), e);
@@ -250,7 +250,7 @@ public class UploadImageToPicsart extends AsyncTask<Void, Integer, JSONObject> {
     }
 
     public interface ImageUploaded {
-        void uploadIsDone(boolean uploaded);
+        void uploadIsDone(boolean uploaded, String messege);
     }
 
     public void setOnUploadedListener(ImageUploaded listener) {

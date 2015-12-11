@@ -95,7 +95,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
                     if (getSelected().size() < 1) {
                         ((TextView) activity.findViewById(R.id.main_activity_toolbar_selected_text)).setText("");
                         ((TextView) activity.findViewById(R.id.main_activity_toolbar_cancel)).setText("Cancel");
-                        ((Button) activity.findViewById(R.id.main_activity_toolbar_done)).setTextColor(activity.getResources().getColor(R.color.font_main_color));
+                        ((Button) activity.findViewById(R.id.main_activity_toolbar_next)).setTextColor(activity.getResources().getColor(R.color.font_main_color));
                     }
 
                 } else {
@@ -115,7 +115,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
             }
         });
 
-        ((Button) activity.findViewById(R.id.main_activity_toolbar_done)).setTextColor(((selected.size() > 0) ? activity.getResources().getColor(R.color.pink) : activity.getResources().getColor(R.color.font_main_color)));
+        ((Button) activity.findViewById(R.id.main_activity_toolbar_next)).setTextColor(((selected.size() > 0) ? activity.getResources().getColor(R.color.pink) : activity.getResources().getColor(R.color.font_main_color)));
         ((Button) activity.findViewById(R.id.main_activity_toolbar_cancel)).setText(((selected.size() > 0) ? "Deselect" : "Cancel"));
 
         try {

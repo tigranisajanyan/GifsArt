@@ -8,7 +8,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 
 import com.facebook.AccessToken;
@@ -27,6 +26,8 @@ import com.gifsart.studio.social.RequestConstants;
 import com.gifsart.studio.social.StringValidation;
 import com.gifsart.studio.social.UserContraller;
 import com.gifsart.studio.utils.AnimatedProgressDialog;
+import com.gifsart.studio.utils.GifsArtConst;
+import com.gifsart.studio.utils.Utils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -41,7 +42,7 @@ public class SignInActivity extends AppCompatActivity implements FacebookConstan
 
     private SignInActivity context = this;
 
-    private Button loginButton;
+    private Button facebookLoginButton;
     private EditText userNameEditText;
     private EditText passwordEditText;
     private Button signInButton;
@@ -50,7 +51,7 @@ public class SignInActivity extends AppCompatActivity implements FacebookConstan
     private String password;
 
     private CallbackManager callbackManager;
-    public String fbToken;
+    private String fbToken;
 
     private static FacebookUser fbUser;
 
@@ -62,7 +63,9 @@ public class SignInActivity extends AppCompatActivity implements FacebookConstan
 
         callbackManager = CallbackManager.Factory.create();
 
-        loginButton = (Button) findViewById(R.id.login_button);
+        LoginManager.getInstance().logOut();
+
+        facebookLoginButton = (Button) findViewById(R.id.facebook_login_button);
         userNameEditText = (EditText) findViewById(R.id.username_edit_text);
         passwordEditText = (EditText) findViewById(R.id.password_edit_text);
         signInButton = (Button) findViewById(R.id.signin_button);
@@ -86,6 +89,7 @@ public class SignInActivity extends AppCompatActivity implements FacebookConstan
                 alert.show();
             }
         });
+
 
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -116,13 +120,18 @@ public class SignInActivity extends AppCompatActivity implements FacebookConstan
             }
         });
 
-        loginButton.setOnClickListener(new View.OnClickListener() {
+        facebookLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!isLoggedIn()) {
-                    LoginManager.getInstance().logInWithReadPermissions(context, Arrays.asList(FacebookConstants.BASIC_READ_PERMISSIONS));
+                if (Utils.haveNetworkConnection(context)) {
+                    if (!isLoggedIn()) {
+                        LoginManager.getInstance().logInWithReadPermissions(context, Arrays.asList(FacebookConstants.BASIC_READ_PERMISSIONS));
+                    } else {
+                        Log.d("gagag", "facebook logout");
+                    }
                 } else {
-                    LoginManager.getInstance().logOut();
+                    AlertDialog alert = UserContraller.setupDialogBuilder(context, getString(R.string.no_internet_connection)).create();
+                    alert.show();
                 }
             }
         });
@@ -131,7 +140,7 @@ public class SignInActivity extends AppCompatActivity implements FacebookConstan
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent();
-                intent.putExtra("open_signup", true);
+                intent.putExtra(GifsArtConst.INTENT_OPEN_SIGN_UP, true);
                 setResult(RESULT_CANCELED, intent);
                 finish();
             }

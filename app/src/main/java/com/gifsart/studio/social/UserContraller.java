@@ -434,6 +434,9 @@ public class UserContraller {
     }
 
 
+    /**
+     * @param photoId
+     */
     public synchronized void updatePhotoInfo(final String photoId) {
         if (Utils.haveNetworkConnection(context)) {
             String url = UPDATE_PHOTO_INFO + photoId + JSON_PREFIX + KEY_PREFIX + readUserFromFile(context).getKey();
@@ -441,13 +444,13 @@ public class UserContraller {
             StringRequest sr = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
-                    Log.d(LOG_TAG, "gag: " + response);
-
+                    Log.d(LOG_TAG, "update_photo_info: " + response);
+                    userRequest.onRequestReady(RequestConstants.UPDATE_PHOTO_INFO_SUCCESS_CODE, response);
                 }
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    userRequest.onRequestReady(RequestConstants.REQUEST_RESET_PASSWORD_ERROR_CODE, error.getMessage());
+                    userRequest.onRequestReady(RequestConstants.UPDATE_PHOTO_INFO_ERROR_CODE, error.getMessage());
                 }
             }) {
                 @Override
@@ -466,11 +469,15 @@ public class UserContraller {
             };
             queue.add(sr);
         } else {
-            userRequest.onRequestReady(RequestConstants.REQUEST_RESET_PASSWORD_ERROR_CODE, context.getString(R.string.no_internet_connection));
+            userRequest.onRequestReady(RequestConstants.UPDATE_PHOTO_INFO_ERROR_CODE, context.getString(R.string.no_internet_connection));
         }
     }
 
-
+    /**
+     *
+     * @param photoId
+     * @param apiKey
+     */
     public synchronized void removeUserPhoto(final String photoId, final String apiKey) {
         if (Utils.haveNetworkConnection(context)) {
             String url = REMOVE_USER_PHOTO + photoId + JSON_PREFIX + KEY_PREFIX + apiKey;
@@ -478,13 +485,13 @@ public class UserContraller {
             StringRequest sr = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
-                    Log.d(LOG_TAG, "gag: " + response);
-
+                    Log.d(LOG_TAG, "remove_photo: " + response);
+                    userRequest.onRequestReady(RequestConstants.REMOVE_PHOTO_SUCCESS_CODE, response);
                 }
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    userRequest.onRequestReady(RequestConstants.REQUEST_RESET_PASSWORD_ERROR_CODE, error.getMessage());
+                    userRequest.onRequestReady(RequestConstants.REMOVE_PHOTO_ERROR_CODE, error.getMessage());
                 }
             }) {
                 @Override
@@ -502,7 +509,7 @@ public class UserContraller {
             };
             queue.add(sr);
         } else {
-            userRequest.onRequestReady(RequestConstants.REQUEST_RESET_PASSWORD_ERROR_CODE, context.getString(R.string.no_internet_connection));
+            userRequest.onRequestReady(RequestConstants.REMOVE_PHOTO_ERROR_CODE, context.getString(R.string.no_internet_connection));
         }
     }
 

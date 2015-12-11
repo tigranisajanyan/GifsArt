@@ -31,7 +31,7 @@
             android:src="@drawable/logo" />
 
         <Button
-            android:id="@+id/profile_activity_toolbar_add"
+            android:id="@+id/profile_activity_toolbar_create"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
@@ -117,14 +117,20 @@
             android:textColor="@color/font_main_color" />
     </RelativeLayout>
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/user_photos_rec_view"
+    <android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/swipe_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignTop="@+id/get_started_container"
         android:layout_below="@+id/giphy_toolbar"
-        android:background="@color/background_color"
-        android:scrollbars="vertical"
-        android:visibility="gone" />
+        android:visibility="gone">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/user_photos_rec_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/background_color"
+            android:scrollbars="vertical" />
+    </android.support.v4.widget.SwipeRefreshLayout>
 
 </RelativeLayout>

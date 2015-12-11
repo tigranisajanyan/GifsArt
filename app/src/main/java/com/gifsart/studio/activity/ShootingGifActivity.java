@@ -119,11 +119,11 @@ public class ShootingGifActivity extends ActionBarActivity {
 
         cameraPreviewLayout.addView(cameraPreview);
 
-        screenModeBtn = (ImageButton) findViewById(R.id.screen_mode);
+        screenModeBtn = (ImageButton) findViewById(R.id.aspect_ratio_button);
 
         captureCicrleButtonProgressBar = (ProgressBar) findViewById(R.id.circle_progress_bar);
 
-        findViewById(R.id.screen_mode).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.aspect_ratio_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
             }

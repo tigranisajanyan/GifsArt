@@ -382,6 +382,7 @@ public class MakeGifActivity extends ActionBarActivity {
                         public Task<Void> then(Task<Void> task) throws Exception {
                             animatedProgressDialog.dismiss();
                             Intent intent = new Intent(MakeGifActivity.this, ShareGifActivity.class);
+                            intent.putExtra("saved_file_path", root + "/test.gif");
                             startActivity(intent);
                             finish();
                             return null;

@@ -1,14 +1,27 @@
 package com.gifsart.studio.social;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.util.Log;
 import android.widget.Toast;
 
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.login.LoginManager;
+import com.facebook.login.LoginResult;
+import com.facebook.share.ShareApi;
+import com.facebook.share.Sharer;
+import com.facebook.share.model.ShareLinkContent;
 import com.gifsart.studio.utils.GifsArtConst;
 import com.gifsart.studio.utils.PackageContraller;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by Tigran on 10/30/15.
@@ -20,14 +33,14 @@ public class ShareContraller {
     public static final String GMAIL_PACKAGE_NAME = "com.google.android.gm";
     public static final String WHATSAPP_PACKAGE_NAME = "com.whatsapp";
     public static final String MESSENGER_PACKAGE_NAME = "com.facebook.orca";
-    public static final String FILE_TYPE_IMAGE = "image/*";
+    public static final String FILE_TYPE_IMAGE = "image/gif";
 
     private String filePath;
-    private Context context;
+    private Activity activity;
 
-    public ShareContraller(String filePath, Context context) {
+    public ShareContraller(String filePath, Activity activity) {
         this.filePath = filePath;
-        this.context = context;
+        this.activity = activity;
     }
 
     public void shareGif(ShareGifType shareGifType) {
@@ -61,7 +74,7 @@ public class ShareContraller {
     }
 
     public void shareInstagram() {
-        if (PackageContraller.isPackageExisted(context, INSTAGRAM_PACKAGE_NAME)) {
+        if (PackageContraller.isPackageExisted(activity, INSTAGRAM_PACKAGE_NAME)) {
             Intent share = new Intent(Intent.ACTION_SEND);
             share.putExtra(Intent.EXTRA_TEXT, GifsArtConst.MY_DIR);
             share.setType(FILE_TYPE_IMAGE);
@@ -70,7 +83,7 @@ public class ShareContraller {
             try {
                 share.putExtra(Intent.EXTRA_STREAM, uri);
                 share.setPackage(INSTAGRAM_PACKAGE_NAME);
-                context.startActivity(share);
+                activity.startActivity(share);
             } catch (Exception e) {
                 e.printStackTrace();
                 //Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -78,12 +91,12 @@ public class ShareContraller {
                 //context.startActivity(intent);
             }
         } else {
-            Toast.makeText(context, "insta", Toast.LENGTH_SHORT).show();
+            Toast.makeText(activity, "insta", Toast.LENGTH_SHORT).show();
         }
     }
 
     public void shareTwitter() {
-        if (PackageContraller.isPackageExisted(context, TWITTER_PACKAGE_NAME)) {
+        if (PackageContraller.isPackageExisted(activity, TWITTER_PACKAGE_NAME)) {
             Intent share = new Intent(Intent.ACTION_SEND);
             share.putExtra(Intent.EXTRA_TEXT, GifsArtConst.MY_DIR);
             share.setType(FILE_TYPE_IMAGE);
@@ -92,17 +105,17 @@ public class ShareContraller {
             try {
                 share.putExtra(Intent.EXTRA_STREAM, uri);
                 share.setPackage(TWITTER_PACKAGE_NAME);
-                context.startActivity(share);
+                activity.startActivity(share);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         } else {
-            Toast.makeText(context, "messenger", Toast.LENGTH_SHORT).show();
+            Toast.makeText(activity, "messenger", Toast.LENGTH_SHORT).show();
         }
     }
 
     public void shareMessenger() {
-        if (PackageContraller.isPackageExisted(context, MESSENGER_PACKAGE_NAME)) {
+        if (PackageContraller.isPackageExisted(activity, MESSENGER_PACKAGE_NAME)) {
             Intent share = new Intent(Intent.ACTION_SEND);
             share.putExtra(Intent.EXTRA_TEXT, GifsArtConst.MY_DIR);
             share.setType(FILE_TYPE_IMAGE);
@@ -111,17 +124,17 @@ public class ShareContraller {
             try {
                 share.putExtra(Intent.EXTRA_STREAM, uri);
                 share.setPackage(MESSENGER_PACKAGE_NAME);
-                context.startActivity(share);
+                activity.startActivity(share);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         } else {
-            Toast.makeText(context, "messenger", Toast.LENGTH_SHORT).show();
+            Toast.makeText(activity, "messenger", Toast.LENGTH_SHORT).show();
         }
     }
 
     public void shareWhatsApp() {
-        if (PackageContraller.isPackageExisted(context, WHATSAPP_PACKAGE_NAME)) {
+        if (PackageContraller.isPackageExisted(activity, WHATSAPP_PACKAGE_NAME)) {
             Intent share = new Intent(Intent.ACTION_SEND);
             share.putExtra(Intent.EXTRA_TEXT, GifsArtConst.MY_DIR);
             share.setType(FILE_TYPE_IMAGE);
@@ -130,34 +143,71 @@ public class ShareContraller {
             try {
                 share.putExtra(Intent.EXTRA_STREAM, uri);
                 share.setPackage(WHATSAPP_PACKAGE_NAME);
-                context.startActivity(share);
+                activity.startActivity(share);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         } else {
-            Toast.makeText(context, "whatsapp", Toast.LENGTH_SHORT).show();
+            Toast.makeText(activity, "whatsapp", Toast.LENGTH_SHORT).show();
         }
     }
 
-    public void shareGifTo(String packageName){
-        if (PackageContraller.isPackageExisted(context, packageName)) {
+    public void shareFacebook() {
+        LoginManager loginManager = LoginManager.getInstance();
+        List<String> permisionneeds = Arrays.asList("publish_actions");
+        loginManager.logInWithPublishPermissions(activity, permisionneeds);
+
+        loginManager.registerCallback(CallbackManager.Factory.create(), new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+                ShareLinkContent content = new ShareLinkContent.Builder()
+                        .setContentUrl(Uri.parse("http://cdn78.picsart.com/186853261001202.gif"))
+                        .build();
+
+                ShareApi.share(content, new FacebookCallback<Sharer.Result>() {
+                    @Override
+                    public void onSuccess(Sharer.Result result) {
+                        Log.d("gag", result.toString());
+                    }
+
+                    @Override
+                    public void onCancel() {
+                        Log.d("gag", "cancel");
+                    }
+
+                    @Override
+                    public void onError(FacebookException error) {
+                        Log.d("gag", error.toString());
+                    }
+                });
+            }
+
+            @Override
+            public void onCancel() {
+
+            }
+
+            @Override
+            public void onError(FacebookException error) {
+
+            }
+        });
+
+        /*if (PackageContraller.isPackageExisted(context, "com.facebook.katana")) {
             Intent share = new Intent(Intent.ACTION_SEND);
             share.putExtra(Intent.EXTRA_TEXT, GifsArtConst.MY_DIR);
             share.setType(FILE_TYPE_IMAGE);
             File media = new File(filePath);
             Uri uri = Uri.fromFile(media);
             try {
-                share.putExtra(Intent.EXTRA_STREAM, uri);
-                share.setPackage(packageName);
+                share.putExtra(Intent.EXTRA_STREAM, Uri.parse("http://cdn78.picsart.com/186853261001202.gif"));
+                share.setPackage("com.facebook.katana");
                 context.startActivity(share);
             } catch (Exception e) {
                 e.printStackTrace();
-                //Intent intent = new Intent(Intent.ACTION_VIEW);
-                //intent.setData(Uri.parse("market://details?id=" + packageName));
-                //context.startActivity(intent);
             }
         } else {
-            Toast.makeText(context, "insta", Toast.LENGTH_SHORT).show();
-        }
+            Toast.makeText(context, "whatsapp", Toast.LENGTH_SHORT).show();
+        }*/
     }
 }

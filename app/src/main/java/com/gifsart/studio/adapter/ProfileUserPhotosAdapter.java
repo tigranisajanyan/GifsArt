@@ -11,14 +11,12 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
-import com.bumptech.glide.Glide;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.interfaces.DraweeController;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.gifsart.studio.R;
 import com.gifsart.studio.social.Photo;
 import com.gifsart.studio.social.UserContraller;
-import com.gifsart.studio.utils.AnimatedProgressDialog;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -30,6 +28,8 @@ public class ProfileUserPhotosAdapter extends RecyclerView.Adapter<ProfileUserPh
 
     private ArrayList<Photo> userPhotos = new ArrayList<>();
     private ArrayList<Integer> colors = new ArrayList<>();
+
+    public static ArrayList<String> deletedItems = new ArrayList<>();
     private LayoutInflater inflater = null;
     private Context context;
     private int offset = 0;
@@ -68,15 +68,12 @@ public class ProfileUserPhotosAdapter extends RecyclerView.Adapter<ProfileUserPh
         }
         if (position + 1 == limit + offset) {
             offset = offset + limit;
-            final AnimatedProgressDialog animatedProgressDialog=new AnimatedProgressDialog(context);
-            animatedProgressDialog.show();
             final UserContraller userContraller = new UserContraller(context);
             userContraller.setOnRequestReadyListener(new UserContraller.UserRequest() {
                 @Override
                 public void onRequestReady(int requestNumber, String messege) {
                     userPhotos.addAll(userContraller.getUserPhotos());
                     notifyDataSetChanged();
-                    animatedProgressDialog.dismiss();
                 }
             });
             userContraller.requestUserPhotos(UserContraller.readUserFromFile(context).getKey(), offset, limit);
@@ -89,12 +86,16 @@ public class ProfileUserPhotosAdapter extends RecyclerView.Adapter<ProfileUserPh
     }
 
     public void addItems(ArrayList<Photo> userPhotos) {
+        removeAllItems();
         this.userPhotos = userPhotos;
+        checkDeletedItem();
         notifyDataSetChanged();
     }
 
     public void removeAllItems() {
         this.userPhotos.removeAll(userPhotos);
+        offset = 0;
+        limit = 30;
         notifyDataSetChanged();
     }
 
@@ -115,6 +116,19 @@ public class ProfileUserPhotosAdapter extends RecyclerView.Adapter<ProfileUserPh
             userPhotoImageView = (SimpleDraweeView) itemView.findViewById(R.id.user_profile_photos_image_view);
             privateImageView = (ImageView) itemView.findViewById(R.id.private_image_view);
             userPhotoImageView.setLayoutParams(layoutParams);
+        }
+    }
+
+    private void checkDeletedItem() {
+        if (deletedItems.size() > 0) {
+            for (int i = 0; i < userPhotos.size(); i++) {
+                for (int j = 0; j < deletedItems.size(); j++) {
+                    if (userPhotos.get(i).getId().equals(deletedItems.get(j))) {
+                        userPhotos.remove(i);
+                        break;
+                    }
+                }
+            }
         }
     }
 

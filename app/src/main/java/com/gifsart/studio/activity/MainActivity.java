@@ -3,23 +3,19 @@ package com.gifsart.studio.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.Signature;
 import android.graphics.BitmapFactory;
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Base64;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -27,8 +23,8 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,11 +35,11 @@ import com.gifsart.studio.R;
 import com.gifsart.studio.adapter.GalleryAdapter;
 import com.gifsart.studio.adapter.GalleryItemCategoryAdapter;
 import com.gifsart.studio.camera.BurstModeFramesSaving;
+import com.gifsart.studio.camera.CameraHelper;
 import com.gifsart.studio.camera.CameraPreview;
 import com.gifsart.studio.helper.RecyclerItemClickListener;
 import com.gifsart.studio.item.GalleryCategoryItem;
 import com.gifsart.studio.item.GalleryItem;
-import com.gifsart.studio.social.UploadImageToPicsart;
 import com.gifsart.studio.utils.AnimatedProgressDialog;
 import com.gifsart.studio.utils.CheckFreeSpaceSingleton;
 import com.gifsart.studio.utils.GifsArtConst;
@@ -51,11 +47,10 @@ import com.gifsart.studio.utils.SpacesItemDecoration;
 import com.gifsart.studio.utils.Type;
 import com.gifsart.studio.utils.Utils;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import java.io.File;
 import java.io.IOException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -63,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView galleryItemsRecyclerView;
     private RecyclerView galleryCategoryRecyclerView;
     private ProgressBar progressBar;
-    private ViewGroup container;
+    private ViewGroup categoryContainer;
     private ViewGroup galleryContainer;
 
     private GridLayoutManager gridLayoutManager;
@@ -88,9 +83,9 @@ public class MainActivity extends AppCompatActivity {
     private MediaRecorder mediaRecorder;
     private ProgressBar captureCicrleButtonProgressBar;
 
-    private ImageButton captureButton, screenModeBtn, switchCameraButton;
+    private ImageButton captureButton, aspectRatioButton, switchCameraButton;
 
-    private LinearLayout cameraPreviewLayout;
+    private RelativeLayout cameraPreviewLayout;
     private boolean cameraFront = false;
     private boolean recording = false;
 
@@ -106,8 +101,13 @@ public class MainActivity extends AppCompatActivity {
             Camera.Parameters.FLASH_MODE_AUTO
     };
 
+    private boolean aspectRatio = true;
+    int coverSize = 0;
+
     private String flashMode = flashLightModes[0];
     private int burstMode = 5;
+
+    private SlidingUpPanelLayout slidingUpPanelLayout;
 
 
     @Override
@@ -118,6 +118,7 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         Utils.initImageLoader(getApplicationContext());
 
         ImageLoader.getInstance().clearMemoryCache();
@@ -135,6 +136,7 @@ public class MainActivity extends AppCompatActivity {
         burstModeCounts.add(10);
         burstModeCounts.add(15);
 
+
         init();
         initShooting();
 
@@ -142,11 +144,12 @@ public class MainActivity extends AppCompatActivity {
 
     public void init() {
 
-        container = (ViewGroup) findViewById(R.id.main_activity_container);
+        categoryContainer = (ViewGroup) findViewById(R.id.category_container);
         galleryContainer = (ViewGroup) findViewById(R.id.gallery_container);
-        ViewGroup.LayoutParams layoutParams = galleryContainer.getLayoutParams();
-        layoutParams.height = getResources().getDisplayMetrics().heightPixels / 2;
-        galleryContainer.setLayoutParams(layoutParams);
+        //ViewGroup.LayoutParams layoutParams = galleryContainer.getLayoutParams();
+        //layoutParams.height = getResources().getDisplayMetrics().heightPixels / 2;
+        //galleryContainer.setLayoutParams(layoutParams);
+        galleryContainer.setTop(getResources().getDisplayMetrics().heightPixels / 2);
 
         galleryAdapter = new GalleryAdapter(imageItemsArrayList, this, (int) Utils.getBitmapWidth(this));
 
@@ -218,7 +221,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        findViewById(R.id.main_activity_toolbar_done).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.main_activity_toolbar_next).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (galleryAdapter.getSelected().size() > 0) {
@@ -316,10 +319,10 @@ public class MainActivity extends AppCompatActivity {
             videoItemsArrayList.addAll(Utils.getGalleryVideos(MainActivity.this));
 
             if (imageItemsArrayList.size() > 1) {
-                galleryCategoryItems.add(new GalleryCategoryItem(imageItemsArrayList.get(2).getFilePath(), "Images", imageItemsArrayList.size(), true));
+                galleryCategoryItems.add(new GalleryCategoryItem(imageItemsArrayList.get(0).getFilePath(), "Images", imageItemsArrayList.size(), true));
             }
             if (videoItemsArrayList.size() > 1) {
-                galleryCategoryItems.add(new GalleryCategoryItem(videoItemsArrayList.get(2).getFilePath(), "Videos", videoItemsArrayList.size(), false));
+                galleryCategoryItems.add(new GalleryCategoryItem(videoItemsArrayList.get(0).getFilePath(), "Videos", videoItemsArrayList.size(), false));
             }
 
             GalleryCategoryItem galleryCategoryItem = new GalleryCategoryItem();
@@ -358,19 +361,19 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         galleryAdapter.notifyDataSetChanged();
-        if (!hasCamera(context)) {
+        if (!CameraHelper.hasCamera(context)) {
             Toast toast = Toast.makeText(context, "Sorry, your phone does not have a camera!", Toast.LENGTH_LONG);
             toast.show();
             finish();
         }
         if (camera == null) {
             // if the front facing camera does not exist
-            if (findFrontFacingCamera() < 0) {
+            if (CameraHelper.findFrontFacingCamera() < 0) {
 
                 Toast.makeText(this, "No front facing camera found.", Toast.LENGTH_LONG).show();
                 switchCameraButton.setVisibility(View.GONE);
             }
-            camera = Camera.open(findBackFacingCamera());
+            camera = Camera.open(CameraHelper.findBackFacingCamera());
             cameraPreview.refreshCamera(camera);
         }
     }
@@ -379,6 +382,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         releaseCamera();
+    }
+
+    private void releaseCamera() {
+        // stop and release camera
+        if (camera != null) {
+            camera.release();
+            camera = null;
+        }
     }
 
     public void sendIntentWithoutVideo(Intent intent, GalleryAdapter galleryAdapter, AnimatedProgressDialog progressDialog, boolean isOpened) {
@@ -424,33 +435,33 @@ public class MainActivity extends AppCompatActivity {
 
     public void setContainerLayout() {
         findViewById(R.id.main_activity_toolbar_cancel).setVisibility(View.INVISIBLE);
-        findViewById(R.id.main_activity_toolbar_done).setVisibility(View.INVISIBLE);
-        ViewGroup.LayoutParams params = container.getLayoutParams();
+        findViewById(R.id.main_activity_toolbar_next).setVisibility(View.INVISIBLE);
+        ViewGroup.LayoutParams params = categoryContainer.getLayoutParams();
         int[] location = new int[2];
         findViewById(R.id.main_activity_toolbar).getLocationOnScreen(location);
         params.height = (int) (getResources().getDisplayMetrics().heightPixels - location[1] - findViewById(R.id.main_activity_toolbar).getHeight());
-        container.setLayoutParams(params);
+        categoryContainer.setLayoutParams(params);
 
         containerIsOpened = true;
         com.gifsart.studio.utils.AnimationUtils.rotateAnimation(findViewById(R.id.main_activity_up_down_image), 0, 180);
         TranslateAnimation anim = new TranslateAnimation(0, 0, getResources().getDisplayMetrics().heightPixels, findViewById(R.id.main_activity_toolbar).getBottom());
         anim.setDuration(200);
         anim.setFillAfter(false);
-        container.setVisibility(View.VISIBLE);
+        categoryContainer.setVisibility(View.VISIBLE);
         findViewById(R.id.category_rec_view).setVisibility(View.VISIBLE);
-        container.startAnimation(anim);
+        categoryContainer.startAnimation(anim);
     }
 
     public void slideDownContainer() {
         containerIsOpened = false;
         findViewById(R.id.main_activity_toolbar_cancel).setVisibility(View.VISIBLE);
-        findViewById(R.id.main_activity_toolbar_done).setVisibility(View.VISIBLE);
+        findViewById(R.id.main_activity_toolbar_next).setVisibility(View.VISIBLE);
         com.gifsart.studio.utils.AnimationUtils.rotateAnimation(findViewById(R.id.main_activity_up_down_image), 180, 0);
         TranslateAnimation anim = new TranslateAnimation(0, 0, findViewById(R.id.main_activity_toolbar).getBottom(), getResources().getDisplayMetrics().heightPixels);
         anim.setDuration(200);
         anim.setFillAfter(true);
-        container.setVisibility(View.VISIBLE);
-        container.startAnimation(anim);
+        categoryContainer.setVisibility(View.VISIBLE);
+        categoryContainer.startAnimation(anim);
         anim.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
@@ -458,7 +469,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onAnimationEnd(Animation animation) {
-                container.setVisibility(View.GONE);
+                categoryContainer.setVisibility(View.GONE);
                 findViewById(R.id.category_rec_view).setVisibility(View.GONE);
             }
 
@@ -473,10 +484,15 @@ public class MainActivity extends AppCompatActivity {
      *
      *
      *
+     *
+     *
+     *
+     *
+     *
      */
 
     private void initShooting() {
-        cameraPreviewLayout = (LinearLayout) findViewById(R.id.camera_preview);
+        cameraPreviewLayout = (RelativeLayout) findViewById(R.id.camera_preview);
         cameraPreview = new CameraPreview(context, camera);
 
         captureButton = (ImageButton) findViewById(R.id.button_capture);
@@ -488,7 +504,7 @@ public class MainActivity extends AppCompatActivity {
 
         cameraPreviewLayout.addView(cameraPreview);
 
-        screenModeBtn = (ImageButton) findViewById(R.id.screen_mode);
+        aspectRatioButton = (ImageButton) findViewById(R.id.aspect_ratio_button);
 
         captureCicrleButtonProgressBar = (ProgressBar) findViewById(R.id.circle_progress_bar);
 
@@ -497,7 +513,6 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 burstMode = burstModeCounts.get((burstModeCounts.indexOf(burstMode) + 1) % burstModeCounts.size());
                 ((TextView) findViewById(R.id.burst_mode_count)).setText("x" + burstMode);
-
             }
         });
 
@@ -510,53 +525,75 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        findViewById(R.id.capture_button_container).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.aspect_ratio).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int a = findViewById(R.id.gallery_container).getTop();
-                int b = findViewById(R.id.main_activity_toolbar).getBottom() + getResources().getDisplayMetrics().widthPixels * 4 / 3;
-                Log.d("gaga", findViewById(R.id.main_activity_toolbar).getBottom() + "");
-                Log.d("gaga", a + "/" + b);
-                TranslateAnimation anim = new TranslateAnimation(0, 0, a, 100);
-                anim.setDuration(2000);
-                anim.setFillAfter(true);
-                findViewById(R.id.gallery_container).startAnimation(anim);
+                if (coverSize == 0) {
+                    coverSize = cameraPreview.getHeight() - cameraPreview.getWidth();
+                    ViewGroup.LayoutParams layoutParams = findViewById(R.id.cover).getLayoutParams();
+                    layoutParams.height = coverSize;
+                    findViewById(R.id.cover).setLayoutParams(layoutParams);
+                }
+
+                if (aspectRatio) {
+                    slidingUpPanelLayout.setAnchorPoint(1.0f);
+
+                    slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.ANCHORED);
+                    //galleryContainer.setTop(500);
+                    findViewById(R.id.cover).setVisibility(View.VISIBLE);
+                    aspectRatio = false;
+                } else {
+                    slidingUpPanelLayout.setAnchorPoint(0.5f);
+                    slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.ANCHORED);
+                    //galleryContainer.setTop(300);
+                    findViewById(R.id.cover).setVisibility(View.INVISIBLE);
+                    aspectRatio = true;
+                }
             }
         });
-    }
 
-    private int findFrontFacingCamera() {
-        int cameraId = -1;
-        // Search for the front facing camera
-        int numberOfCameras = Camera.getNumberOfCameras();
-        for (int i = 0; i < numberOfCameras; i++) {
-            Camera.CameraInfo info = new Camera.CameraInfo();
-            Camera.getCameraInfo(i, info);
-            if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-                cameraId = i;
-                cameraFront = true;
-                break;
-            }
-        }
-        return cameraId;
-    }
+        slidingUpPanelLayout = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
+        slidingUpPanelLayout.setAnchorPoint(0.5f);
+        //slidingUpPanelLayout.setPanelHeight(600);
+        slidingUpPanelLayout.setPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
+            @Override
+            public void onPanelSlide(View panel, float slideOffset) {
 
-    private int findBackFacingCamera() {
-        int cameraId = -1;
-        // Search for the corner facing camera
-        // get the number of cameras
-        int numberOfCameras = Camera.getNumberOfCameras();
-        // for every camera check
-        for (int i = 0; i < numberOfCameras; i++) {
-            Camera.CameraInfo info = new Camera.CameraInfo();
-            Camera.getCameraInfo(i, info);
-            if (info.facing == Camera.CameraInfo.CAMERA_FACING_BACK) {
-                cameraId = i;
-                cameraFront = false;
-                break;
+                Log.d("gaga",slidingUpPanelLayout.getPanelState().name());
+                /*Log.d("gag", slideOffset + "");
+                Log.d("gag1", panel.getTop() + "");
+                if (slidingUpPanelLayout.getAnchorPoint() == 1.0f) {
+                    Log.d("bab", "bab1");
+                    slidingUpPanelLayout.setAnchorPoint(0.5f);
+                    slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.ANCHORED);
+                } else {
+                    Log.d("bab", "bab2");
+                    slidingUpPanelLayout.setAnchorPoint(1.0f);
+                    slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                }*/
             }
-        }
-        return cameraId;
+
+            @Override
+            public void onPanelCollapsed(View panel) {
+                Log.d("gag2", panel.getTop() + "");
+            }
+
+            @Override
+            public void onPanelExpanded(View panel) {
+
+            }
+
+            @Override
+            public void onPanelAnchored(View panel) {
+                Log.d("gag4", panel.getTop() + "");
+            }
+
+            @Override
+            public void onPanelHidden(View panel) {
+                Log.d("gag5", panel.getTop() + "");
+            }
+        });
+
     }
 
     private void releaseMediaRecorder() {
@@ -587,6 +624,7 @@ public class MainActivity extends AppCompatActivity {
         mediaRecorder.setOutputFile(file.getAbsolutePath());
         mediaRecorder.setMaxDuration(GifsArtConst.VIDEO_MAX_DURATION); // Set max duration 30 sec.
         mediaRecorder.setMaxFileSize(GifsArtConst.VIDEO_FILE_MAX_SIZE); // Set max file size 40M
+        mediaRecorder.setPreviewDisplay(cameraPreview.getHolder().getSurface());
 
         try {
             mediaRecorder.prepare();
@@ -600,47 +638,33 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    public boolean hasCamera(Context context) {
-        // check if the device has camera
-        if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
 
     public void chooseCamera() {
         // if the camera preview is the front
         if (cameraFront) {
-            int cameraId = findBackFacingCamera();
+            int cameraId = CameraHelper.findBackFacingCamera();
             if (cameraId >= 0) {
                 // open the backFacingCamera
                 // set a picture callback
                 // refresh the preview
 
+                cameraFront = false;
                 camera = Camera.open(cameraId);
                 // mPicture = getPictureCallback();
                 cameraPreview.refreshCamera(camera);
             }
         } else {
-            int cameraId = findFrontFacingCamera();
+            int cameraId = CameraHelper.findFrontFacingCamera();
             if (cameraId >= 0) {
                 // open the backFacingCamera
                 // set a picture callback
                 // refresh the preview
 
+                cameraFront = true;
                 camera = Camera.open(cameraId);
                 // mPicture = getPictureCallback();
                 cameraPreview.refreshCamera(camera);
             }
-        }
-    }
-
-    private void releaseCamera() {
-        // stop and release camera
-        if (camera != null) {
-            camera.release();
-            camera = null;
         }
     }
 

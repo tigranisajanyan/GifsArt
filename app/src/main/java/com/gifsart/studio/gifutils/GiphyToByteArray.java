@@ -2,11 +2,13 @@ package com.gifsart.studio.gifutils;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Environment;
 
 import com.gifsart.studio.item.GiphyItem;
 import com.gifsart.studio.utils.AnimatedProgressDialog;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -52,6 +54,8 @@ public class GiphyToByteArray extends AsyncTask<Void, Integer, Boolean> {
                 byteBuffer.write(buffer, 0, len);
             }
             buffer = byteBuffer.toByteArray();
+            FileOutputStream stream = new FileOutputStream(Environment.getExternalStorageDirectory() + "/ttt.gif");
+            stream.write(byteBuffer.toByteArray());
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -74,6 +78,10 @@ public class GiphyToByteArray extends AsyncTask<Void, Integer, Boolean> {
 
     public interface OnDownloaded {
         void onDownloaded(boolean isDownladed);
+    }
+
+    private void downloadingFile() {
+
     }
 
 }

@@ -26,5 +26,11 @@ public class RequestConstants {
     public static final int REQUEST_RESET_PASSWORD_SUCCESS_CODE = 107;
     public static final int REQUEST_RESET_PASSWORD_ERROR_CODE = 207;
 
+    public static final int UPDATE_PHOTO_INFO_SUCCESS_CODE = 108;
+    public static final int UPDATE_PHOTO_INFO_ERROR_CODE = 208;
+
+    public static final int REMOVE_PHOTO_SUCCESS_CODE = 109;
+    public static final int REMOVE_PHOTO_ERROR_CODE = 209;
+
 
 }
