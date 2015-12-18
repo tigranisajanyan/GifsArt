@@ -4,12 +4,12 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -20,7 +20,6 @@ import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.interfaces.DraweeController;
 import com.facebook.drawee.view.SimpleDraweeView;
-import com.facebook.imagepipeline.request.ImageRequest;
 import com.gifsart.studio.R;
 import com.gifsart.studio.adapter.ProfileUserPhotosAdapter;
 import com.gifsart.studio.gifutils.GiphyToByteArray;
@@ -76,7 +75,7 @@ public class EditLocalPhotoActivity extends AppCompatActivity {
         DraweeController controller = Fresco.newDraweeControllerBuilder()
                 //.setLowResImageRequest(ImageRequest.fromUri(gifUrl + "?r240x240f5"))
                 .setUri(Uri.parse(gifUrl + "?r240x240f5"))
-                //.setImageRequest(ImageRequest.fromUri(gifUrl + "?r240x240f5"))
+                        //.setImageRequest(ImageRequest.fromUri(gifUrl + "?r240x240f5"))
                 .setAutoPlayAnimations(true).build();
         imageView.setController(controller);
 
@@ -170,6 +169,7 @@ public class EditLocalPhotoActivity extends AppCompatActivity {
                         if (isDownladed) {
                             Intent intent = new Intent(EditLocalPhotoActivity.this, ShareGifActivity.class);
                             intent.putExtra("saved_file_path", Environment.getExternalStorageDirectory() + "/ttt.gif");
+                            intent.putExtra("saved_file_url", gifUrl);
                             startActivity(intent);
                             finish();
                         }

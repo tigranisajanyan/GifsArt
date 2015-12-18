@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.hardware.Camera;
-import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -50,7 +49,6 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -381,14 +379,23 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        Log.d("main_activity", "onPause");
         releaseCamera();
     }
 
     private void releaseCamera() {
         // stop and release camera
-        if (camera != null) {
-            camera.release();
-            camera = null;
+        try {
+            if (camera != null) {
+                cameraPreview.stop();
+                camera.stopPreview();
+                camera.setPreviewCallback(null);
+                //cameraPreview.getHolder().removeCallback(cameraPreview);
+                camera.release();
+                camera = null;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -529,48 +536,34 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (coverSize == 0) {
-                    coverSize = cameraPreview.getHeight() - cameraPreview.getWidth();
-                    ViewGroup.LayoutParams layoutParams = findViewById(R.id.cover).getLayoutParams();
-                    layoutParams.height = coverSize;
-                    findViewById(R.id.cover).setLayoutParams(layoutParams);
+                    int x = getResources().getDisplayMetrics().heightPixels - slidingUpPanelLayout.getTop() - (getResources().getDisplayMetrics().widthPixels * 4 / 3) + findViewById(R.id.capture_container).getHeight();
+                    slidingUpPanelLayout.setPanelHeight(x);
                 }
 
                 if (aspectRatio) {
-                    slidingUpPanelLayout.setAnchorPoint(1.0f);
-
+                    slidingUpPanelLayout.setAnchorPoint(0.4f);
                     slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.ANCHORED);
-                    //galleryContainer.setTop(500);
-                    findViewById(R.id.cover).setVisibility(View.VISIBLE);
                     aspectRatio = false;
                 } else {
-                    slidingUpPanelLayout.setAnchorPoint(0.5f);
-                    slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.ANCHORED);
-                    //galleryContainer.setTop(300);
-                    findViewById(R.id.cover).setVisibility(View.INVISIBLE);
+                    slidingUpPanelLayout.setAnchorPoint(1.0f);
+                    slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
                     aspectRatio = true;
                 }
             }
         });
 
         slidingUpPanelLayout = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
-        slidingUpPanelLayout.setAnchorPoint(0.5f);
-        //slidingUpPanelLayout.setPanelHeight(600);
+        slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
         slidingUpPanelLayout.setPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
             @Override
             public void onPanelSlide(View panel, float slideOffset) {
-
-                Log.d("gaga",slidingUpPanelLayout.getPanelState().name());
-                /*Log.d("gag", slideOffset + "");
-                Log.d("gag1", panel.getTop() + "");
                 if (slidingUpPanelLayout.getAnchorPoint() == 1.0f) {
-                    Log.d("bab", "bab1");
-                    slidingUpPanelLayout.setAnchorPoint(0.5f);
+                    slidingUpPanelLayout.setAnchorPoint(0.4f);
                     slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.ANCHORED);
                 } else {
-                    Log.d("bab", "bab2");
                     slidingUpPanelLayout.setAnchorPoint(1.0f);
                     slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-                }*/
+                }
             }
 
             @Override
@@ -595,49 +588,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
-
-    private void releaseMediaRecorder() {
-        if (mediaRecorder != null) {//TODO add other expression (&&)
-            mediaRecorder.reset(); // clear recorder configuration
-            mediaRecorder.release(); // release the recorder object
-            mediaRecorder = null;
-            camera.lock(); // lock camera for later use
-        }
-    }
-
-    private boolean prepareMediaRecorder() {
-        File file = new File(GifsArtConst.SHOOTING_VIDEO_OUTPUT_DIR, GifsArtConst.VIDEO_NAME);
-        camera.unlock();
-
-        mediaRecorder = new MediaRecorder();
-        mediaRecorder.setCamera(camera);
-        mediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
-        mediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
-
-        CamcorderProfile profile = CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH);
-        if (profile.videoFrameHeight > 720) {
-            mediaRecorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_720P));
-        } else {
-            mediaRecorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH));
-        }
-        mediaRecorder.setOrientationHint(GifsArtConst.VIDEO_OUTPUT_ORIENTATION);
-        mediaRecorder.setOutputFile(file.getAbsolutePath());
-        mediaRecorder.setMaxDuration(GifsArtConst.VIDEO_MAX_DURATION); // Set max duration 30 sec.
-        mediaRecorder.setMaxFileSize(GifsArtConst.VIDEO_FILE_MAX_SIZE); // Set max file size 40M
-        mediaRecorder.setPreviewDisplay(cameraPreview.getHolder().getSurface());
-
-        try {
-            mediaRecorder.prepare();
-        } catch (IllegalStateException e) {
-            releaseMediaRecorder();
-            return false;
-        } catch (IOException e) {
-            releaseMediaRecorder();
-            return false;
-        }
-        return true;
-    }
-
 
     public void chooseCamera() {
         // if the camera preview is the front
@@ -694,38 +644,30 @@ public class MainActivity extends AppCompatActivity {
                 case MotionEvent.ACTION_DOWN:
                     break;
                 case MotionEvent.ACTION_UP:
-                    boolean finish = false;
                     if (recording) {
-                        try {
-                            mediaRecorder.stop(); // stop the recording
-                        } catch (Exception e) {
-                            // when mediaRecorder haven't prepared yet, will thraw an exaption which we catch here
-                            finish = true;
-                            recording = false;
-                            cameraPreview.refreshCamera(camera);
-                            videoCaptureCountDownTimer.cancel();
-                            captureCicrleButtonProgressBar.setVisibility(View.GONE);
+                        //captureButton.setOnTouchListener(null);
+                        //captureButton.setOnLongClickListener(null);
+                        cameraPreview.stop();
+                        recording = false;
+                        videoCaptureCountDownTimer.cancel();
+                        captureCicrleButtonProgressBar.setVisibility(View.INVISIBLE);
+                        if (!sharedPreferences.getBoolean(GifsArtConst.SHARED_PREFERENCES_IS_OPENED, false)) {
+                            sendCapturedVideoFramesWithIntent(new Intent(MainActivity.this, MakeGifActivity.class));
+                        } else {
+                            sendCapturedVideoFramesWithIntent(new Intent());
                         }
-                        if (!finish) {
-                            captureButton.setOnTouchListener(null);
-                            captureButton.setOnLongClickListener(null);
-                            releaseMediaRecorder(); // release the MediaRecorder object
-                            Toast.makeText(MainActivity.this, "Video captured!", Toast.LENGTH_LONG).show();
-                            recording = false;
-                            videoCaptureCountDownTimer.cancel();
-                            captureCicrleButtonProgressBar.setVisibility(View.INVISIBLE);
-                            if (CheckFreeSpaceSingleton.getInstance().haveEnoughSpace(GifsArtConst.SHOOTING_VIDEO_OUTPUT_DIR + "/" + GifsArtConst.VIDEO_NAME)) {
-                                saveCapturedVideoFrames();
-                            } else {
-                                setResult(RESULT_CANCELED);
-                                finish();
-                                Toast.makeText(context, "No enough space", Toast.LENGTH_SHORT).show();
-                            }
-                        }
+                        /*if (CheckFreeSpaceSingleton.getInstance().haveEnoughSpace(GifsArtConst.SHOOTING_VIDEO_OUTPUT_DIR + "/" + GifsArtConst.VIDEO_NAME)) {
+                            saveCapturedVideoFrames();
+                        } else {
+                            setResult(RESULT_CANCELED);
+                            finish();
+                            Toast.makeText(context, "No enough space", Toast.LENGTH_SHORT).show();
+                        }*/
+
                     } else {
                         findViewById(R.id.burst_mode_image_container).setOnClickListener(null);
-                        captureButton.setOnTouchListener(null);
-                        captureButton.setOnLongClickListener(null);
+                        //captureButton.setOnTouchListener(null);
+                        //captureButton.setOnLongClickListener(null);
                         int n = burstMode;
                         burstModeRecursion(n);
                     }
@@ -739,13 +681,9 @@ public class MainActivity extends AppCompatActivity {
     View.OnLongClickListener onLongClickListener = new View.OnLongClickListener() {
         @Override
         public boolean onLongClick(View v) {
-            if (!prepareMediaRecorder()) {
-                Toast.makeText(MainActivity.this, "Fail in prepareMediaRecorder()!\n - Ended -", Toast.LENGTH_LONG).show();
-                finish();
-            }
-            mediaRecorder.start();
+            cameraPreview.start();
             recording = true;
-            videoCaptureCountDownTimer = new VideoCaptureCountDownTimer(7100, 1000);
+            videoCaptureCountDownTimer = new VideoCaptureCountDownTimer(6100, 1000);
             videoCaptureCountDownTimer.start();
             captureCicrleButtonProgressBar.setProgress(0);
             captureCicrleButtonProgressBar.setVisibility(View.VISIBLE);
@@ -753,33 +691,11 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    public void saveCapturedVideoFrames() {
-        final AnimatedProgressDialog animatedProgressDialog = new AnimatedProgressDialog(MainActivity.this);
-        animatedProgressDialog.setCancelable(false);
-        animatedProgressDialog.show();
-        VideoDecoder videoDecoder = new VideoDecoder(MainActivity.this, GifsArtConst.SHOOTING_VIDEO_OUTPUT_DIR + "/" + GifsArtConst.VIDEO_NAME, Integer.MAX_VALUE, GifsArtConst.VIDEO_FRAME_SCALE_SIZE, GifsArtConst.VIDEOS_DECODED_FRAMES_DIR);
-        videoDecoder.extractVideoFrames();
-        videoDecoder.setOnDecodeFinishedListener(new VideoDecoder.OnDecodeFinishedListener() {
-            @Override
-            public void onFinish(boolean isDone) {
-                if (!sharedPreferences.getBoolean(GifsArtConst.SHARED_PREFERENCES_IS_OPENED, false)) {
-                    sendCapturedVideoFramesWithIntent(new Intent(MainActivity.this, MakeGifActivity.class));
-                } else {
-                    sendCapturedVideoFramesWithIntent(new Intent());
-                }
-                File file = new File(GifsArtConst.VIDEOS_DECODED_FRAMES_DIR);
-                CheckFreeSpaceSingleton.getInstance().addAllocatedSpaceInt(file.listFiles().length * 2 / 3);
-                animatedProgressDialog.dismiss();
-                finish();
-            }
-        });
-    }
-
     public void saveBurstModeFrames() {
         final AnimatedProgressDialog animatedProgressDialog = new AnimatedProgressDialog(MainActivity.this);
         animatedProgressDialog.setCancelable(false);
         animatedProgressDialog.show();
-        BurstModeFramesSaving burstModeFramesSaving = new BurstModeFramesSaving(burstModeFrameBytes);
+        BurstModeFramesSaving burstModeFramesSaving = new BurstModeFramesSaving(cameraFront, burstModeFrameBytes);
         burstModeFramesSaving.setFramesSavedListener(new BurstModeFramesSaving.FramesSaved() {
             @Override
             public void done(boolean done) {
@@ -790,22 +706,20 @@ public class MainActivity extends AppCompatActivity {
                     }
                     if (!sharedPreferences.getBoolean(GifsArtConst.SHARED_PREFERENCES_IS_OPENED, false)) {
                         Intent intent = new Intent(MainActivity.this, MakeGifActivity.class);
-                        intent.putExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, GifsArtConst.INDEX_FROM_GALLERY_TO_GIF);
-                        intent.putStringArrayListExtra(GifsArtConst.INTENT_DECODED_IMAGE_PATHS, strings);
+                        intent.putExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, GifsArtConst.INDEX_SHOOT_GIF);
                         intent.putExtra(GifsArtConst.INTENT_CAMERA_BURST_MODE, true);
                         intent.putExtra(GifsArtConst.INTENT_FRONT_CAMERA, cameraFront);
                         startActivity(intent);
                     } else {
                         Intent intent = new Intent();
-                        intent.putExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, GifsArtConst.INDEX_FROM_GALLERY_TO_GIF);
-                        intent.putStringArrayListExtra(GifsArtConst.INTENT_DECODED_IMAGE_PATHS, strings);
+                        intent.putExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, GifsArtConst.INDEX_SHOOT_GIF);
                         intent.putExtra(GifsArtConst.INTENT_CAMERA_BURST_MODE, true);
                         intent.putExtra(GifsArtConst.INTENT_FRONT_CAMERA, cameraFront);
                         setResult(RESULT_OK, intent);
+                        finish();
                     }
                     CheckFreeSpaceSingleton.getInstance().addAllocatedSpaceInt(burstMode);
                     animatedProgressDialog.dismiss();
-                    finish();
                 }
             }
         });
@@ -815,13 +729,12 @@ public class MainActivity extends AppCompatActivity {
     public void sendCapturedVideoFramesWithIntent(Intent intent) {
         intent.putExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, GifsArtConst.INDEX_SHOOT_GIF);
         intent.putExtra(GifsArtConst.INTENT_FRONT_CAMERA, cameraFront);
-        intent.putExtra(GifsArtConst.INTENT_VIDEO_FRAME_SCALE_SIZE, GifsArtConst.VIDEO_FRAME_SCALE_SIZE);
-        intent.putExtra(GifsArtConst.INTENT_VIDEO_PATH, GifsArtConst.SHOOTING_VIDEO_OUTPUT_DIR + "/" + GifsArtConst.VIDEO_NAME);
         intent.putExtra(GifsArtConst.INTENT_CAMERA_BURST_MODE, false);
         if (!sharedPreferences.getBoolean(GifsArtConst.SHARED_PREFERENCES_IS_OPENED, false)) {
             startActivity(intent);
         } else {
             setResult(RESULT_OK, intent);
+            finish();
         }
     }
 
@@ -891,23 +804,29 @@ public class MainActivity extends AppCompatActivity {
             Log.d("gagag", "" + millisUntilFinished);
             if (millisUntilFinished <= 2000) {
                 if (recording) {
-                    try {
+                    /*try {
                         mediaRecorder.stop(); // stop the recording
                     } catch (Exception e) {
                         e.printStackTrace();
-                    }
+                    }*/
                     captureButton.setOnTouchListener(null);
                     captureButton.setOnLongClickListener(null);
-                    releaseMediaRecorder(); // release the MediaRecorder object
+                    //releaseMediaRecorder(); // release the MediaRecorder object
                     recording = false;
+                    cameraPreview.stop();
                     captureCicrleButtonProgressBar.setVisibility(View.INVISIBLE);
-                    if (CheckFreeSpaceSingleton.getInstance().haveEnoughSpace(GifsArtConst.SHOOTING_VIDEO_OUTPUT_DIR + "/" + GifsArtConst.VIDEO_NAME)) {
-                        saveCapturedVideoFrames();
+                    if (!sharedPreferences.getBoolean(GifsArtConst.SHARED_PREFERENCES_IS_OPENED, false)) {
+                        sendCapturedVideoFramesWithIntent(new Intent(MainActivity.this, MakeGifActivity.class));
                     } else {
+                        sendCapturedVideoFramesWithIntent(new Intent());
+                    }
+                    //if (CheckFreeSpaceSingleton.getInstance().haveEnoughSpace(GifsArtConst.SHOOTING_VIDEO_OUTPUT_DIR + "/" + GifsArtConst.VIDEO_NAME)) {
+                    //saveCapturedVideoFrames();
+                    /*} else {
                         setResult(RESULT_CANCELED);
                         finish();
                         Toast.makeText(context, "No enough space", Toast.LENGTH_SHORT).show();
-                    }
+                    }*/
                 }
             }
         }

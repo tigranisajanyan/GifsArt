@@ -5,12 +5,12 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -196,7 +196,27 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
 
+        /*LoginManager.getInstance().registerCallback(CallbackManager.Factory.create(), new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+                return;
+            }
+
+            @Override
+            public void onCancel() {
+                AlertDialog alert = UserContraller.setupDialogBuilder(context, "Facebook login canceled").create();
+                alert.show();
+            }
+
+            @Override
+            public void onError(FacebookException error) {
+                AlertDialog alert = UserContraller.setupDialogBuilder(context, error.getMessage()).create();
+                alert.show();
+            }
+        });*/
+
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -264,7 +284,7 @@ public class ProfileActivity extends AppCompatActivity {
         if (requestCode == REQUEST_PICK_IMAGE_FROM_GALLERY) {
             if (resultCode == RESULT_OK) {
                 Uri imageUri = data.getData();
-                final UploadImageToPicsart uploadImageToPicsart = new UploadImageToPicsart(user.getKey(), Utils.getRealPathFromURI(context, imageUri), UploadImageToPicsart.PHOTO_IS.AVATAR);
+                final UploadImageToPicsart uploadImageToPicsart = new UploadImageToPicsart(context, user.getKey(), Utils.getRealPathFromURI(context, imageUri), "GifsArt", UploadImageToPicsart.PHOTO_PUBLIC.PUBLIC, UploadImageToPicsart.PHOTO_IS.GENERAL);
                 uploadImageToPicsart.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 uploadImageToPicsart.setOnUploadedListener(new UploadImageToPicsart.ImageUploaded() {
                     @Override

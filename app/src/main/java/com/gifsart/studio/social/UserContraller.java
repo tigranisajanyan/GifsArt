@@ -2,8 +2,6 @@ package com.gifsart.studio.social;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 
@@ -15,11 +13,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.gifsart.studio.R;
-import com.gifsart.studio.utils.AnimatedProgressDialog;
 import com.gifsart.studio.utils.Utils;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -474,7 +468,6 @@ public class UserContraller {
     }
 
     /**
-     *
      * @param photoId
      * @param apiKey
      */
@@ -511,6 +504,11 @@ public class UserContraller {
         } else {
             userRequest.onRequestReady(RequestConstants.REMOVE_PHOTO_ERROR_CODE, context.getString(R.string.no_internet_connection));
         }
+    }
+
+
+    public synchronized void upload12(String filePath, String apiKey) {
+
     }
 
 
@@ -597,7 +595,7 @@ public class UserContraller {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return user;
+        return null;
     }
 
     /*private static void saveUserData() {

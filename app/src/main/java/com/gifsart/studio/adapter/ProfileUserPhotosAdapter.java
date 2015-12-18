@@ -4,16 +4,13 @@ import android.content.Context;
 import android.net.Uri;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
-import com.facebook.drawee.backends.pipeline.Fresco;
-import com.facebook.drawee.interfaces.DraweeController;
-import com.facebook.drawee.view.SimpleDraweeView;
+import com.bumptech.glide.Glide;
 import com.gifsart.studio.R;
 import com.gifsart.studio.social.Photo;
 import com.gifsart.studio.social.UserContraller;
@@ -56,11 +53,11 @@ public class ProfileUserPhotosAdapter extends RecyclerView.Adapter<ProfileUserPh
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
         holder.userPhotoImageView.setBackgroundColor(colors.get(random.nextInt(colors.size())));
-        DraweeController controller = Fresco.newDraweeControllerBuilder()
+        /*DraweeController controller = Fresco.newDraweeControllerBuilder()
                 .setUri(Uri.parse(userPhotos.get(position).getUrl() + "?r240x240f5"))
                 .setAutoPlayAnimations(true).build();
-        holder.userPhotoImageView.setController(controller);
-        //Glide.with(context).load(Uri.parse(userPhotos.get(position).getUrl() + "?r240x240f5")).asGif().centerCrop().into(holder.userPhotoImageView);
+        holder.userPhotoImageView.setController(controller);*/
+        Glide.with(context).load(Uri.parse(userPhotos.get(position).getUrl() + "?r240x240f5")).asGif().override(300, 300).centerCrop().into(holder.userPhotoImageView);
         if (userPhotos.get(position).getIsPublic()) {
             holder.privateImageView.setVisibility(View.GONE);
         } else {
@@ -105,7 +102,7 @@ public class ProfileUserPhotosAdapter extends RecyclerView.Adapter<ProfileUserPh
 
     class ViewHolder extends RecyclerView.ViewHolder {
 
-        public SimpleDraweeView userPhotoImageView;
+        public ImageView userPhotoImageView;
         public ImageView privateImageView;
 
         public ViewHolder(View itemView) {
@@ -113,7 +110,7 @@ public class ProfileUserPhotosAdapter extends RecyclerView.Adapter<ProfileUserPh
 
             int imageSize = context.getResources().getDisplayMetrics().widthPixels / 2;
             FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(imageSize, imageSize);
-            userPhotoImageView = (SimpleDraweeView) itemView.findViewById(R.id.user_profile_photos_image_view);
+            userPhotoImageView = (ImageView) itemView.findViewById(R.id.user_profile_photos_image_view);
             privateImageView = (ImageView) itemView.findViewById(R.id.private_image_view);
             userPhotoImageView.setLayoutParams(layoutParams);
         }

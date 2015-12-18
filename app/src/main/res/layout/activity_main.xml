@@ -13,14 +13,17 @@
         android:layout_alignParentTop="true"
         android:background="@color/navigation_bar_color">
 
-        <Button
+        <TextView
             android:id="@+id/main_activity_toolbar_cancel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
             android:background="@android:color/transparent"
+            android:drawableLeft="@drawable/left_arrow"
+            android:drawablePadding="5dp"
             android:gravity="center"
-            android:text="Cancel"
+            android:text="GIFs"
             android:textAllCaps="false"
             android:textColor="@color/pink" />
 
@@ -84,8 +87,8 @@
         android:layout_height="match_parent"
         android:layout_below="@+id/main_activity_toolbar"
         android:gravity="bottom"
-        sothree:umanoShadowHeight="0dp"
-        sothree:umanoOverlay="true">
+        sothree:umanoOverlay="true"
+        sothree:umanoShadowHeight="0dp">
 
         <FrameLayout
             android:id="@+id/camera_preview_container"
@@ -160,14 +163,6 @@
                 android:layout_gravity="center"
                 android:textColor="@color/font_main_color"
                 android:textSize="50dp" />
-
-            <ImageView
-                android:id="@+id/cover"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="bottom"
-                android:background="@color/background_color"
-                android:visibility="invisible" />
 
         </FrameLayout>
 

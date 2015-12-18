@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_color"
+    tools:context="com.gifsart.studio.activity.PicsArtShareActivity">
+
+    <RelativeLayout
+        android:id="@+id/picsart_share_activity_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:background="@color/navigation_bar_color">
+
+        <ImageButton
+            android:id="@+id/picsart_share_activity_toolbar_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:background="@android:color/transparent"
+            android:gravity="center"
+            android:src="@drawable/back_icon" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="Share"
+            android:textColor="@color/font_main_color"
+            android:textSize="20dp" />
+
+        <Button
+            android:id="@+id/picsart_share_activity_toolbar_done_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:background="@android:color/transparent"
+            android:text="Done"
+            android:textColor="@color/pink" />
+    </RelativeLayout>
+
+    <pl.droidsonroids.gif.GifImageView
+        android:id="@+id/pics_art_share_image_view"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_below="@+id/picsart_share_activity_toolbar"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp" />
+
+    <EditText
+        android:id="@+id/say_something_edittext"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/pics_art_share_image_view"
+        android:layout_marginTop="10dp"
+        android:hint="Say something..."
+        android:singleLine="true"
+        android:textColor="@color/font_main_color"
+        android:textColorHint="@color/font_main_color" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/say_something_edittext"
+        android:layout_marginTop="30dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:text="Make it public"
+            android:textColor="@color/pink" />
+
+        <Switch
+            android:id="@+id/toggle_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="10dp"
+            android:checked="true" />
+    </RelativeLayout>
+
+</RelativeLayout>

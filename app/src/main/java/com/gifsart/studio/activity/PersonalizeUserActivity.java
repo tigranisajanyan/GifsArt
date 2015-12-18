@@ -3,10 +3,9 @@ package com.gifsart.studio.activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,7 +15,6 @@ import com.bumptech.glide.Glide;
 import com.gifsart.studio.R;
 import com.gifsart.studio.social.ErrorHandler;
 import com.gifsart.studio.social.RequestConstants;
-import com.gifsart.studio.social.StringValidation;
 import com.gifsart.studio.social.UploadImageToPicsart;
 import com.gifsart.studio.social.User;
 import com.gifsart.studio.social.UserContraller;
@@ -68,11 +66,11 @@ public class PersonalizeUserActivity extends AppCompatActivity {
         doneButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final UploadImageToPicsart uploadImageToPicsart = new UploadImageToPicsart(user.getKey(), Utils.getRealPathFromURI(PersonalizeUserActivity.this, imageUri), UploadImageToPicsart.PHOTO_IS.AVATAR);
+                final UploadImageToPicsart uploadImageToPicsart = new UploadImageToPicsart(PersonalizeUserActivity.this, user.getKey(), Utils.getRealPathFromURI(PersonalizeUserActivity.this, imageUri), "GifsArt", UploadImageToPicsart.PHOTO_PUBLIC.PUBLIC, UploadImageToPicsart.PHOTO_IS.AVATAR);
                 uploadImageToPicsart.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 uploadImageToPicsart.setOnUploadedListener(new UploadImageToPicsart.ImageUploaded() {
                     @Override
-                    public void uploadIsDone(boolean uploaded,String messege) {
+                    public void uploadIsDone(boolean uploaded, String messege) {
                         if (uploaded) {
                             UserContraller userContraller = new UserContraller(PersonalizeUserActivity.this);
                             userContraller.setOnRequestReadyListener(new UserContraller.UserRequest() {

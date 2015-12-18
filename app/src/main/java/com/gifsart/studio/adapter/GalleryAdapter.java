@@ -116,7 +116,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
         });
 
         ((Button) activity.findViewById(R.id.main_activity_toolbar_next)).setTextColor(((selected.size() > 0) ? activity.getResources().getColor(R.color.pink) : activity.getResources().getColor(R.color.font_main_color)));
-        ((Button) activity.findViewById(R.id.main_activity_toolbar_cancel)).setText(((selected.size() > 0) ? "Deselect" : "Cancel"));
+        ((TextView) activity.findViewById(R.id.main_activity_toolbar_cancel)).setText(((selected.size() > 0) ? "Deselect" : "Cancel"));
 
         try {
             Glide.with(activity).load(array.get(position).getFilePath()).asBitmap().centerCrop().into(holder.mainFrameImageView);

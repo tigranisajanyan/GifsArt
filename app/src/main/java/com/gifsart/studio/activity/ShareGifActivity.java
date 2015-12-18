@@ -1,41 +1,36 @@
 package com.gifsart.studio.activity;
 
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Environment;
-import android.os.StrictMode;
-import android.support.v7.app.AppCompatActivity;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.StrictMode;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 
-import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
-import com.facebook.FacebookCallback;
-import com.facebook.FacebookException;
 import com.facebook.login.LoginManager;
-import com.facebook.login.LoginResult;
-import com.facebook.share.ShareApi;
-import com.facebook.share.Sharer;
 import com.facebook.share.model.ShareLinkContent;
+import com.facebook.share.widget.ShareDialog;
 import com.gifsart.studio.R;
 import com.gifsart.studio.adapter.ShareGifAdapter;
-import com.gifsart.studio.social.FacebookConstants;
-import com.gifsart.studio.social.ShareContraller;
 import com.gifsart.studio.helper.RecyclerItemClickListener;
 import com.gifsart.studio.item.ShareGifItem;
+import com.gifsart.studio.social.ShareContraller;
+import com.gifsart.studio.social.UploadImageToPicsart;
+import com.gifsart.studio.social.UserContraller;
 import com.gifsart.studio.utils.SpacesItemDecoration;
 import com.gifsart.studio.utils.Utils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class ShareGifActivity extends AppCompatActivity {
+
+    private static final int REQUEST_SIGNIN_ACTIVITY = 111;
 
     private RecyclerView recyclerView;
 
@@ -44,6 +39,7 @@ public class ShareGifActivity extends AppCompatActivity {
     private ShareGifAdapter shareGifAdapter;
 
     private String filePath;
+    private String fileUrl;
 
     private CallbackManager callbackManager;
     private LoginManager loginManager;
@@ -60,25 +56,6 @@ public class ShareGifActivity extends AppCompatActivity {
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
-        callbackManager = CallbackManager.Factory.create();
-
-        LoginManager.getInstance().registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
-            @Override
-            public void onSuccess(LoginResult loginResult) {
-                Log.d("gag", "done");
-            }
-
-            @Override
-            public void onCancel() {
-                Log.d("gag", "cancel");
-            }
-
-            @Override
-            public void onError(FacebookException error) {
-                Log.d("gag", error.toString());
-            }
-        });
-
         shareGifItems.add(new ShareGifItem(R.drawable.facebook, "Facebook"));
         shareGifItems.add(new ShareGifItem(R.drawable.instagram, "Instagram"));
         shareGifItems.add(new ShareGifItem(R.drawable.twitter, "Twitter"));
@@ -86,6 +63,7 @@ public class ShareGifActivity extends AppCompatActivity {
         shareGifItems.add(new ShareGifItem(R.drawable.whatsapp, "Whatsapp"));
 
         filePath = getIntent().getStringExtra("saved_file_path");
+        fileUrl = getIntent().getStringExtra("saved_file_url");
 
         recyclerView = (RecyclerView) findViewById(R.id.share_gif_activity_rec_view);
 
@@ -107,7 +85,12 @@ public class ShareGifActivity extends AppCompatActivity {
                 ShareContraller shareContraller = new ShareContraller(filePath, ShareGifActivity.this);
                 switch (position) {
                     case 0:
-                        shareFacebook();
+                        if (fileUrl == null) {
+                            Intent intent = new Intent(ShareGifActivity.this, SignInActivity.class);
+                            startActivityForResult(intent, REQUEST_SIGNIN_ACTIVITY);
+                        } else {
+                            shareFacebook();
+                        }
                         break;
                     case 1:
                         shareContraller.shareInstagram();
@@ -142,32 +125,33 @@ public class ShareGifActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        callbackManager.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_SIGNIN_ACTIVITY) {
+            if (resultCode == RESULT_OK) {
+                final UploadImageToPicsart uploadImageToPicsart = new UploadImageToPicsart(ShareGifActivity.this, UserContraller.readUserFromFile(ShareGifActivity.this).getKey(), filePath, "title", UploadImageToPicsart.PHOTO_PUBLIC.PUBLIC, UploadImageToPicsart.PHOTO_IS.GENERAL);
+                uploadImageToPicsart.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                uploadImageToPicsart.setOnUploadedListener(new UploadImageToPicsart.ImageUploaded() {
+                    @Override
+                    public void uploadIsDone(boolean uploaded, String messege) {
+                        if (uploaded) {
+                            fileUrl = uploadImageToPicsart.getUploadedImageUrl();
+                        } else {
+                            AlertDialog alert = UserContraller.setupDialogBuilder(ShareGifActivity.this, messege).create();
+                            alert.show();
+                        }
+                    }
+                });
+            }
+        }
     }
 
     public void shareFacebook() {
-
-        LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("publish_actions"));
-
-        ShareLinkContent content = new ShareLinkContent.Builder()
-                .setContentUrl(Uri.parse("http://cdn78.picsart.com/186853261001202.gif"))
-                .build();
-
-        ShareApi.share(content, new FacebookCallback<Sharer.Result>() {
-            @Override
-            public void onSuccess(Sharer.Result result) {
-                Log.d("gag", result.toString());
-            }
-
-            @Override
-            public void onCancel() {
-                Log.d("gag", "cancel");
-            }
-
-            @Override
-            public void onError(FacebookException error) {
-                Log.d("gag", error.toString());
-            }
-        });
+        if (ShareDialog.canShow(ShareLinkContent.class)) {
+            String desc = "GifsArt";
+            ShareLinkContent linkContent = new ShareLinkContent.Builder().setContentTitle("title").setContentDescription(desc).
+                    setContentUrl(Uri.parse(fileUrl)).build();
+            ShareDialog.show(this, linkContent);
+        }
     }
+
+
 }

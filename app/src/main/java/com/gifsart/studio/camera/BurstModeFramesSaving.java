@@ -5,7 +5,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.os.AsyncTask;
 import android.os.Environment;
-import android.util.Log;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -20,9 +19,11 @@ public class BurstModeFramesSaving extends AsyncTask<Void, Integer, Void> {
 
     private FramesSaved framesSaved;
     private ArrayList<byte[]> bytes = new ArrayList<>();
+    boolean isFront = true;
 
-    public BurstModeFramesSaving(ArrayList<byte[]> bytes) {
+    public BurstModeFramesSaving(boolean isFront, ArrayList<byte[]> bytes) {
         this.bytes = bytes;
+        this.isFront = isFront;
     }
 
     @Override
@@ -38,7 +39,10 @@ public class BurstModeFramesSaving extends AsyncTask<Void, Integer, Void> {
             try {
                 FileOutputStream fileOutputStream = new FileOutputStream(new File(Environment.getExternalStorageDirectory() + "/GifsArt/video_frames/", "img_" + i + ".jpg"));
                 bitmap = rotate(bitmap, 90);
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 80, fileOutputStream);
+                if (isFront) {
+                    bitmap = rotate(bitmap, 180);
+                }
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, fileOutputStream);
                 fileOutputStream.close();
             } catch (FileNotFoundException e) {
                 e.printStackTrace();

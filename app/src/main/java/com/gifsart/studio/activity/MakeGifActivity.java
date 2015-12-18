@@ -30,26 +30,25 @@ import android.widget.TextView;
 
 import com.decoder.PhotoUtils;
 import com.gifsart.studio.R;
+import com.gifsart.studio.adapter.ClipartCategoryAdapter;
 import com.gifsart.studio.adapter.EffectsAdapter;
 import com.gifsart.studio.adapter.MasksAdapter;
 import com.gifsart.studio.adapter.SlideAdapter;
 import com.gifsart.studio.adapter.StickerAdapter;
-import com.gifsart.studio.adapter.ClipartCategoryAdapter;
 import com.gifsart.studio.clipart.ClipartRes;
 import com.gifsart.studio.clipart.MainView;
 import com.gifsart.studio.effects.ApplyGifEffect;
 import com.gifsart.studio.effects.GPUEffects;
 import com.gifsart.studio.effects.GPUImageFilterTools;
+import com.gifsart.studio.gifutils.GifImitation;
 import com.gifsart.studio.gifutils.GifUtils;
 import com.gifsart.studio.gifutils.Giphy;
 import com.gifsart.studio.gifutils.GiphyToByteArray;
 import com.gifsart.studio.gifutils.SaveGifBolts;
 import com.gifsart.studio.helper.RecyclerItemClickListener;
 import com.gifsart.studio.item.GifItem;
-import com.gifsart.studio.gifutils.GifImitation;
 import com.gifsart.studio.item.GiphyItem;
-import com.gifsart.studio.textart.TextArtStyle;
-import com.gifsart.studio.textart.TextArtView;
+import com.gifsart.studio.social.UserContraller;
 import com.gifsart.studio.utils.AnimatedProgressDialog;
 import com.gifsart.studio.utils.CheckFreeSpaceSingleton;
 import com.gifsart.studio.utils.GifsArtConst;
@@ -58,7 +57,6 @@ import com.gifsart.studio.utils.SpacesItemDecoration;
 import com.gifsart.studio.utils.Type;
 import com.gifsart.studio.utils.Utils;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.assist.ImageSize;
 
 import java.io.File;
 import java.io.IOException;
@@ -105,7 +103,6 @@ public class MakeGifActivity extends ActionBarActivity {
     private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor editor;
     private LinearLayout container;
-    private int contentType = 0;
 
     private boolean containerIsOpened = false;
     private int selectedMaskPosition = 0;
@@ -282,10 +279,10 @@ public class MakeGifActivity extends ActionBarActivity {
         findViewById(R.id.add_text_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                View convertView = getLayoutInflater().inflate(R.layout.text_list_item, mainFrameContainer, false);
+                /*View convertView = getLayoutInflater().inflate(R.layout.text_list_item, mainFrameContainer, false);
                 TextArtView item = (TextArtView) convertView;
                 item.initParams(TextArtStyle.getPreviewStyleObj(false, ""), "gagag");
-                mainFrameContainer.addView(item);
+                mainFrameContainer.addView(item);*/
             }
         });
 
@@ -381,7 +378,12 @@ public class MakeGifActivity extends ActionBarActivity {
                         @Override
                         public Task<Void> then(Task<Void> task) throws Exception {
                             animatedProgressDialog.dismiss();
-                            Intent intent = new Intent(MakeGifActivity.this, ShareGifActivity.class);
+                            Intent intent = null;
+                            if (UserContraller.readUserFromFile(MakeGifActivity.this) != null) {
+                                intent = new Intent(MakeGifActivity.this, PicsArtShareActivity.class);
+                            } else {
+                                intent = new Intent(MakeGifActivity.this, ShareGifActivity.class);
+                            }
                             intent.putExtra("saved_file_path", root + "/test.gif");
                             startActivity(intent);
                             finish();
@@ -534,6 +536,7 @@ public class MakeGifActivity extends ActionBarActivity {
         recyclerView.addOnItemTouchListener(new RecyclerItemClickListener(getApplicationContext(), new RecyclerItemClickListener.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
+                ((SeekBar) container.findViewById(R.id.opacity_seek_bar)).setProgress(100);
                 switchFilterTo(GPUEffects.createFilterForType(filters.filters.get(position)));
             }
         }));
@@ -765,13 +768,11 @@ public class MakeGifActivity extends ActionBarActivity {
 
     public void addImageItem(String path, boolean cameraFront, ArrayList<GifItem> gifItems) {
 
-        Bitmap bitmap = ImageLoader.getInstance().loadImageSync(FILE_PREFIX + path, new ImageSize(400, 400));
+        Bitmap bitmap = ImageLoader.getInstance().loadImageSync(FILE_PREFIX + path);
+        //Bitmap bitmap = BitmapFactory.decodeFile(path);
 
         GifItem gifItem = new GifItem(GifsArtConst.IMAGE_FRAME_DURATION, Type.IMAGE);
         gifItem.setCurrentDuration(GifsArtConst.IMAGE_FRAME_DURATION);
-        if (cameraFront) {
-            bitmap = Utils.getRotatedBitmap(180, bitmap);
-        }
         gifItem.setBitmap(bitmap);
         gifItems.add(gifItem);
     }
@@ -792,9 +793,27 @@ public class MakeGifActivity extends ActionBarActivity {
         gifItems.add(gifItem);
     }
 
+    public void addCameraItem(String path, boolean cameraFront, boolean isBurst, ArrayList<GifItem> gifItems) {
+        ArrayList<Bitmap> bitmaps = new ArrayList<>();
+        File file = new File(path);
+        File[] files = file.listFiles();
+        for (int j = 0; j < files.length; j++) {
+            Bitmap bitmap = ImageLoader.getInstance().loadImageSync(FILE_PREFIX + files[j].getAbsolutePath());
+            if (cameraFront && !isBurst) {
+                bitmap = Utils.rotateBitmap(bitmap, 180);
+            }
+            bitmaps.add(bitmap);
+
+        }
+        GifItem gifItem = new GifItem(70, Type.VIDEO);
+        gifItem.setCurrentDuration(70);
+        gifItem.setBitmap(bitmaps.get(0));
+        gifItem.setBitmaps(bitmaps);
+        gifItems.add(gifItem);
+    }
+
     public void addVideoItem(String path, Intent intent, ArrayList<GifItem> gifItems) {
-        boolean cameraFront = false;
-        cameraFront = intent.getBooleanExtra(GifsArtConst.INTENT_FRONT_CAMERA, false);
+        boolean cameraFront = intent.getBooleanExtra(GifsArtConst.INTENT_FRONT_CAMERA, false);
         ArrayList<Bitmap> bitmaps = new ArrayList<>();
         int scaleSize = intent.getIntExtra(GifsArtConst.INTENT_VIDEO_FRAME_SCALE_SIZE, GifsArtConst.VIDEO_FRAME_SCALE_SIZE);
         File file = new File(GifsArtConst.VIDEOS_DECODED_FRAMES_DIR);
@@ -804,7 +823,7 @@ public class MakeGifActivity extends ActionBarActivity {
                 ByteBuffer buffer = PhotoUtils.readBufferFromFile(files[j].getAbsolutePath(), PhotoUtils.checkBufferSize(path, scaleSize));
                 Bitmap bitmap = PhotoUtils.fromBufferToBitmap(PhotoUtils.checkFrameWidth(path, scaleSize), PhotoUtils.checkFrameHeight(path, scaleSize), buffer);
                 if (cameraFront) {
-                    bitmap = Utils.getRotatedBitmap(180, bitmap);
+                    bitmap = Utils.rotateBitmap(bitmap, 180);
                 }
                 bitmaps.add(bitmap);
             }
@@ -819,6 +838,7 @@ public class MakeGifActivity extends ActionBarActivity {
     // When first time MakeGifActivity opens should do this
     class LoadFramesAsyncTask extends AsyncTask<Void, Void, Void> {
         AnimatedProgressDialog animatedProgressDialog = new AnimatedProgressDialog(MakeGifActivity.this);
+        int contentType = 0;
 
         @Override
         protected void onPreExecute() {
@@ -851,7 +871,7 @@ public class MakeGifActivity extends ActionBarActivity {
             }
             // Checking index, if selected item is a video from shooting gif activity will enter this scope
             if (contentType == GifsArtConst.INDEX_SHOOT_GIF) {
-                addVideoItem(getIntent().getStringExtra(GifsArtConst.INTENT_VIDEO_PATH), getIntent(), gifItems);
+                addCameraItem(Environment.getExternalStorageDirectory() + "/GifsArt/video_frames", getIntent().getBooleanExtra(GifsArtConst.INTENT_FRONT_CAMERA, false), getIntent().getBooleanExtra(GifsArtConst.INTENT_CAMERA_BURST_MODE, false), gifItems);
             }
             return null;
         }
@@ -870,6 +890,7 @@ public class MakeGifActivity extends ActionBarActivity {
     // When adding new items to gif should do this
     class AddFramesAsyncTask extends AsyncTask<Intent, Void, Void> {
         AnimatedProgressDialog animatedProgressDialog = new AnimatedProgressDialog(MakeGifActivity.this);
+        int contentType = 0;
 
         @Override
         protected void onPreExecute() {
@@ -883,7 +904,8 @@ public class MakeGifActivity extends ActionBarActivity {
 
         @Override
         protected Void doInBackground(Intent... params) {
-            if (params[0].getIntExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, 0) == GifsArtConst.INDEX_FROM_GALLERY_TO_GIF) {
+            contentType = params[0].getIntExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, 0);
+            if (contentType == GifsArtConst.INDEX_FROM_GALLERY_TO_GIF) {
                 ArrayList<String> addedItemsArray = params[0].getStringArrayListExtra(GifsArtConst.INTENT_DECODED_IMAGE_PATHS);
                 for (int i = 0; i < addedItemsArray.size(); i++) {
                     if (Utils.getMimeType(addedItemsArray.get(i)) == Type.IMAGE) {
@@ -896,11 +918,11 @@ public class MakeGifActivity extends ActionBarActivity {
                     selectedItemsArrayList.add(addedItemsArray.get(i));
                 }
             }
-            if (params[0].getIntExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, 0) == GifsArtConst.INDEX_GIPHY_TO_GIF) {
+            if (contentType == GifsArtConst.INDEX_GIPHY_TO_GIF) {
                 addGiphyItem(GiphyToByteArray.buffer, gifItems);
             }
-            if (params[0].getIntExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, 0) == GifsArtConst.INDEX_SHOOT_GIF) {
-                addVideoItem(params[0].getStringExtra(GifsArtConst.INTENT_VIDEO_PATH), params[0], gifItems);
+            if (contentType == GifsArtConst.INDEX_SHOOT_GIF) {
+                addCameraItem(Environment.getExternalStorageDirectory() + "/GifsArt/video_frames", params[0].getBooleanExtra(GifsArtConst.INTENT_FRONT_CAMERA, false), params[0].getBooleanExtra(GifsArtConst.INTENT_CAMERA_BURST_MODE, false), gifItems);
             }
             return null;
         }

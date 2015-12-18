@@ -1,17 +1,13 @@
 package com.gifsart.studio.social;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
-import com.facebook.login.LoginManager;
-import com.facebook.login.LoginResult;
 import com.facebook.share.ShareApi;
 import com.facebook.share.Sharer;
 import com.facebook.share.model.ShareLinkContent;
@@ -19,9 +15,6 @@ import com.gifsart.studio.utils.GifsArtConst;
 import com.gifsart.studio.utils.PackageContraller;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
 
 /**
  * Created by Tigran on 10/30/15.
@@ -34,6 +27,8 @@ public class ShareContraller {
     public static final String WHATSAPP_PACKAGE_NAME = "com.whatsapp";
     public static final String MESSENGER_PACKAGE_NAME = "com.facebook.orca";
     public static final String FILE_TYPE_IMAGE = "image/gif";
+
+    public static final String url1 = "http://cdn76.picsart.com/187889742003202.gif";
 
     private String filePath;
     private Activity activity;
@@ -153,43 +148,24 @@ public class ShareContraller {
     }
 
     public void shareFacebook() {
-        LoginManager loginManager = LoginManager.getInstance();
-        List<String> permisionneeds = Arrays.asList("publish_actions");
-        loginManager.logInWithPublishPermissions(activity, permisionneeds);
+        ShareLinkContent content = new ShareLinkContent.Builder()
+                .setContentUrl(Uri.parse("http://cdn78.picsart.com/186853261001202.gif"))
+                .build();
 
-        loginManager.registerCallback(CallbackManager.Factory.create(), new FacebookCallback<LoginResult>() {
+        ShareApi.share(content, new FacebookCallback<Sharer.Result>() {
             @Override
-            public void onSuccess(LoginResult loginResult) {
-                ShareLinkContent content = new ShareLinkContent.Builder()
-                        .setContentUrl(Uri.parse("http://cdn78.picsart.com/186853261001202.gif"))
-                        .build();
-
-                ShareApi.share(content, new FacebookCallback<Sharer.Result>() {
-                    @Override
-                    public void onSuccess(Sharer.Result result) {
-                        Log.d("gag", result.toString());
-                    }
-
-                    @Override
-                    public void onCancel() {
-                        Log.d("gag", "cancel");
-                    }
-
-                    @Override
-                    public void onError(FacebookException error) {
-                        Log.d("gag", error.toString());
-                    }
-                });
+            public void onSuccess(Sharer.Result result) {
+                Log.d("gag", result.toString());
             }
 
             @Override
             public void onCancel() {
-
+                Log.d("gag", "cancel");
             }
 
             @Override
             public void onError(FacebookException error) {
-
+                Log.d("gag", error.toString());
             }
         });
 

@@ -1,8 +1,11 @@
 package com.gifsart.studio.social;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Looper;
 import android.util.Log;
+
+import com.gifsart.studio.utils.AnimatedProgressDialog;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -46,13 +49,20 @@ public class UploadImageToPicsart extends AsyncTask<Void, Integer, JSONObject> {
     private String uploadedImageUrl;
     private PHOTO_IS photo_is;
     private String userApiKey;
-
+    private Context context;
     private ImageUploaded imageUploaded;
+    private AnimatedProgressDialog animatedProgressDialog;
+    private String title;
+    private PHOTO_PUBLIC photo_public = PHOTO_PUBLIC.PUBLIC;
 
-    public UploadImageToPicsart(String userApiKey, String filePath, PHOTO_IS photo_is) {
+    public UploadImageToPicsart(Context context, String userApiKey, String filePath, String title, PHOTO_PUBLIC photo_public, PHOTO_IS photo_is) {
         this.filePath = filePath;
         this.photo_is = photo_is;
         this.userApiKey = userApiKey;
+        this.title = title;
+        this.photo_public = photo_public;
+        this.context = context;
+
     }
 
     public static void setCancelFlag(boolean cancelFlag) {
@@ -62,6 +72,8 @@ public class UploadImageToPicsart extends AsyncTask<Void, Integer, JSONObject> {
 
     @Override
     protected void onPreExecute() {
+        animatedProgressDialog = new AnimatedProgressDialog(context);
+        animatedProgressDialog.show();
         Log.d("Upload", " Uploading Picture...");
     }
 
@@ -78,7 +90,7 @@ public class UploadImageToPicsart extends AsyncTask<Void, Integer, JSONObject> {
             totalSize[0] = file.length();
             final HttpClient httpClient = new DefaultHttpClient();
             String url = "";
-            //   MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+            //MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
             MultiPartEntityMod multipartContent = null;
             try {
                 multipartContent = new MultiPartEntityMod(new ProgressListener() {
@@ -104,13 +116,14 @@ public class UploadImageToPicsart extends AsyncTask<Void, Integer, JSONObject> {
             }
 
             multipartContent.addPart("file", new FileBody(file));
+            //multipartContent.addPart("file", new ByteArrayBody(file));
 
             if (photo_is == PHOTO_IS.AVATAR) {
                 url = UPLOAD_PHOTO_TO_PICSART_AVATAR + userApiKey;
             } else if (photo_is == PHOTO_IS.GENERAL) {
                 url = UPLOAD_PHOTO_TO_PICSART_GENERAL + userApiKey;
-                multipartContent.addPart("title", new StringBody("GifsArt", ContentType.DEFAULT_TEXT));
-                multipartContent.addPart("is_public", new StringBody("1", ContentType.DEFAULT_TEXT));
+                multipartContent.addPart("title", new StringBody(title, ContentType.DEFAULT_TEXT));
+                multipartContent.addPart("is_public", new StringBody("" + photo_public.ordinal(), ContentType.DEFAULT_TEXT));
                 multipartContent.addPart("mature", new StringBody("0", ContentType.DEFAULT_TEXT));
             }
 
@@ -185,8 +198,10 @@ public class UploadImageToPicsart extends AsyncTask<Void, Integer, JSONObject> {
                 }
             } catch (Exception e) {
                 Log.e(e.getClass().getName(), e.getMessage(), e);
+                imageUploaded.uploadIsDone(false, "error");
             }
         }
+        animatedProgressDialog.dismiss();
     }
 
     private static class MultiPartEntityMod extends MultipartEntity {
@@ -265,5 +280,12 @@ public class UploadImageToPicsart extends AsyncTask<Void, Integer, JSONObject> {
         AVATAR,
         GENERAL
     }
+
+    public enum PHOTO_PUBLIC {
+        PRIVATE,
+        PUBLIC
+
+    }
+
 
 }

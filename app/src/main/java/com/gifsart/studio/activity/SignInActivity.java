@@ -1,14 +1,13 @@
 package com.gifsart.studio.activity;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-
 
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
@@ -38,7 +37,7 @@ public class SignInActivity extends AppCompatActivity implements FacebookConstan
 
     private static final String LOG_TAG = "signin_activity";
     private static final int REQUEST_PERSONALIZE_USER_ACTIVITY = 555;
-    private static final int REQUEST_RESET_PASSWORD__ACTIVITY = 777;
+    private static final int REQUEST_RESET_PASSWORD_ACTIVITY = 777;
 
     private SignInActivity context = this;
 
@@ -55,6 +54,8 @@ public class SignInActivity extends AppCompatActivity implements FacebookConstan
 
     private static FacebookUser fbUser;
 
+    private LoginManager manager;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,17 +64,45 @@ public class SignInActivity extends AppCompatActivity implements FacebookConstan
 
         callbackManager = CallbackManager.Factory.create();
 
-        LoginManager.getInstance().logOut();
 
         facebookLoginButton = (Button) findViewById(R.id.facebook_login_button);
         userNameEditText = (EditText) findViewById(R.id.username_edit_text);
         passwordEditText = (EditText) findViewById(R.id.password_edit_text);
         signInButton = (Button) findViewById(R.id.signin_button);
 
-        LoginManager.getInstance().registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+        manager = LoginManager.getInstance();
+
+        manager.logOut();
+
+        manager.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
                 requestFacebookUserInfo(loginResult);
+                /*if (canShare()) {
+
+                    ShareLinkContent content = new ShareLinkContent.Builder()
+                            .setContentUrl(Uri.parse("http://cdn78.picsart.com/186853261001202.gif"))
+                            .build();
+
+                    ShareApi.share(content, new FacebookCallback<Sharer.Result>() {
+                        @Override
+                        public void onSuccess(Sharer.Result result) {
+                            Log.d("gag", result.toString());
+                        }
+
+                        @Override
+                        public void onCancel() {
+                            Log.d("gag", "cancel");
+                        }
+
+                        @Override
+                        public void onError(FacebookException error) {
+                            Log.d("gag", error.toString());
+                        }
+                    });
+                }else {
+                    Log.d("gag", "foo");
+                }*/
                 return;
             }
 
@@ -158,7 +187,7 @@ public class SignInActivity extends AppCompatActivity implements FacebookConstan
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, ResetPasswordActivity.class);
-                startActivityForResult(intent, REQUEST_RESET_PASSWORD__ACTIVITY);
+                startActivityForResult(intent, REQUEST_RESET_PASSWORD_ACTIVITY);
             }
         });
 
@@ -175,7 +204,7 @@ public class SignInActivity extends AppCompatActivity implements FacebookConstan
                 setResult(RESULT_CANCELED, data);
             }
         }
-        if (requestCode == REQUEST_RESET_PASSWORD__ACTIVITY) {
+        if (requestCode == REQUEST_RESET_PASSWORD_ACTIVITY) {
             if (resultCode == RESULT_OK) {
 
             } else {

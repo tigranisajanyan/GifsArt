@@ -1,7 +1,6 @@
 package com.gifsart.studio.utils;
 
 import android.app.Activity;
-import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -17,7 +16,6 @@ import android.graphics.PointF;
 import android.graphics.PorterDuff;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
 import android.media.ExifInterface;
 import android.media.MediaMetadataRetriever;
 import android.net.ConnectivityManager;
@@ -27,11 +25,10 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
-import android.view.View;
 import android.webkit.MimeTypeMap;
 
 import com.decoder.PhotoUtils;
-import com.gifsart.studio.R;
+import com.facebook.AccessToken;
 import com.gifsart.studio.item.GalleryItem;
 import com.nostra13.universalimageloader.cache.disc.naming.HashCodeFileNameGenerator;
 import com.nostra13.universalimageloader.cache.memory.impl.UsingFreqLimitedMemoryCache;
@@ -52,6 +49,7 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -307,6 +305,19 @@ public class Utils {
         }
     }
 
+    public static boolean canShare() {
+        final AccessToken accessToken = AccessToken.getCurrentAccessToken();
+        if (accessToken == null) {
+            return false;
+        }
+        final Set<String> permissions = accessToken.getPermissions();
+        if (permissions == null) {
+            return false;
+        }
+        return (permissions.contains("publish_actions"));
+    }
+
+
     public static byte[] fileToByteArray(String path) {
         File file = new File(path);
         int size = (int) file.length();
@@ -484,15 +495,10 @@ public class Utils {
         return tubeBg;
     }
 
-    public static Bitmap getRotatedBitmap(int roatationDegree, Bitmap bitmap) {
-        if (roatationDegree % 360 == 0) {
-            return bitmap;
-        }
+    public static Bitmap rotateBitmap(Bitmap source, float angle) {
         Matrix matrix = new Matrix();
-        matrix.postRotate(roatationDegree, bitmap.getWidth() / 2,
-                bitmap.getHeight() / 2);
-        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(),
-                bitmap.getHeight() / 2, matrix, true);
+        matrix.postRotate(angle);
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
     }
 
     public static long getTotalRAMinMB() {
