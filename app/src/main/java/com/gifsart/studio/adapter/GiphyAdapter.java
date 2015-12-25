@@ -63,10 +63,6 @@ public class GiphyAdapter extends RecyclerView.Adapter<GiphyAdapter.ViewHolder> 
         holder.simpleDraweeView.setBackgroundColor(colors.get(random.nextInt(colors.size())));
         Uri uri = Uri.parse(giphyItems.get(position).getGifUrl());
         Glide.with(context).load(uri).asGif().override(200, 200).centerCrop().into(holder.simpleDraweeView);
-        /*DraweeController controller = Fresco.newDraweeControllerBuilder()
-                .setUri(uri)
-                .setAutoPlayAnimations(true).build();
-        holder.simpleDraweeView.setController(controller);*/
         // Giphy paging duaring giphy activity scralling
         if (position + 1 == limit + offset) {
             if (Utils.haveNetworkConnection(context)) {

@@ -14,6 +14,7 @@ import com.bumptech.glide.Glide;
 import com.gifsart.studio.R;
 import com.gifsart.studio.social.Photo;
 import com.gifsart.studio.social.UserContraller;
+import com.gifsart.studio.utils.GifsArtConst;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -23,6 +24,7 @@ import java.util.Random;
  */
 public class ProfileUserPhotosAdapter extends RecyclerView.Adapter<ProfileUserPhotosAdapter.ViewHolder> {
 
+    private static final int imageSize = 300;
     private ArrayList<Photo> userPhotos = new ArrayList<>();
     private ArrayList<Integer> colors = new ArrayList<>();
 
@@ -53,11 +55,7 @@ public class ProfileUserPhotosAdapter extends RecyclerView.Adapter<ProfileUserPh
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
         holder.userPhotoImageView.setBackgroundColor(colors.get(random.nextInt(colors.size())));
-        /*DraweeController controller = Fresco.newDraweeControllerBuilder()
-                .setUri(Uri.parse(userPhotos.get(position).getUrl() + "?r240x240f5"))
-                .setAutoPlayAnimations(true).build();
-        holder.userPhotoImageView.setController(controller);*/
-        Glide.with(context).load(Uri.parse(userPhotos.get(position).getUrl() + "?r240x240f5")).asGif().override(300, 300).centerCrop().into(holder.userPhotoImageView);
+        Glide.with(context).load(Uri.parse(userPhotos.get(position).getUrl() + GifsArtConst.DOWNLOAD_GIF_POSTFIX_240_F5)).asGif().override(imageSize, imageSize).centerCrop().into(holder.userPhotoImageView);
         if (userPhotos.get(position).getIsPublic()) {
             holder.privateImageView.setVisibility(View.GONE);
         } else {

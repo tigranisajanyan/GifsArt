@@ -1,8 +1,8 @@
 package com.gifsart.studio.activity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -15,11 +15,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.DrawableRequestBuilder;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
-import com.facebook.drawee.backends.pipeline.Fresco;
-import com.facebook.drawee.interfaces.DraweeController;
-import com.facebook.drawee.view.SimpleDraweeView;
 import com.gifsart.studio.R;
 import com.gifsart.studio.adapter.ProfileUserPhotosAdapter;
 import com.gifsart.studio.gifutils.GiphyToByteArray;
@@ -32,7 +30,7 @@ import com.gifsart.studio.utils.GifsArtConst;
 public class EditLocalPhotoActivity extends AppCompatActivity {
 
 
-    private SimpleDraweeView imageView;
+    private ImageView imageView;
     private User user;
     private ViewGroup profileContainer;
     private TextView makeItPublic;
@@ -55,7 +53,7 @@ public class EditLocalPhotoActivity extends AppCompatActivity {
 
         ProfileUserPhotosAdapter.deletedItems.removeAll(ProfileUserPhotosAdapter.deletedItems);
 
-        imageView = (SimpleDraweeView) findViewById(R.id.edit_local_photo_image_view);
+        imageView = (ImageView) findViewById(R.id.edit_local_photo_image_view);
         profileContainer = (ViewGroup) findViewById(R.id.edit_local_photo_activity_user_container);
         makeItPublic = (TextView) findViewById(R.id.make_photo_public);
 
@@ -71,23 +69,25 @@ public class EditLocalPhotoActivity extends AppCompatActivity {
 
         imageView.setLayoutParams(layoutParams);
 
-        //Glide.with(this).load(gifUrl + "?r240x240f5").asGif().into(imageView);
-        DraweeController controller = Fresco.newDraweeControllerBuilder()
-                //.setLowResImageRequest(ImageRequest.fromUri(gifUrl + "?r240x240f5"))
-                .setUri(Uri.parse(gifUrl + "?r240x240f5"))
-                        //.setImageRequest(ImageRequest.fromUri(gifUrl + "?r240x240f5"))
-                .setAutoPlayAnimations(true).build();
-        imageView.setController(controller);
+        DrawableRequestBuilder<String> thumbnailRequest = Glide
+                .with(this)
+                .load(gifUrl + GifsArtConst.DOWNLOAD_GIF_POSTFIX_240_F5);
 
-        Glide.with(this).load(user.getPhoto() + "?r240x240").asBitmap().centerCrop().into(new BitmapImageViewTarget(((ImageView) profileContainer.findViewById(R.id.local_profile_image_view))) {
-            @Override
-            protected void setResource(Bitmap resource) {
-                RoundedBitmapDrawable circularBitmapDrawable =
-                        RoundedBitmapDrawableFactory.create(getResources(), resource);
-                circularBitmapDrawable.setCircular(true);
-                ((ImageView) profileContainer.findViewById(R.id.local_profile_image_view)).setImageDrawable(circularBitmapDrawable);
-            }
-        });
+        Glide.with(this).load(gifUrl + GifsArtConst.DOWNLOAD_GIF_POSTFIX_480).thumbnail(thumbnailRequest).override(300, 300).into(imageView);
+
+        if (!user.getPhoto().equals("111")) {
+            Glide.with(this).load(user.getPhoto() + GifsArtConst.DOWNLOAD_GIF_POSTFIX_240).asBitmap().centerCrop().into(new BitmapImageViewTarget(((ImageView) profileContainer.findViewById(R.id.local_profile_image_view))) {
+                @Override
+                protected void setResource(Bitmap resource) {
+                    RoundedBitmapDrawable circularBitmapDrawable =
+                            RoundedBitmapDrawableFactory.create(getResources(), resource);
+                    circularBitmapDrawable.setCircular(true);
+                    ((ImageView) profileContainer.findViewById(R.id.local_profile_image_view)).setImageDrawable(circularBitmapDrawable);
+                }
+            });
+        } else {
+            ((ImageView) profileContainer.findViewById(R.id.local_profile_image_view)).setImageDrawable(getResources().getDrawable(R.drawable.profile_pic_personalize));
+        }
 
         ((TextView) findViewById(R.id.local_username_text_view)).setText("@" + user.getName());
 
@@ -115,21 +115,35 @@ public class EditLocalPhotoActivity extends AppCompatActivity {
         findViewById(R.id.delete_photo).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                UserContraller userContraller = new UserContraller(EditLocalPhotoActivity.this);
-                userContraller.setOnRequestReadyListener(new UserContraller.UserRequest() {
-                    @Override
-                    public void onRequestReady(int requestNumber, String messege) {
-                        if (requestNumber == RequestConstants.REMOVE_PHOTO_SUCCESS_CODE) {
-                            ProfileUserPhotosAdapter.deletedItems.add(photoId);
-                            setResult(RESULT_OK);
-                            finish();
-                        } else {
-                            AlertDialog alert = UserContraller.setupDialogBuilder(EditLocalPhotoActivity.this, messege).create();
-                            alert.show();
-                        }
-                    }
-                });
-                userContraller.removeUserPhoto(photoId, user.getKey());
+                new AlertDialog.Builder(EditLocalPhotoActivity.this)
+                        .setTitle("Delete gif")
+                        .setMessage("Are you sure you want to delete this entry?")
+                        .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                UserContraller userContraller = new UserContraller(EditLocalPhotoActivity.this);
+                                userContraller.setOnRequestReadyListener(new UserContraller.UserRequest() {
+                                    @Override
+                                    public void onRequestReady(int requestNumber, String messege) {
+                                        if (requestNumber == RequestConstants.REMOVE_PHOTO_SUCCESS_CODE) {
+                                            ProfileUserPhotosAdapter.deletedItems.add(photoId);
+                                            setResult(RESULT_OK);
+                                            finish();
+                                        } else {
+                                            AlertDialog alert = UserContraller.setupDialogBuilder(EditLocalPhotoActivity.this, messege).create();
+                                            alert.show();
+                                        }
+                                    }
+                                });
+                                userContraller.removeUserPhoto(photoId, user.getKey());
+                            }
+                        })
+                        .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // do nothing
+                            }
+                        })
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
             }
         });
 

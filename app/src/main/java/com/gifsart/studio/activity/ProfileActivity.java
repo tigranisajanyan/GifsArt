@@ -3,9 +3,11 @@ package com.gifsart.studio.activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -14,7 +16,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.DragEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -36,6 +37,9 @@ import com.gifsart.studio.utils.GifsArtConst;
 import com.gifsart.studio.utils.SpacesItemDecoration;
 import com.gifsart.studio.utils.Utils;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class ProfileActivity extends AppCompatActivity {
@@ -96,17 +100,6 @@ public class ProfileActivity extends AppCompatActivity {
         userPhotosRecyclerView.setAdapter(profileUserPhotosAdapter);
         userPhotosRecyclerView.addItemDecoration(new SpacesItemDecoration((int) Utils.dpToPixel(2, this)));
 
-        userPhotosRecyclerView.addOnItemTouchListener(new RecyclerItemClickListener(getApplicationContext(), new RecyclerItemClickListener.OnItemClickListener() {
-            @Override
-            public void onItemClick(View view, int position) {
-                Intent intent = new Intent(context, EditLocalPhotoActivity.class);
-                intent.putExtra("image_url", profileUserPhotosAdapter.getItem(position).getUrl());
-                intent.putExtra("is_public", profileUserPhotosAdapter.getItem(position).getIsPublic());
-                intent.putExtra("photo_id", profileUserPhotosAdapter.getItem(position).getId());
-                startActivityForResult(intent, REQUEST_OPEN_PHOTO_EDIT);
-            }
-        }));
-
         if (user != null) {
             isSignedIn = true;
             updateUserInfo();
@@ -130,11 +123,24 @@ public class ProfileActivity extends AppCompatActivity {
                     }
                 });
                 userContraller.requestUser(user.getKey());
+            } else {
+                Toast.makeText(context, getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show();
             }
         } else {
             isSignedIn = false;
             visibilitySwitcher(isSignedIn);
         }
+
+        userPhotosRecyclerView.addOnItemTouchListener(new RecyclerItemClickListener(getApplicationContext(), new RecyclerItemClickListener.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                Intent intent = new Intent(context, EditLocalPhotoActivity.class);
+                intent.putExtra("image_url", profileUserPhotosAdapter.getItem(position).getUrl());
+                intent.putExtra("is_public", profileUserPhotosAdapter.getItem(position).getIsPublic());
+                intent.putExtra("photo_id", profileUserPhotosAdapter.getItem(position).getId());
+                startActivityForResult(intent, REQUEST_OPEN_PHOTO_EDIT);
+            }
+        }));
 
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -148,6 +154,7 @@ public class ProfileActivity extends AppCompatActivity {
                 } else {
                     Intent intent = new Intent(context, SignInActivity.class);
                     startActivityForResult(intent, REQUEST_SIGNIN_ACTIVITY);
+                    overridePendingTransition(R.transition.pull_in_right, R.transition.push_out_left);
                 }
             }
         });
@@ -157,13 +164,18 @@ public class ProfileActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(context, SignUpActivity.class);
                 startActivityForResult(intent, REQUEST_SIGNUP_ACTIVITY);
+                overridePendingTransition(R.transition.pull_in_right, R.transition.push_out_left);
             }
         });
 
         profileImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                pickImageFromGallery();
+                if (Utils.haveNetworkConnection(context)) {
+                    pickImageFromGallery();
+                } else {
+                    Toast.makeText(context, getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -178,45 +190,40 @@ public class ProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 finish();
+                overridePendingTransition(R.transition.pull_in_right, R.transition.push_out_left);
             }
         });
 
         swipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.pink));
-        swipeRefreshLayout.setOnDragListener(new View.OnDragListener() {
-            @Override
-            public boolean onDrag(View v, DragEvent event) {
-                return false;
-            }
-        });
-        ((SwipeRefreshLayout) findViewById(R.id.swipe_container)).setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                final UserContraller userContraller = new UserContraller(context);
+                userContraller.setOnRequestReadyListener(new UserContraller.UserRequest() {
+                    @Override
+                    public void onRequestReady(int requestNumber, String messege) {
+                        if (requestNumber == RequestConstants.REQUEST_USER_PHOTO_SUCCESS_CODE) {
+                            profileUserPhotosAdapter.addItems(userContraller.getUserPhotos());
+                        } else {
+                            AlertDialog alert = UserContraller.setupDialogBuilder(context, messege).create();
+                            alert.show();
+                        }
+                    }
+                });
+                userContraller.requestUserPhotos(user.getKey(), photosOffset, photosLimit);
+
                 profileUserPhotosAdapter.notifyDataSetChanged();
                 ((SwipeRefreshLayout) findViewById(R.id.swipe_container)).setRefreshing(false);
             }
         });
-
-        /*LoginManager.getInstance().registerCallback(CallbackManager.Factory.create(), new FacebookCallback<LoginResult>() {
-            @Override
-            public void onSuccess(LoginResult loginResult) {
-                return;
-            }
-
-            @Override
-            public void onCancel() {
-                AlertDialog alert = UserContraller.setupDialogBuilder(context, "Facebook login canceled").create();
-                alert.show();
-            }
-
-            @Override
-            public void onError(FacebookException error) {
-                AlertDialog alert = UserContraller.setupDialogBuilder(context, error.getMessage()).create();
-                alert.show();
-            }
-        });*/
-
     }
 
+    @Override
+    public void onBackPressed() {
+        // finish() is called in super: we only override this method to be able to override the transition
+        super.onBackPressed();
+        overridePendingTransition(R.transition.pull_in_right, R.transition.push_out_left);
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -284,7 +291,10 @@ public class ProfileActivity extends AppCompatActivity {
         if (requestCode == REQUEST_PICK_IMAGE_FROM_GALLERY) {
             if (resultCode == RESULT_OK) {
                 Uri imageUri = data.getData();
-                final UploadImageToPicsart uploadImageToPicsart = new UploadImageToPicsart(context, user.getKey(), Utils.getRealPathFromURI(context, imageUri), "GifsArt", UploadImageToPicsart.PHOTO_PUBLIC.PUBLIC, UploadImageToPicsart.PHOTO_IS.GENERAL);
+                Bitmap bitmap = BitmapFactory.decodeFile(Utils.getRealPathFromURI(context, imageUri));
+                SaveImage(bitmap);
+                saveBitmapToFile(bitmap, Environment.getExternalStorageDirectory().getAbsolutePath() + "/imm.jpg");
+                final UploadImageToPicsart uploadImageToPicsart = new UploadImageToPicsart(context, user.getKey(), Environment.getExternalStorageDirectory().getAbsolutePath() + "/imm.jpg", "GifsArt", UploadImageToPicsart.PHOTO_PUBLIC.PUBLIC, UploadImageToPicsart.PHOTO_IS.AVATAR);
                 uploadImageToPicsart.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 uploadImageToPicsart.setOnUploadedListener(new UploadImageToPicsart.ImageUploaded() {
                     @Override
@@ -331,6 +341,42 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
 
+    private void SaveImage(Bitmap finalBitmap) {
+
+        String root = getCacheDir().toString();
+        String fname = "Image.jpg";
+        File file = new File(root, fname);
+        if (file.exists()) file.delete();
+        try {
+            FileOutputStream out = new FileOutputStream(file);
+            finalBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+            out.flush();
+            out.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void saveBitmapToFile(Bitmap bmp, String filename) {
+        FileOutputStream out = null;
+        try {
+            out = new FileOutputStream(filename);
+            bmp.compress(Bitmap.CompressFormat.JPEG, 100, out); // bmp is your Bitmap instance
+            // PNG is a lossless format, the compression factor (100) is ignored
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (out != null) {
+                    out.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public void pickImageFromGallery() {
         Intent intent = new Intent();
         intent.setType("image/*");
@@ -361,16 +407,23 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     public void updateUserInfo() {
-        //Glide.with(ProfileActivity.this).load(user.getPhoto() + "?r240x240").asBitmap().into(profileImageView);
-        Glide.with(context).load(user.getPhoto() + "?r240x240").asBitmap().centerCrop().into(new BitmapImageViewTarget(profileImageView) {
-            @Override
-            protected void setResource(Bitmap resource) {
-                RoundedBitmapDrawable circularBitmapDrawable =
-                        RoundedBitmapDrawableFactory.create(context.getResources(), resource);
-                circularBitmapDrawable.setCircular(true);
-                profileImageView.setImageDrawable(circularBitmapDrawable);
+        if (Utils.haveNetworkConnection(this)) {
+            if (!user.getPhoto().equals("111")) {
+                Glide.with(context).load(user.getPhoto() + GifsArtConst.DOWNLOAD_GIF_POSTFIX_240).asBitmap().centerCrop().into(new BitmapImageViewTarget(profileImageView) {
+                    @Override
+                    protected void setResource(Bitmap resource) {
+                        RoundedBitmapDrawable circularBitmapDrawable =
+                                RoundedBitmapDrawableFactory.create(context.getResources(), resource);
+                        circularBitmapDrawable.setCircular(true);
+                        profileImageView.setImageDrawable(circularBitmapDrawable);
+                    }
+                });
+            } else {
+                profileImageView.setImageDrawable(getResources().getDrawable(R.drawable.profile_pic_personalize));
             }
-        });
+        } else {
+            profileImageView.setImageDrawable(getResources().getDrawable(R.drawable.profile_pic_personalize));
+        }
         ((TextView) userProfileContainer.findViewById(R.id.username_text_view)).setText("@" + user.getName());
     }
 

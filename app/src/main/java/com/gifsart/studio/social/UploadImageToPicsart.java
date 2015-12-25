@@ -136,6 +136,7 @@ public class UploadImageToPicsart extends AsyncTask<Void, Integer, JSONObject> {
             try {
                 response = httpClient.execute(httpPost, httpContext);
             } catch (IllegalStateException e) {
+                e.printStackTrace();
                 return null;
             }
             HttpEntity httpEntity = response.getEntity();
@@ -144,10 +145,13 @@ public class UploadImageToPicsart extends AsyncTask<Void, Integer, JSONObject> {
 
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
+            return null;
         } catch (IOException e) {
             e.printStackTrace();
+            return null;
         } catch (Exception e) {
             e.printStackTrace();
+            return null;
         }
 
         try {
@@ -200,6 +204,8 @@ public class UploadImageToPicsart extends AsyncTask<Void, Integer, JSONObject> {
                 Log.e(e.getClass().getName(), e.getMessage(), e);
                 imageUploaded.uploadIsDone(false, "error");
             }
+            File file = new File(filePath);
+            file.delete();
         }
         animatedProgressDialog.dismiss();
     }

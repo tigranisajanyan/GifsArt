@@ -41,8 +41,8 @@ public class GifsArtConst {
     public static String INTENT_EFFECT_FILTER = "filter";
 
 
-    public static String INTENT_OPEN_SIGN_IN="open_signin";
-    public static String INTENT_OPEN_SIGN_UP="open_signup";
+    public static String INTENT_OPEN_SIGN_IN = "open_signin";
+    public static String INTENT_OPEN_SIGN_UP = "open_signup";
 
 
     public static String SHARED_PREFERENCES_IS_OPENED = "is_opened";
@@ -51,7 +51,7 @@ public class GifsArtConst {
     public static String SHOOTING_VIDEO_OUTPUT_DIR = Environment.getExternalStorageDirectory() + "/" + MY_DIR;
     public static String VIDEOS_DECODED_FRAMES_DIR = Environment.getExternalStorageDirectory() + "/" + MY_DIR + "/video_frames";
 
-    public static String DIR_VIDEO_FRAMES = "GifsArt/video_frames";
+    public static String DIR_VIDEO_FRAMES = "GifsArt/.video_frames";
     public static String DIR_GIPHY = "GifsArt/giphy";
     public static String DIR_GPU_IMAGES = "Pictures/GPUImage";
 
@@ -76,6 +76,10 @@ public class GifsArtConst {
     public static int IMAGE_FRAME_DURATION = 200;   // 200 mls
 
     public static int GIPHY_LIMIT_COUNT = 30;
+
+    public static String DOWNLOAD_GIF_POSTFIX_480 = "?r480x480";
+    public static String DOWNLOAD_GIF_POSTFIX_240 = "?r240x240";
+    public static String DOWNLOAD_GIF_POSTFIX_240_F5 = "?r240x240f5";
 
 
 }

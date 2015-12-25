@@ -37,7 +37,7 @@ public class BurstModeFramesSaving extends AsyncTask<Void, Integer, Void> {
         for (int i = 0; i < bytes.size(); i++) {
             Bitmap bitmap = BitmapFactory.decodeByteArray(bytes.get(i), 0, bytes.get(i).length);
             try {
-                FileOutputStream fileOutputStream = new FileOutputStream(new File(Environment.getExternalStorageDirectory() + "/GifsArt/video_frames/", "img_" + i + ".jpg"));
+                FileOutputStream fileOutputStream = new FileOutputStream(new File(Environment.getExternalStorageDirectory() + "/GifsArt/.video_frames/", "img_" + i + ".jpg"));
                 bitmap = rotate(bitmap, 90);
                 if (isFront) {
                     bitmap = rotate(bitmap, 180);

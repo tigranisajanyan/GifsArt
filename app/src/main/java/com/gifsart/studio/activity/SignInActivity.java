@@ -157,6 +157,7 @@ public class SignInActivity extends AppCompatActivity implements FacebookConstan
                         LoginManager.getInstance().logInWithReadPermissions(context, Arrays.asList(FacebookConstants.BASIC_READ_PERMISSIONS));
                     } else {
                         Log.d("gagag", "facebook logout");
+                        //requestFacebookUserInfo(loginResult);
                     }
                 } else {
                     AlertDialog alert = UserContraller.setupDialogBuilder(context, getString(R.string.no_internet_connection)).create();
@@ -200,6 +201,7 @@ public class SignInActivity extends AppCompatActivity implements FacebookConstan
         if (requestCode == REQUEST_PERSONALIZE_USER_ACTIVITY) {
             if (resultCode == RESULT_OK) {
                 setResult(RESULT_OK);
+                finish();
             } else {
                 setResult(RESULT_CANCELED, data);
             }

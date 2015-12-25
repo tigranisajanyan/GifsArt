@@ -275,6 +275,7 @@ public class UserContraller {
                     params.put("provider", "facebook");
                     params.put("fb_id", facebookUser.getId());
                     params.put("fb_email", facebookUser.getEmail());
+                    params.put("fb_data", facebookUser.toJson().toString());
 
                     params.put("email", facebookUser.getEmail());
                     params.put("name", facebookUser.getName());

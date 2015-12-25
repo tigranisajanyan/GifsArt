@@ -89,13 +89,6 @@
                     android:background="@android:color/transparent"
                     android:src="@drawable/speed_turtle" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:text="12 seconds"
-                    android:textColor="@color/font_main_color" />
-
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

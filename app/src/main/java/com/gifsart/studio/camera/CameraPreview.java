@@ -14,12 +14,17 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.RelativeLayout;
 
+import com.gifsart.studio.utils.GifsArtConst;
+
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback, Camera.PreviewCallback {
 
@@ -87,7 +92,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
         if (recording) {
-            String path = Environment.getExternalStorageDirectory() + "/GifsArt/video_frames/img_" + counter + ".jpg";
+            String path = Environment.getExternalStorageDirectory() + "/" + GifsArtConst.DIR_VIDEO_FRAMES + "/img_" + counter + ".jpg";
             savePreviewDataToFile(camera, data, path);
             counter++;
         }
@@ -128,7 +133,8 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
         try {
             Camera.Parameters parameters = mCamera.getParameters();
 
-            mPreviewSize = getOptimalPreviewSize(mPreviewSizeList, 1280, 960);
+            //mPreviewSize = getOptimalPreviewSize(mPreviewSizeList, 1280, 960);
+            mPreviewSize = getBestAspectPreviewSize(90, 1280, 960, parameters, 0.1);
             //mPictureSize = getBestPictureSize(mPictureSizeList, 640, 480);
 
             List<int[]> fpsRange = parameters.getSupportedPreviewFpsRange();
@@ -206,6 +212,76 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
             }
         }
         return optimalSize;
+    }
+
+    public static Camera.Size getBestAspectPreviewSize(int displayOrientation,
+                                                       int width,
+                                                       int height,
+                                                       Camera.Parameters parameters,
+                                                       double closeEnough) {
+
+
+        double targetRatio = (double) width / height;
+        Camera.Size bestSize = null;
+
+        if (displayOrientation == 90 || displayOrientation == 270) {
+            targetRatio = (double) height / width;
+        }
+
+        List<Camera.Size> sizes = parameters.getSupportedPreviewSizes();
+        TreeMap<Double, List> diffs = new TreeMap<Double, List>();
+
+
+        for (Camera.Size size : sizes) {
+
+            double ratio = (double) size.width / size.height;
+
+            double diff = Math.abs(ratio - targetRatio);
+            if (diff < closeEnough) {
+                if (diffs.keySet().contains(diff)) {
+                    //add the value to the list
+                    diffs.get(diff).add(size);
+                } else {
+                    List newList = new ArrayList<Camera.Size>();
+                    newList.add(size);
+                    diffs.put(diff, newList);
+                }
+
+            }
+        }
+
+        //diffs now contains all of the usable sizes
+        //now let's see which one has the least amount of
+        for (Map.Entry entry : diffs.entrySet()) {
+            List<Camera.Size> entries = (List) entry.getValue();
+            for (Camera.Size s : entries) {
+
+                if (s.width >= width && s.height >= width) {
+                    bestSize = s;
+                }
+            }
+        }
+
+        //if we don't have bestSize then just use whatever the default was to begin with
+        if (bestSize == null) {
+            if (parameters.getPreviewSize() != null) {
+                bestSize = parameters.getPreviewSize();
+                return bestSize;
+            }
+
+            //pick the smallest difference in ratio?  or pick the largest resolution?
+            //right now we are just picking the lowest ratio difference
+            for (Map.Entry entry : diffs.entrySet()) {
+                List<Camera.Size> entries = (List) entry.getValue();
+                for (Camera.Size s : entries) {
+                    if (bestSize == null) {
+                        bestSize = s;
+                    }
+                }
+            }
+        }
+
+        return bestSize;
     }
 
     public Camera.Size getBestPictureSize(List<Camera.Size> sizes, int w, int h) {

@@ -13,7 +13,6 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.gifsart.studio.R;
-import com.gifsart.studio.social.ErrorHandler;
 import com.gifsart.studio.social.RequestConstants;
 import com.gifsart.studio.social.UploadImageToPicsart;
 import com.gifsart.studio.social.User;
@@ -66,41 +65,41 @@ public class PersonalizeUserActivity extends AppCompatActivity {
         doneButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final UploadImageToPicsart uploadImageToPicsart = new UploadImageToPicsart(PersonalizeUserActivity.this, user.getKey(), Utils.getRealPathFromURI(PersonalizeUserActivity.this, imageUri), "GifsArt", UploadImageToPicsart.PHOTO_PUBLIC.PUBLIC, UploadImageToPicsart.PHOTO_IS.AVATAR);
-                uploadImageToPicsart.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                uploadImageToPicsart.setOnUploadedListener(new UploadImageToPicsart.ImageUploaded() {
+                UserContraller userContraller = new UserContraller(PersonalizeUserActivity.this);
+                userContraller.setOnRequestReadyListener(new UserContraller.UserRequest() {
                     @Override
-                    public void uploadIsDone(boolean uploaded, String messege) {
-                        if (uploaded) {
-                            UserContraller userContraller = new UserContraller(PersonalizeUserActivity.this);
-                            userContraller.setOnRequestReadyListener(new UserContraller.UserRequest() {
+                    public void onRequestReady(int requestNumber, String messege) {
+                        if (requestNumber == RequestConstants.UPLOAD_USER_INFO_SUCCESS_CODE) {
+                            user.setName(profileNameEditText.getText().toString());
+                            if (isSignUpedByFacebook) {
+                                user.setUsername(profileUsernameEditText.getText().toString());
+                            }
+                            final UploadImageToPicsart uploadImageToPicsart = new UploadImageToPicsart(PersonalizeUserActivity.this, user.getKey(), Utils.getRealPathFromURI(PersonalizeUserActivity.this, imageUri), "GifsArt", UploadImageToPicsart.PHOTO_PUBLIC.PUBLIC, UploadImageToPicsart.PHOTO_IS.AVATAR);
+                            uploadImageToPicsart.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                            uploadImageToPicsart.setOnUploadedListener(new UploadImageToPicsart.ImageUploaded() {
                                 @Override
-                                public void onRequestReady(int requestNumber, String messege) {
-                                    if (requestNumber == RequestConstants.UPLOAD_USER_INFO_SUCCESS_CODE) {
-                                        user.setName(profileNameEditText.getText().toString());
-                                        if (isSignUpedByFacebook) {
-                                            user.setUsername(profileUsernameEditText.getText().toString());
-                                        }
+                                public void uploadIsDone(boolean uploaded, String messege) {
+                                    if (uploaded) {
                                         user.setPhoto(uploadImageToPicsart.getUploadedImageUrl());
-                                        UserContraller.writeUserToFile(PersonalizeUserActivity.this, user);
-                                        setResult(RESULT_OK);
                                     } else {
-                                        setResult(RESULT_CANCELED, ErrorHandler.createErrorMessege(messege));
+                                        user.setPhoto("111");
                                     }
+                                    UserContraller.writeUserToFile(PersonalizeUserActivity.this, user);
+                                    setResult(RESULT_OK);
                                     finish();
                                 }
                             });
-                            if (isSignUpedByFacebook) {
-                                userContraller.uploadUserInfo(user.getKey(), profileNameEditText.getText().toString(), profileUsernameEditText.getText().toString());
-                            } else {
-                                userContraller.uploadUserInfo(user.getKey(), profileNameEditText.getText().toString(), "");
-                            }
                         } else {
                             AlertDialog alert = UserContraller.setupDialogBuilder(PersonalizeUserActivity.this, messege).create();
                             alert.show();
                         }
                     }
                 });
+                if (isSignUpedByFacebook) {
+                    userContraller.uploadUserInfo(user.getKey(), profileNameEditText.getText().toString(), profileUsernameEditText.getText().toString());
+                } else {
+                    userContraller.uploadUserInfo(user.getKey(), profileNameEditText.getText().toString(), "");
+                }
             }
         });
     }

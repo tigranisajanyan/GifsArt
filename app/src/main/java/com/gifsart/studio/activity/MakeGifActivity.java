@@ -28,6 +28,7 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.decoder.PhotoUtils;
 import com.gifsart.studio.R;
 import com.gifsart.studio.adapter.ClipartCategoryAdapter;
@@ -62,6 +63,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 
 import bolts.Continuation;
 import bolts.Task;
@@ -283,6 +285,7 @@ public class MakeGifActivity extends ActionBarActivity {
                 TextArtView item = (TextArtView) convertView;
                 item.initParams(TextArtStyle.getPreviewStyleObj(false, ""), "gagag");
                 mainFrameContainer.addView(item);*/
+
             }
         });
 
@@ -430,6 +433,8 @@ public class MakeGifActivity extends ActionBarActivity {
         super.onBackPressed();
         if (!sharedPreferences.getBoolean(GifsArtConst.SHARED_PREFERENCES_IS_OPENED, false)) {
             CheckFreeSpaceSingleton.getInstance().clearAllocatedSpace();
+            gifImitation.cancel(true);
+            gifItems.clear();
         }
     }
 
@@ -768,8 +773,15 @@ public class MakeGifActivity extends ActionBarActivity {
 
     public void addImageItem(String path, boolean cameraFront, ArrayList<GifItem> gifItems) {
 
-        Bitmap bitmap = ImageLoader.getInstance().loadImageSync(FILE_PREFIX + path);
-        //Bitmap bitmap = BitmapFactory.decodeFile(path);
+        //Bitmap bitmap = ImageLoader.getInstance().loadImageSync(FILE_PREFIX + path);
+        Bitmap bitmap = null;
+        try {
+            bitmap = Glide.with(this).load(path).asBitmap().override(300, 300).into(500, 500).get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
 
         GifItem gifItem = new GifItem(GifsArtConst.IMAGE_FRAME_DURATION, Type.IMAGE);
         gifItem.setCurrentDuration(GifsArtConst.IMAGE_FRAME_DURATION);
@@ -798,7 +810,16 @@ public class MakeGifActivity extends ActionBarActivity {
         File file = new File(path);
         File[] files = file.listFiles();
         for (int j = 0; j < files.length; j++) {
-            Bitmap bitmap = ImageLoader.getInstance().loadImageSync(FILE_PREFIX + files[j].getAbsolutePath());
+            Bitmap bitmap = null;
+            try {
+                Glide.get(this).clearDiskCache();
+                bitmap = Glide.with(this).load(files[j].getAbsolutePath()).asBitmap().into(500, 500).get();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
+            //Bitmap bitmap = ImageLoader.getInstance().loadImageSync(FILE_PREFIX + files[j].getAbsolutePath());
             if (cameraFront && !isBurst) {
                 bitmap = Utils.rotateBitmap(bitmap, 180);
             }
@@ -871,7 +892,7 @@ public class MakeGifActivity extends ActionBarActivity {
             }
             // Checking index, if selected item is a video from shooting gif activity will enter this scope
             if (contentType == GifsArtConst.INDEX_SHOOT_GIF) {
-                addCameraItem(Environment.getExternalStorageDirectory() + "/GifsArt/video_frames", getIntent().getBooleanExtra(GifsArtConst.INTENT_FRONT_CAMERA, false), getIntent().getBooleanExtra(GifsArtConst.INTENT_CAMERA_BURST_MODE, false), gifItems);
+                addCameraItem(Environment.getExternalStorageDirectory() + "/" + GifsArtConst.DIR_VIDEO_FRAMES, getIntent().getBooleanExtra(GifsArtConst.INTENT_FRONT_CAMERA, false), getIntent().getBooleanExtra(GifsArtConst.INTENT_CAMERA_BURST_MODE, false), gifItems);
             }
             return null;
         }
@@ -922,7 +943,7 @@ public class MakeGifActivity extends ActionBarActivity {
                 addGiphyItem(GiphyToByteArray.buffer, gifItems);
             }
             if (contentType == GifsArtConst.INDEX_SHOOT_GIF) {
-                addCameraItem(Environment.getExternalStorageDirectory() + "/GifsArt/video_frames", params[0].getBooleanExtra(GifsArtConst.INTENT_FRONT_CAMERA, false), params[0].getBooleanExtra(GifsArtConst.INTENT_CAMERA_BURST_MODE, false), gifItems);
+                addCameraItem(Environment.getExternalStorageDirectory() + "/" + GifsArtConst.DIR_VIDEO_FRAMES, params[0].getBooleanExtra(GifsArtConst.INTENT_FRONT_CAMERA, false), params[0].getBooleanExtra(GifsArtConst.INTENT_CAMERA_BURST_MODE, false), gifItems);
             }
             return null;
         }

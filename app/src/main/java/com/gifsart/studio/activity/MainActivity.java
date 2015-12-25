@@ -209,13 +209,9 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.main_activity_toolbar_cancel).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //galleryAdapter.deselectAll();
-                /*String path = imageItemsArrayList.get(10).getFilePath();
-                UploadImageToPicsart uploadImageToPicsart = new UploadImageToPicsart(path, UploadImageToPicsart.PHOTO_IS.AVATAR);
-                uploadImageToPicsart.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);*/
                 Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
                 startActivity(intent);
-
+                overridePendingTransition(R.transition.pull_in_left, R.transition.push_out_right);
             }
         });
 
@@ -381,6 +377,12 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
         Log.d("main_activity", "onPause");
         releaseCamera();
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        updateAfterRestart();
     }
 
     private void releaseCamera() {
@@ -558,11 +560,16 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onPanelSlide(View panel, float slideOffset) {
                 if (slidingUpPanelLayout.getAnchorPoint() == 1.0f) {
-                    slidingUpPanelLayout.setAnchorPoint(0.4f);
+                    //findViewById(R.id.capture_container).setVisibility(View.GONE);
+                    //findViewById(R.id.invis).setVisibility(View.VISIBLE);
+                    slidingUpPanelLayout.setAnchorPoint(0.5f);
                     slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.ANCHORED);
-                } else {
-                    slidingUpPanelLayout.setAnchorPoint(1.0f);
-                    slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                } else if (slidingUpPanelLayout.getAnchorPoint() == 0.5f) {
+                    slidingUpPanelLayout.setAnchorPoint(0.3f);
+                    slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.ANCHORED);
+                } else if (slidingUpPanelLayout.getAnchorPoint() == 0.3f) {
+                    slidingUpPanelLayout.setAnchorPoint(0.5f);
+                    slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.ANCHORED);
                 }
             }
 
@@ -645,8 +652,8 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case MotionEvent.ACTION_UP:
                     if (recording) {
-                        //captureButton.setOnTouchListener(null);
-                        //captureButton.setOnLongClickListener(null);
+                        captureButton.setOnTouchListener(null);
+                        captureButton.setOnLongClickListener(null);
                         cameraPreview.stop();
                         recording = false;
                         videoCaptureCountDownTimer.cancel();
@@ -665,9 +672,10 @@ public class MainActivity extends AppCompatActivity {
                         }*/
 
                     } else {
+                        Utils.clearDir(new File(Environment.getExternalStorageDirectory() + "/" + GifsArtConst.DIR_VIDEO_FRAMES));
                         findViewById(R.id.burst_mode_image_container).setOnClickListener(null);
-                        //captureButton.setOnTouchListener(null);
-                        //captureButton.setOnLongClickListener(null);
+                        captureButton.setOnTouchListener(null);
+                        captureButton.setOnLongClickListener(null);
                         int n = burstMode;
                         burstModeRecursion(n);
                     }
@@ -681,9 +689,10 @@ public class MainActivity extends AppCompatActivity {
     View.OnLongClickListener onLongClickListener = new View.OnLongClickListener() {
         @Override
         public boolean onLongClick(View v) {
+            Utils.clearDir(new File(Environment.getExternalStorageDirectory() + "/" + GifsArtConst.DIR_VIDEO_FRAMES));
             cameraPreview.start();
             recording = true;
-            videoCaptureCountDownTimer = new VideoCaptureCountDownTimer(6100, 1000);
+            videoCaptureCountDownTimer = new VideoCaptureCountDownTimer(7100, 1000);
             videoCaptureCountDownTimer.start();
             captureCicrleButtonProgressBar.setProgress(0);
             captureCicrleButtonProgressBar.setVisibility(View.VISIBLE);
@@ -702,7 +711,7 @@ public class MainActivity extends AppCompatActivity {
                 if (done) {
                     ArrayList<String> strings = new ArrayList<>();
                     for (int i = 0; i < burstMode; i++) {
-                        strings.add(Environment.getExternalStorageDirectory() + "/GifsArt/video_frames/img_" + i + ".jpg");
+                        strings.add(Environment.getExternalStorageDirectory() + "/" + GifsArtConst.DIR_VIDEO_FRAMES + "/img_" + i + ".jpg");
                     }
                     if (!sharedPreferences.getBoolean(GifsArtConst.SHARED_PREFERENCES_IS_OPENED, false)) {
                         Intent intent = new Intent(MainActivity.this, MakeGifActivity.class);
@@ -804,14 +813,8 @@ public class MainActivity extends AppCompatActivity {
             Log.d("gagag", "" + millisUntilFinished);
             if (millisUntilFinished <= 2000) {
                 if (recording) {
-                    /*try {
-                        mediaRecorder.stop(); // stop the recording
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }*/
                     captureButton.setOnTouchListener(null);
                     captureButton.setOnLongClickListener(null);
-                    //releaseMediaRecorder(); // release the MediaRecorder object
                     recording = false;
                     cameraPreview.stop();
                     captureCicrleButtonProgressBar.setVisibility(View.INVISIBLE);
@@ -830,6 +833,16 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
+    }
+
+    private void updateAfterRestart() {
+        cameraFront = false;
+        captureButton.setOnTouchListener(captrureListener);
+        captureButton.setOnLongClickListener(onLongClickListener);
+        burstMode = 5;
+        currentCategoryPosition = 0;
+        ((TextView) findViewById(R.id.burst_mode_count)).setText("x" + burstMode);
+        ((TextView) findViewById(R.id.capture_time)).setText("00:06");
     }
 
 }
