@@ -37,7 +37,7 @@ public class GiphyToByteArray extends AsyncTask<Void, Integer, Boolean> {
         super.onPreExecute();
         progressDialog = new AnimatedProgressDialog(context);
         progressDialog.setCancelable(false);
-        progressDialog.show();
+        //progressDialog.show();
     }
 
     @Override
@@ -78,10 +78,6 @@ public class GiphyToByteArray extends AsyncTask<Void, Integer, Boolean> {
 
     public interface OnDownloaded {
         void onDownloaded(boolean isDownladed);
-    }
-
-    private void downloadingFile() {
-
     }
 
 }

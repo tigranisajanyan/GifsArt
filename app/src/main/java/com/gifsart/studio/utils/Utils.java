@@ -521,4 +521,14 @@ public class Utils {
         return 0;
     }
 
+    public static Bitmap cropBitmapFromTop(Bitmap originalBitmap) {
+
+        Bitmap targetBitmap = Bitmap.createBitmap(480, 480, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(targetBitmap);
+        canvas.drawBitmap(originalBitmap, 0, 0, null);
+        canvas.drawBitmap(targetBitmap, 0, 0, null);
+
+        return targetBitmap;
+    }
+
 }

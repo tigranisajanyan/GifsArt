@@ -654,6 +654,7 @@ public class MainActivity extends AppCompatActivity {
                     if (recording) {
                         captureButton.setOnTouchListener(null);
                         captureButton.setOnLongClickListener(null);
+                        visibilitySwitcher(false);
                         cameraPreview.stop();
                         recording = false;
                         videoCaptureCountDownTimer.cancel();
@@ -677,6 +678,7 @@ public class MainActivity extends AppCompatActivity {
                         captureButton.setOnTouchListener(null);
                         captureButton.setOnLongClickListener(null);
                         int n = burstMode;
+                        visibilitySwitcher(true);
                         burstModeRecursion(n);
                     }
                 default:
@@ -690,8 +692,9 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public boolean onLongClick(View v) {
             Utils.clearDir(new File(Environment.getExternalStorageDirectory() + "/" + GifsArtConst.DIR_VIDEO_FRAMES));
-            cameraPreview.start();
             recording = true;
+            visibilitySwitcher(true);
+            cameraPreview.start();
             videoCaptureCountDownTimer = new VideoCaptureCountDownTimer(7100, 1000);
             videoCaptureCountDownTimer.start();
             captureCicrleButtonProgressBar.setProgress(0);
@@ -702,7 +705,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void saveBurstModeFrames() {
         final AnimatedProgressDialog animatedProgressDialog = new AnimatedProgressDialog(MainActivity.this);
-        animatedProgressDialog.setCancelable(false);
         animatedProgressDialog.show();
         BurstModeFramesSaving burstModeFramesSaving = new BurstModeFramesSaving(cameraFront, burstModeFrameBytes);
         burstModeFramesSaving.setFramesSavedListener(new BurstModeFramesSaving.FramesSaved() {
@@ -750,6 +752,7 @@ public class MainActivity extends AppCompatActivity {
     public void burstModeRecursion(final int n) {
         if (n == 0) {
             findViewById(R.id.burst_counter).setVisibility(View.INVISIBLE);
+            visibilitySwitcher(false);
             if (CheckFreeSpaceSingleton.getInstance().haveEnoughSpaceInt(burstMode)) {
                 saveBurstModeFrames();
             } else {
@@ -843,6 +846,24 @@ public class MainActivity extends AppCompatActivity {
         currentCategoryPosition = 0;
         ((TextView) findViewById(R.id.burst_mode_count)).setText("x" + burstMode);
         ((TextView) findViewById(R.id.capture_time)).setText("00:06");
+    }
+
+    private void visibilitySwitcher(boolean isBurstMode) {
+        if (isBurstMode) {
+            findViewById(R.id.burst_mode_image_container).setVisibility(View.INVISIBLE);
+            findViewById(R.id.flash_light_button).setVisibility(View.INVISIBLE);
+            findViewById(R.id.aspect_ratio).setVisibility(View.INVISIBLE);
+            switchCameraButton.setVisibility(View.INVISIBLE);
+            if (recording) {
+                findViewById(R.id.capture_time).setVisibility(View.VISIBLE);
+            }
+        } else {
+            switchCameraButton.setVisibility(View.VISIBLE);
+            findViewById(R.id.burst_mode_image_container).setVisibility(View.VISIBLE);
+            findViewById(R.id.flash_light_button).setVisibility(View.VISIBLE);
+            findViewById(R.id.aspect_ratio).setVisibility(View.VISIBLE);
+            findViewById(R.id.capture_time).setVisibility(View.INVISIBLE);
+        }
     }
 
 }

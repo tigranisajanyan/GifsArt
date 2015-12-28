@@ -64,6 +64,7 @@
         android:drawablePadding="5dp"
         android:hint="Username"
         android:imeOptions="actionDone"
+        android:inputType="textNoSuggestions"
         android:singleLine="true" />
 
     <EditText
@@ -78,6 +79,7 @@
         android:drawablePadding="5dp"
         android:hint="Password"
         android:imeOptions="actionDone"
+        android:inputType="textPassword|textNoSuggestions"
         android:singleLine="true" />
 
     <TextView

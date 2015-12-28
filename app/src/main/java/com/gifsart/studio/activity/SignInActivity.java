@@ -250,7 +250,7 @@ public class SignInActivity extends AppCompatActivity implements FacebookConstan
                                     if (requestNumber == RequestConstants.SIGN_UP_WITH_FACEBOOK_SUCCESS_CODE) {
                                         UserContraller.writeUserToFile(context, userContraller.getUser());
                                         Intent intent = new Intent(context, PersonalizeUserActivity.class);
-                                        intent.putExtra("sign_up_with_facebook", true);
+                                        intent.putExtra(GifsArtConst.INTENT_SIGN_UP_WITH_FACEBOOK, true);
                                         startActivityForResult(intent, REQUEST_PERSONALIZE_USER_ACTIVITY);
                                     }
                                     if (requestNumber == RequestConstants.SIGN_UP_WITH_FACEBOOK_ERROR_CODE) {

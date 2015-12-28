@@ -1,9 +1,9 @@
 package com.gifsart.studio.activity;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -15,9 +15,6 @@ import com.gifsart.studio.social.StringValidation;
 import com.gifsart.studio.social.User;
 import com.gifsart.studio.social.UserContraller;
 import com.gifsart.studio.utils.GifsArtConst;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class SignUpActivity extends AppCompatActivity {
 
@@ -39,7 +36,6 @@ public class SignUpActivity extends AppCompatActivity {
 
         usernameEditText = (EditText) findViewById(R.id.username_edit_text);
         emailEditText = (EditText) findViewById(R.id.email_edit_text);
-        //emailEditText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
         passwordEditText = (EditText) findViewById(R.id.password_edit_text);
         signUpButton = (Button) findViewById(R.id.signin_button);
 
@@ -58,7 +54,7 @@ public class SignUpActivity extends AppCompatActivity {
                                 user = userContraller.getUser();
                                 UserContraller.writeUserToFile(context, user);
                                 Intent intent = new Intent(context, PersonalizeUserActivity.class);
-                                intent.putExtra("sign_up_with_facebook", false);
+                                intent.putExtra(GifsArtConst.INTENT_SIGN_UP_WITH_FACEBOOK, false);
                                 startActivityForResult(intent, REQUEST_PERSONALIZE_USER_ACTIVITY);
                             }
                             if (requestNumber == RequestConstants.SIGN_UP_PICSART_ERROR_CODE) {

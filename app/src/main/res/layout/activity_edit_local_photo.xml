@@ -28,7 +28,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:src="@drawable/logo"/>
+            android:src="@drawable/logo" />
 
         <Button
             android:id="@+id/edit_local_photo_activity_toolbar_create"
@@ -51,8 +51,8 @@
 
         <ImageView
             android:id="@+id/local_profile_image_view"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:layout_alignParentLeft="true"
             android:layout_marginLeft="10dp" />
 
@@ -60,7 +60,7 @@
             android:id="@+id/local_username_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
+            android:layout_centerVertical="true"
             android:layout_marginLeft="20dp"
             android:layout_toRightOf="@+id/local_profile_image_view"
             android:text=""
@@ -74,7 +74,7 @@
         android:layout_height="match_parent"
         android:layout_below="@+id/edit_local_photo_activity_user_container"
         android:layout_marginBottom="5dp"
-        android:layout_marginTop="5dp" />
+        android:layout_marginTop="10dp" />
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -86,8 +86,10 @@
             android:id="@+id/make_photo_public"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
             android:layout_marginLeft="10dp"
             android:drawableLeft="@drawable/preview_icon"
+            android:drawablePadding="5dp"
             android:gravity="center"
             android:text="Make it public"
             android:textColor="@color/pink" />

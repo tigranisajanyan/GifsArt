@@ -33,13 +33,11 @@ import com.gifsart.studio.social.RequestConstants;
 import com.gifsart.studio.social.UploadImageToPicsart;
 import com.gifsart.studio.social.User;
 import com.gifsart.studio.social.UserContraller;
+import com.gifsart.studio.utils.FileUtils;
 import com.gifsart.studio.utils.GifsArtConst;
 import com.gifsart.studio.utils.SpacesItemDecoration;
 import com.gifsart.studio.utils.Utils;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 
 public class ProfileActivity extends AppCompatActivity {
@@ -150,7 +148,7 @@ public class ProfileActivity extends AppCompatActivity {
                     UserContraller.writeUserToFile(context, null);
                     profileUserPhotosAdapter.removeAllItems();
                     visibilitySwitcher(isSignedIn);
-                    Toast.makeText(context, "Sign out", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, getString(R.string.sign_out_button), Toast.LENGTH_SHORT).show();
                 } else {
                     Intent intent = new Intent(context, SignInActivity.class);
                     startActivityForResult(intent, REQUEST_SIGNIN_ACTIVITY);
@@ -292,13 +290,13 @@ public class ProfileActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 Uri imageUri = data.getData();
                 Bitmap bitmap = BitmapFactory.decodeFile(Utils.getRealPathFromURI(context, imageUri));
-                SaveImage(bitmap);
-                saveBitmapToFile(bitmap, Environment.getExternalStorageDirectory().getAbsolutePath() + "/imm.jpg");
-                final UploadImageToPicsart uploadImageToPicsart = new UploadImageToPicsart(context, user.getKey(), Environment.getExternalStorageDirectory().getAbsolutePath() + "/imm.jpg", "GifsArt", UploadImageToPicsart.PHOTO_PUBLIC.PUBLIC, UploadImageToPicsart.PHOTO_IS.AVATAR);
+                FileUtils.saveBitmapToFile(bitmap, Environment.getExternalStorageDirectory().getAbsolutePath() + "/imm.jpg");
+                final UploadImageToPicsart uploadImageToPicsart = new UploadImageToPicsart(context, user.getKey(), Environment.getExternalStorageDirectory().getAbsolutePath() + "/imm.jpg", GifsArtConst.MY_DIR, UploadImageToPicsart.PHOTO_PUBLIC.PUBLIC, UploadImageToPicsart.PHOTO_IS.AVATAR);
                 uploadImageToPicsart.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 uploadImageToPicsart.setOnUploadedListener(new UploadImageToPicsart.ImageUploaded() {
                     @Override
                     public void uploadIsDone(boolean uploaded, String messege) {
+                        FileUtils.deleteFileFromExternal(context, Environment.getExternalStorageDirectory().getAbsolutePath() + "/imm.jpg");
                         if (uploaded) {
                             user.setPhoto(uploadImageToPicsart.getUploadedImageUrl());
                             UserContraller.writeUserToFile(context, user);
@@ -341,45 +339,9 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
 
-    private void SaveImage(Bitmap finalBitmap) {
-
-        String root = getCacheDir().toString();
-        String fname = "Image.jpg";
-        File file = new File(root, fname);
-        if (file.exists()) file.delete();
-        try {
-            FileOutputStream out = new FileOutputStream(file);
-            finalBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
-            out.flush();
-            out.close();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void saveBitmapToFile(Bitmap bmp, String filename) {
-        FileOutputStream out = null;
-        try {
-            out = new FileOutputStream(filename);
-            bmp.compress(Bitmap.CompressFormat.JPEG, 100, out); // bmp is your Bitmap instance
-            // PNG is a lossless format, the compression factor (100) is ignored
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (out != null) {
-                    out.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
     public void pickImageFromGallery() {
         Intent intent = new Intent();
-        intent.setType("image/*");
+        intent.setType(GifsArtConst.IMAGE_TYPE);
         intent.setAction(Intent.ACTION_GET_CONTENT);
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_PICK_IMAGE_FROM_GALLERY);
     }
@@ -397,18 +359,18 @@ public class ProfileActivity extends AppCompatActivity {
             userProfileContainer.setVisibility(View.VISIBLE);
             getStartedContainer.setVisibility(View.INVISIBLE);
             swipeRefreshLayout.setVisibility(View.VISIBLE);
-            signInButton.setText("Sign Out");
+            signInButton.setText(getString(R.string.sign_out_button));
         } else {
             userProfileContainer.setVisibility(View.INVISIBLE);
             getStartedContainer.setVisibility(View.VISIBLE);
             swipeRefreshLayout.setVisibility(View.GONE);
-            signInButton.setText("Sign In");
+            signInButton.setText(getString(R.string.sign_in_button));
         }
     }
 
     public void updateUserInfo() {
         if (Utils.haveNetworkConnection(this)) {
-            if (!user.getPhoto().equals("111")) {
+            if (!user.getPhoto().equals(GifsArtConst.EMPTY_PROFILE_IMAGE_PATH)) {
                 Glide.with(context).load(user.getPhoto() + GifsArtConst.DOWNLOAD_GIF_POSTFIX_240).asBitmap().centerCrop().into(new BitmapImageViewTarget(profileImageView) {
                     @Override
                     protected void setResource(Bitmap resource) {

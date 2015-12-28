@@ -17,6 +17,7 @@ import com.gifsart.studio.social.RequestConstants;
 import com.gifsart.studio.social.UploadImageToPicsart;
 import com.gifsart.studio.social.User;
 import com.gifsart.studio.social.UserContraller;
+import com.gifsart.studio.utils.GifsArtConst;
 import com.gifsart.studio.utils.Utils;
 
 public class PersonalizeUserActivity extends AppCompatActivity {
@@ -45,7 +46,7 @@ public class PersonalizeUserActivity extends AppCompatActivity {
         doneButton = (Button) findViewById(R.id.done_button);
 
         Intent intent = getIntent();
-        isSignUpedByFacebook = intent.getBooleanExtra("sign_up_with_facebook", false);
+        isSignUpedByFacebook = intent.getBooleanExtra(GifsArtConst.INTENT_SIGN_UP_WITH_FACEBOOK, false);
 
         user = UserContraller.readUserFromFile(this);
 
@@ -74,7 +75,7 @@ public class PersonalizeUserActivity extends AppCompatActivity {
                             if (isSignUpedByFacebook) {
                                 user.setUsername(profileUsernameEditText.getText().toString());
                             }
-                            final UploadImageToPicsart uploadImageToPicsart = new UploadImageToPicsart(PersonalizeUserActivity.this, user.getKey(), Utils.getRealPathFromURI(PersonalizeUserActivity.this, imageUri), "GifsArt", UploadImageToPicsart.PHOTO_PUBLIC.PUBLIC, UploadImageToPicsart.PHOTO_IS.AVATAR);
+                            final UploadImageToPicsart uploadImageToPicsart = new UploadImageToPicsart(PersonalizeUserActivity.this, user.getKey(), Utils.getRealPathFromURI(PersonalizeUserActivity.this, imageUri), GifsArtConst.MY_DIR, UploadImageToPicsart.PHOTO_PUBLIC.PUBLIC, UploadImageToPicsart.PHOTO_IS.AVATAR);
                             uploadImageToPicsart.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                             uploadImageToPicsart.setOnUploadedListener(new UploadImageToPicsart.ImageUploaded() {
                                 @Override
@@ -82,7 +83,7 @@ public class PersonalizeUserActivity extends AppCompatActivity {
                                     if (uploaded) {
                                         user.setPhoto(uploadImageToPicsart.getUploadedImageUrl());
                                     } else {
-                                        user.setPhoto("111");
+                                        user.setPhoto(GifsArtConst.EMPTY_PROFILE_IMAGE_PATH);
                                     }
                                     UserContraller.writeUserToFile(PersonalizeUserActivity.this, user);
                                     setResult(RESULT_OK);
@@ -119,7 +120,7 @@ public class PersonalizeUserActivity extends AppCompatActivity {
 
     public void pickImageFromGallery() {
         Intent intent = new Intent();
-        intent.setType("image/*");
+        intent.setType(GifsArtConst.IMAGE_TYPE);
         intent.setAction(Intent.ACTION_GET_CONTENT);
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_PICK_IMAGE_FROM_GALLERY);
     }

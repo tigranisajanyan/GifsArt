@@ -14,7 +14,6 @@
     <string name="facebook_app_id">539133572903067</string>
     <string name="no_internet_connection">No internet connection</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
     <!--ERROR-->
@@ -24,6 +23,11 @@
     <string name="alert_username_field_is_empty">Username field is empty</string>
     <string name="alert_email_field_is_empty">Email field is empty</string>
     <string name="alert_password_field_is_empty">Password field is empty</string>
+
+    <!--SOCIAL-->
+    <string name="sign_in_button">Sign in</string>
+    <string name="sign_up_button">Sign up</string>
+    <string name="sign_out_button">Sign out</string>
 
 
 </resources>

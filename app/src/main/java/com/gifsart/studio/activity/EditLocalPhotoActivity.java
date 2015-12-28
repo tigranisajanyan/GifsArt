@@ -29,7 +29,6 @@ import com.gifsart.studio.utils.GifsArtConst;
 
 public class EditLocalPhotoActivity extends AppCompatActivity {
 
-
     private ImageView imageView;
     private User user;
     private ViewGroup profileContainer;
@@ -75,7 +74,7 @@ public class EditLocalPhotoActivity extends AppCompatActivity {
 
         Glide.with(this).load(gifUrl + GifsArtConst.DOWNLOAD_GIF_POSTFIX_480).thumbnail(thumbnailRequest).override(300, 300).into(imageView);
 
-        if (!user.getPhoto().equals("111")) {
+        if (!user.getPhoto().equals(GifsArtConst.EMPTY_PROFILE_IMAGE_PATH)) {
             Glide.with(this).load(user.getPhoto() + GifsArtConst.DOWNLOAD_GIF_POSTFIX_240).asBitmap().centerCrop().into(new BitmapImageViewTarget(((ImageView) profileContainer.findViewById(R.id.local_profile_image_view))) {
                 @Override
                 protected void setResource(Bitmap resource) {
@@ -166,8 +165,6 @@ public class EditLocalPhotoActivity extends AppCompatActivity {
                     }
                 });
                 giphyToByteArray.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-
-
             }
         });
 
@@ -190,10 +187,15 @@ public class EditLocalPhotoActivity extends AppCompatActivity {
                     }
                 });
                 giphyToByteArray.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            }
+        });
 
+        findViewById(R.id.edit_local_photo_activity_toolbar_back).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
             }
         });
     }
-
 
 }

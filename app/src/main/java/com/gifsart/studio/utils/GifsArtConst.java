@@ -12,6 +12,7 @@ public class GifsArtConst {
     public static String GIF_NAME = "test.gif";
     public static String VIDEO_NAME = "myvideo.mp4";
     public static String VIDEO_TYPE = "video/*";
+    public static String IMAGE_TYPE = "image/*";
     public static String FILE_PREFIX = "file://";
 
     public static String GIFSART_LOG = "gifsart_log";
@@ -39,6 +40,7 @@ public class GifsArtConst {
     public static String INTENT_IMAGE_BITMAP = "image_bitmap";
     public static String INTENT_SQUARE_FIT_MODE = "square_fit_mode";
     public static String INTENT_EFFECT_FILTER = "filter";
+    public static String INTENT_SIGN_UP_WITH_FACEBOOK = "sign_up_with_facebook";
 
 
     public static String INTENT_OPEN_SIGN_IN = "open_signin";
@@ -71,6 +73,8 @@ public class GifsArtConst {
     public static int REQUEST_CODE_EFFECTS_ACTIVITY = 400;
     public static int REQUEST_CODE_SHOOTING_GIF_REOPENED = 111;
     public static int REQUEST_CODE_GIPHY_REOPENED = 222;
+
+    public static String EMPTY_PROFILE_IMAGE_PATH = "111";
 
     public static int GIF_FRAME_SIZE = 500;
     public static int IMAGE_FRAME_DURATION = 200;   // 200 mls

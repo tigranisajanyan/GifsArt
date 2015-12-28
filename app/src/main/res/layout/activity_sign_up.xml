@@ -55,6 +55,7 @@
         android:drawablePadding="5dp"
         android:hint="Username"
         android:imeOptions="actionDone"
+        android:inputType="textNoSuggestions"
         android:singleLine="true" />
 
     <EditText
@@ -69,6 +70,7 @@
         android:drawablePadding="5dp"
         android:hint="Email"
         android:imeOptions="actionDone"
+        android:inputType="textEmailAddress"
         android:singleLine="true" />
 
     <EditText
@@ -82,6 +84,7 @@
         android:drawableLeft="@drawable/password_icon"
         android:drawablePadding="5dp"
         android:hint="Password"
+        android:inputType="textPassword|textNoSuggestions"
         android:singleLine="true" />
 
     <Button

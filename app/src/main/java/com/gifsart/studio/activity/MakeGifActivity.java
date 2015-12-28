@@ -340,7 +340,7 @@ public class MakeGifActivity extends ActionBarActivity {
                     CheckFreeSpaceSingleton.getInstance().clearAllocatedSpace();
                     gifItems.remove(gifItems.size() - 1);
                     gifImitation.cancel(true);
-
+                    mainFrameImageView.getGPUImage().deleteImage();
 
                     final AnimatedProgressDialog animatedProgressDialog = new AnimatedProgressDialog(MakeGifActivity.this);
                     animatedProgressDialog.setCancelable(false);
