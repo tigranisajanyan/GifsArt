@@ -6,10 +6,8 @@ import android.graphics.Matrix;
 import android.os.AsyncTask;
 import android.os.Environment;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import com.decoder.PhotoUtils;
+
 import java.util.ArrayList;
 
 /**
@@ -29,14 +27,13 @@ public class BurstModeFramesSaving extends AsyncTask<Void, Integer, Void> {
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-
     }
 
     @Override
     protected Void doInBackground(Void... params) {
         for (int i = 0; i < bytes.size(); i++) {
             Bitmap bitmap = BitmapFactory.decodeByteArray(bytes.get(i), 0, bytes.get(i).length);
-            try {
+            /*try {
                 FileOutputStream fileOutputStream = new FileOutputStream(new File(Environment.getExternalStorageDirectory() + "/GifsArt/.video_frames/", "img_" + i + ".jpg"));
                 bitmap = rotate(bitmap, 90);
                 if (isFront) {
@@ -48,7 +45,12 @@ public class BurstModeFramesSaving extends AsyncTask<Void, Integer, Void> {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
+            }*/
+            bitmap = rotate(bitmap, 90);
+            if (isFront) {
+                bitmap = rotate(bitmap, 180);
             }
+            PhotoUtils.saveRawBitmap(bitmap, Environment.getExternalStorageDirectory() + "/GifsArt/.video_frames/img_" + i + ".jpg");
         }
         return null;
     }
@@ -57,7 +59,6 @@ public class BurstModeFramesSaving extends AsyncTask<Void, Integer, Void> {
     protected void onPostExecute(Void aVoid) {
         super.onPostExecute(aVoid);
         framesSaved.done(true);
-
     }
 
     public Bitmap rotate(Bitmap bitmap, int degree) {

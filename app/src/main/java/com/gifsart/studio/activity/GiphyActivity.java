@@ -5,8 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.os.Environment;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -16,9 +17,9 @@ import android.widget.Toast;
 
 import com.gifsart.studio.R;
 import com.gifsart.studio.adapter.GiphyAdapter;
+import com.gifsart.studio.gifutils.DownloadGifFromGiphyToFile;
 import com.gifsart.studio.gifutils.GifUtils;
 import com.gifsart.studio.gifutils.Giphy;
-import com.gifsart.studio.gifutils.GiphyToByteArray;
 import com.gifsart.studio.helper.RecyclerItemClickListener;
 import com.gifsart.studio.item.GiphyItem;
 import com.gifsart.studio.utils.CheckFreeSpaceSingleton;
@@ -190,14 +191,14 @@ public class GiphyActivity extends AppCompatActivity {
     }
 
     public void sendIntentWithGif(final Intent intent, final boolean isOpened) {
-        GiphyToByteArray giphyToByteArray = new GiphyToByteArray(GiphyActivity.this, giphyItems.get(lastSelectedPosition));
-        giphyToByteArray.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        giphyToByteArray.setOnDownloadedListener(new GiphyToByteArray.OnDownloaded() {
+        DownloadGifFromGiphyToFile downloadGifFromGiphyToFile = new DownloadGifFromGiphyToFile(GiphyActivity.this, giphyItems.get(lastSelectedPosition));
+        downloadGifFromGiphyToFile.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        downloadGifFromGiphyToFile.setOnDownloadedListener(new DownloadGifFromGiphyToFile.OnDownloaded() {
             @Override
             public void onDownloaded(boolean isDownladed) {
                 if (isDownladed) {
                     intent.putExtra(GifsArtConst.INTENT_ACTIVITY_INDEX, GifsArtConst.INDEX_GIPHY_TO_GIF);
-                    CheckFreeSpaceSingleton.getInstance().addAllocatedSpaceInt(GifUtils.getGifFramesCountFromByteArray(GiphyToByteArray.buffer));
+                    CheckFreeSpaceSingleton.getInstance().addAllocatedSpaceInt(GifUtils.getGifFramesCount(Environment.getExternalStorageDirectory() + "/ttt.gif"));
                     if (isOpened) {
                         setResult(RESULT_OK, intent);
                     } else {

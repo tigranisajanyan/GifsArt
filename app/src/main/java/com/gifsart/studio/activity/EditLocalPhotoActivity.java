@@ -20,7 +20,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.gifsart.studio.R;
 import com.gifsart.studio.adapter.ProfileUserPhotosAdapter;
-import com.gifsart.studio.gifutils.GiphyToByteArray;
+import com.gifsart.studio.gifutils.DownloadGifFromGiphyToFile;
 import com.gifsart.studio.item.GiphyItem;
 import com.gifsart.studio.social.RequestConstants;
 import com.gifsart.studio.social.User;
@@ -152,8 +152,8 @@ public class EditLocalPhotoActivity extends AppCompatActivity {
             public void onClick(View v) {
                 GiphyItem giphyItem = new GiphyItem();
                 giphyItem.setOriginalGifUrl(gifUrl);
-                GiphyToByteArray giphyToByteArray = new GiphyToByteArray(EditLocalPhotoActivity.this, giphyItem);
-                giphyToByteArray.setOnDownloadedListener(new GiphyToByteArray.OnDownloaded() {
+                DownloadGifFromGiphyToFile downloadGifFromGiphyToFile = new DownloadGifFromGiphyToFile(EditLocalPhotoActivity.this, giphyItem);
+                downloadGifFromGiphyToFile.setOnDownloadedListener(new DownloadGifFromGiphyToFile.OnDownloaded() {
                     @Override
                     public void onDownloaded(boolean isDownladed) {
                         if (isDownladed) {
@@ -164,7 +164,7 @@ public class EditLocalPhotoActivity extends AppCompatActivity {
                         }
                     }
                 });
-                giphyToByteArray.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                downloadGifFromGiphyToFile.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             }
         });
 
@@ -173,8 +173,8 @@ public class EditLocalPhotoActivity extends AppCompatActivity {
             public void onClick(View v) {
                 GiphyItem giphyItem = new GiphyItem();
                 giphyItem.setOriginalGifUrl(gifUrl);
-                GiphyToByteArray giphyToByteArray = new GiphyToByteArray(EditLocalPhotoActivity.this, giphyItem);
-                giphyToByteArray.setOnDownloadedListener(new GiphyToByteArray.OnDownloaded() {
+                DownloadGifFromGiphyToFile downloadGifFromGiphyToFile = new DownloadGifFromGiphyToFile(EditLocalPhotoActivity.this, giphyItem);
+                downloadGifFromGiphyToFile.setOnDownloadedListener(new DownloadGifFromGiphyToFile.OnDownloaded() {
                     @Override
                     public void onDownloaded(boolean isDownladed) {
                         if (isDownladed) {
@@ -186,7 +186,7 @@ public class EditLocalPhotoActivity extends AppCompatActivity {
                         }
                     }
                 });
-                giphyToByteArray.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                downloadGifFromGiphyToFile.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             }
         });
 

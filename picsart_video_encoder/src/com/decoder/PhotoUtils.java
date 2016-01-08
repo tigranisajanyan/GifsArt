@@ -3,11 +3,14 @@ package com.decoder;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.media.MediaMetadataRetriever;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.util.Log;
 
 import com.socialin.android.photo.imgop.ImageOp;
-import com.socialin.android.photo.imgop.ImageOpCommon;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -175,6 +178,67 @@ public class PhotoUtils {
                 MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION);
         return Integer.parseInt(orientation);
     }
+
+    public static void saveRawBitmap(Bitmap bitmap, String filePath) {
+        if (bitmap == null || TextUtils.isEmpty(filePath)) {
+            Log.w("PhotoUtils", "saveRawBitmap: " + " Bitmap is NULL or empty filePath !!!");
+            return;
+        }
+        try {
+            File file = new File(filePath);
+            // make sure containing dir exists
+            if (!file.exists() && file.getParent() != null) {
+                File parentFile = file.getParentFile();
+                if (!parentFile.exists()) {
+                    parentFile.mkdirs();
+                }
+            }
+            DataOutputStream stream = new DataOutputStream(new FileOutputStream(file));
+            stream.writeInt(0x2E_52_41_57); // .RAW
+            stream.writeInt(bitmap.getWidth());
+            stream.writeInt(bitmap.getHeight());
+            stream.writeInt(bitmap.getConfig() != null ? bitmap.getConfig().ordinal() : Bitmap.Config.ARGB_8888.ordinal());
+
+            byte[] rawData = new byte[bitmap.getRowBytes() * bitmap.getHeight()];
+
+            ByteBuffer buffer = ByteBuffer.wrap(rawData);
+            bitmap.copyPixelsToBuffer(buffer);
+
+            stream.write(rawData);
+            stream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public static Bitmap loadRawBitmap(String filePath) {
+        Bitmap result = null;
+
+        try {
+            DataInputStream stream = new DataInputStream(new FileInputStream(filePath));
+            if (stream.readInt() == 0x2E_52_41_57) { // .RAW
+
+                int width = stream.readInt();
+                int height = stream.readInt();
+                Bitmap.Config config = Bitmap.Config.values()[stream.readInt()];
+
+                result = Bitmap.createBitmap(width, height, config);
+
+                byte[] rawData = new byte[result.getRowBytes() * result.getHeight()];
+
+                stream.readFully(rawData);
+
+                result.copyPixelsFromBuffer(ByteBuffer.wrap(rawData));
+            }
+            stream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
 
 }
 

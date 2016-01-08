@@ -14,13 +14,11 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.RelativeLayout;
 
+import com.decoder.PhotoUtils;
 import com.gifsart.studio.utils.GifsArtConst;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -92,7 +90,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
         if (recording) {
-            String path = Environment.getExternalStorageDirectory() + "/" + GifsArtConst.DIR_VIDEO_FRAMES + "/img_" + counter + ".jpg";
+            String path = Environment.getExternalStorageDirectory().getPath() + "/" + GifsArtConst.DIR_VIDEO_FRAMES + "/img_" + counter + ".jpg";
             savePreviewDataToFile(camera, data, path);
             counter++;
         }
@@ -104,7 +102,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
         if (mCamera == camera) {
             return;
         }
-        stopPreviewAndFreeCamera();
+        //stopPreviewAndFreeCamera();
 
         mCamera = camera;
         if (mCamera != null) {
@@ -162,14 +160,15 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
                 parameters.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
             }*/
 
-            /*if (parameters.getSupportedFocusModes().contains(
+            if (parameters.getSupportedFocusModes().contains(
                     Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
                 parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
-            }*/
+            }
 
             mCamera.setPreviewDisplay(mHolder);
             mCamera.setDisplayOrientation(orientation);
             mCamera.setParameters(parameters);
+            mCamera.autoFocus(null);
             mCamera.setPreviewCallback(this);
 
             mCamera.startPreview();
@@ -220,7 +219,6 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
                                                        int height,
                                                        Camera.Parameters parameters,
                                                        double closeEnough) {
-
 
         double targetRatio = (double) width / height;
         Camera.Size bestSize = null;
@@ -343,13 +341,14 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
         Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, width / 2, height / 2, true);
         Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
 
-        OutputStream imagefile = null;
+        /*OutputStream imagefile = null;
         try {
             imagefile = new FileOutputStream(filePath);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 80, imagefile);
+        rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 80, imagefile);*/
+        PhotoUtils.saveRawBitmap(rotatedBitmap, filePath);
     }
 
     /**
@@ -376,11 +375,11 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     }
 
 
-    public void start() {
+    public void startRecord() {
         recording = true;
     }
 
-    public void stop() {
+    public void stopRecord() {
         recording = false;
     }
 

@@ -1,8 +1,11 @@
 package com.gifsart.studio.activity;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.hardware.Camera;
 import android.media.MediaRecorder;
@@ -10,6 +13,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Environment;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
@@ -107,6 +111,12 @@ public class MainActivity extends AppCompatActivity {
 
     private SlidingUpPanelLayout slidingUpPanelLayout;
 
+    private static final int REQUEST_EXTERNAL_STORAGE = 1;
+    private static String[] PERMISSIONS_STORAGE = {
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+    };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,6 +136,7 @@ public class MainActivity extends AppCompatActivity {
         Utils.createDir(GifsArtConst.DIR_GIPHY);
         Utils.createDir(GifsArtConst.DIR_GPU_IMAGES);
         Utils.createDir(GifsArtConst.DIR_VIDEO_FRAMES);
+        Utils.createDir("GifsArt/edit_frames");
 
         context = this;
         sharedPreferences = getApplicationContext().getSharedPreferences(GifsArtConst.SHARED_PREFERENCES, MODE_PRIVATE);
@@ -138,6 +149,29 @@ public class MainActivity extends AppCompatActivity {
         init();
         initShooting();
 
+        verifyStoragePermissions(this);
+
+    }
+
+    /**
+     * Checks if the app has permission to write to device storage
+     * <p/>
+     * If the app does not has permission then the user will be prompted to grant permissions
+     *
+     * @param activity
+     */
+    public static void verifyStoragePermissions(Activity activity) {
+        // Check if we have write permission
+        int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            // We don't have permission so prompt the user
+            ActivityCompat.requestPermissions(
+                    activity,
+                    PERMISSIONS_STORAGE,
+                    REQUEST_EXTERNAL_STORAGE
+            );
+        }
     }
 
     public void init() {
@@ -389,7 +423,7 @@ public class MainActivity extends AppCompatActivity {
         // stop and release camera
         try {
             if (camera != null) {
-                cameraPreview.stop();
+                cameraPreview.stopRecord();
                 camera.stopPreview();
                 camera.setPreviewCallback(null);
                 //cameraPreview.getHolder().removeCallback(cameraPreview);
@@ -655,7 +689,7 @@ public class MainActivity extends AppCompatActivity {
                         captureButton.setOnTouchListener(null);
                         captureButton.setOnLongClickListener(null);
                         visibilitySwitcher(false);
-                        cameraPreview.stop();
+                        cameraPreview.stopRecord();
                         recording = false;
                         videoCaptureCountDownTimer.cancel();
                         captureCicrleButtonProgressBar.setVisibility(View.INVISIBLE);
@@ -694,7 +728,7 @@ public class MainActivity extends AppCompatActivity {
             Utils.clearDir(new File(Environment.getExternalStorageDirectory() + "/" + GifsArtConst.DIR_VIDEO_FRAMES));
             recording = true;
             visibilitySwitcher(true);
-            cameraPreview.start();
+            cameraPreview.startRecord();
             videoCaptureCountDownTimer = new VideoCaptureCountDownTimer(7100, 1000);
             videoCaptureCountDownTimer.start();
             captureCicrleButtonProgressBar.setProgress(0);
@@ -819,7 +853,7 @@ public class MainActivity extends AppCompatActivity {
                     captureButton.setOnTouchListener(null);
                     captureButton.setOnLongClickListener(null);
                     recording = false;
-                    cameraPreview.stop();
+                    cameraPreview.stopRecord();
                     captureCicrleButtonProgressBar.setVisibility(View.INVISIBLE);
                     if (!sharedPreferences.getBoolean(GifsArtConst.SHARED_PREFERENCES_IS_OPENED, false)) {
                         sendCapturedVideoFramesWithIntent(new Intent(MainActivity.this, MakeGifActivity.class));

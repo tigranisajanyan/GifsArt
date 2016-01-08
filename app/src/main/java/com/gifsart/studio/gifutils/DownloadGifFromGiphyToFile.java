@@ -16,7 +16,7 @@ import java.net.URL;
 /**
  * Created by Tigran on 11/11/15.
  */
-public class GiphyToByteArray extends AsyncTask<Void, Integer, Boolean> {
+public class DownloadGifFromGiphyToFile extends AsyncTask<Void, Integer, Boolean> {
 
     private Context context;
     private GiphyItem giphyItem;
@@ -25,9 +25,9 @@ public class GiphyToByteArray extends AsyncTask<Void, Integer, Boolean> {
 
     private OnDownloaded onDownloaded;
     private HttpURLConnection ucon;
-    public static byte[] buffer;
+    private byte[] buffer;
 
-    public GiphyToByteArray(Context context, GiphyItem giphyItem) {
+    public DownloadGifFromGiphyToFile(Context context, GiphyItem giphyItem) {
         this.context = context;
         this.giphyItem = giphyItem;
     }

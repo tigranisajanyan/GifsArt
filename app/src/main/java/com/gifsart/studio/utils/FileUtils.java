@@ -1,7 +1,9 @@
 package com.gifsart.studio.utils;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.os.Environment;
 import android.util.Log;
 
 import java.io.File;
@@ -125,6 +127,42 @@ public class FileUtils {
         }
         // The directory is now empty so delete it
         return file.delete();
+    }
+
+    public static int updateFileCounter(SharedPreferences sharedPreferences) {
+        try {
+            int currentValue = sharedPreferences.getInt("file_name_counter", 0);
+            currentValue++;
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putInt("file_name_counter", currentValue);
+            editor.commit();
+            return currentValue;
+        } catch (NullPointerException e) {
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putInt("file_name_counter", 0);
+            editor.commit();
+            return 0;
+        }
+    }
+
+    public static int getFileCounter(SharedPreferences sharedPreferences) {
+        try {
+            return sharedPreferences.getInt("file_name_counter", 0);
+        } catch (NullPointerException e) {
+            return 0;
+        }
+    }
+
+    public static void resetFileCounter(SharedPreferences sharedPreferences) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt("file_name_counter", 0);
+        editor.commit();
+    }
+
+    public static int checkNextCounterValue() {
+        File file = new File(Environment.getExternalStorageDirectory() + "/GifsArt/.video_frames");
+        int size = file.listFiles().length;
+        return size;
     }
 
 

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 
+import com.decoder.PhotoUtils;
 import com.gifsart.studio.item.GifItem;
 import com.gifsart.studio.utils.ThreadControl;
 import com.gifsart.studio.utils.Type;
@@ -69,7 +70,7 @@ public class GifImitation extends AsyncTask<Void, Bitmap, Void> {
                     break;
                 }
 
-                publishProgress(gifItems.get(index).getBitmap());
+                publishProgress(PhotoUtils.loadRawBitmap(gifItems.get(index).getFilePath()));
                 try {
                     TimeUnit.MILLISECONDS.sleep(gifItems.get(index).getCurrentDuration());
                 } catch (InterruptedException e) {

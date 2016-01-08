@@ -26,6 +26,9 @@ public class GifItem {
     private int effectPosition = 0;
     private MakeGifActivity.SquareFitMode squareFitMode = MakeGifActivity.SquareFitMode.FIT_MODE_SQUARE;
 
+    private String filePath;
+    private ArrayList<String> filePaths;
+
     public GifItem() {
 
     }
@@ -97,6 +100,22 @@ public class GifItem {
 
     public void setIsSelected(boolean isSelected) {
         this.isSelected = isSelected;
+    }
+
+    public String getFilePath() {
+        return filePath;
+    }
+
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
+    }
+
+    public ArrayList<String> getFilePaths() {
+        return filePaths;
+    }
+
+    public void setFilePaths(ArrayList<String> filePaths) {
+        this.filePaths = filePaths;
     }
 
 }
