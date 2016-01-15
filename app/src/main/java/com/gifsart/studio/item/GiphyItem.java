@@ -5,7 +5,7 @@ package com.gifsart.studio.item;
  */
 public class GiphyItem {
 
-    private String gifUrl;
+    private String downsampledGifUrl;
     private String originalGifUrl;
     private int gifWidth;
     private int gifHeight;
@@ -19,19 +19,19 @@ public class GiphyItem {
 
     }
 
-    public GiphyItem(String gifUrl, int gifWidth, int gifHeight, String originalGifUrl) {
-        this.gifUrl = gifUrl;
+    public GiphyItem(String downsampledGifUrl, int gifWidth, int gifHeight, String originalGifUrl) {
+        this.downsampledGifUrl = downsampledGifUrl;
         this.gifWidth = gifWidth;
         this.gifHeight = gifHeight;
         this.originalGifUrl = originalGifUrl;
     }
 
-    public String getGifUrl() {
-        return gifUrl;
+    public String getDownsampledGifUrl() {
+        return downsampledGifUrl;
     }
 
-    public void setGifUrl(String gifUrl) {
-        this.gifUrl = gifUrl;
+    public void setDownsampledGifUrl(String downsampledGifUrl) {
+        this.downsampledGifUrl = downsampledGifUrl;
     }
 
     public int getGifWidth() {

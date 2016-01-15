@@ -8,7 +8,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.hardware.Camera;
-import android.media.MediaRecorder;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -33,13 +32,13 @@ import android.widget.Toast;
 
 import com.decoder.VideoDecoder;
 import com.facebook.FacebookSdk;
-import com.facebook.drawee.backends.pipeline.Fresco;
 import com.gifsart.studio.R;
 import com.gifsart.studio.adapter.GalleryAdapter;
 import com.gifsart.studio.adapter.GalleryItemCategoryAdapter;
 import com.gifsart.studio.camera.BurstModeFramesSaving;
 import com.gifsart.studio.camera.CameraHelper;
 import com.gifsart.studio.camera.CameraPreview;
+import com.gifsart.studio.camera.SaveVideoFrames;
 import com.gifsart.studio.helper.RecyclerItemClickListener;
 import com.gifsart.studio.item.GalleryCategoryItem;
 import com.gifsart.studio.item.GalleryItem;
@@ -52,7 +51,6 @@ import com.gifsart.studio.utils.Utils;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
-import java.io.File;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -82,74 +80,58 @@ public class MainActivity extends AppCompatActivity {
     private Context context;
     private Camera camera;
     private CameraPreview cameraPreview;
-    private MediaRecorder mediaRecorder;
     private ProgressBar captureCicrleButtonProgressBar;
 
-    private ImageButton captureButton, aspectRatioButton, switchCameraButton;
+    private ImageButton captureButton, switchCameraButton;
 
     private RelativeLayout cameraPreviewLayout;
     private boolean cameraFront = false;
     private boolean recording = false;
 
-    private ArrayList<Integer> burstModeCounts = new ArrayList();
-
     private ArrayList<byte[]> burstModeFrameBytes = new ArrayList<>();
 
     private VideoCaptureCountDownTimer videoCaptureCountDownTimer;
 
-    public String[] flashLightModes = new String[]{
-            Camera.Parameters.FLASH_MODE_OFF,
-            Camera.Parameters.FLASH_MODE_TORCH,
-            Camera.Parameters.FLASH_MODE_AUTO
-    };
 
     private boolean aspectRatio = true;
     int coverSize = 0;
-
-    private String flashMode = flashLightModes[0];
-    private int burstMode = 5;
 
     private SlidingUpPanelLayout slidingUpPanelLayout;
 
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
     private static String[] PERMISSIONS_STORAGE = {
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
+            Manifest.permission.READ_CALENDAR
     };
 
+    AnimatedProgressDialog animatedProgressDialog1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         FacebookSdk.sdkInitialize(getApplicationContext());
-        Fresco.initialize(this);
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //verifyStoragePermissions(this);
 
         Utils.initImageLoader(getApplicationContext());
 
         ImageLoader.getInstance().clearMemoryCache();
         ImageLoader.getInstance().clearDiskCache();
 
-        Utils.createDir(GifsArtConst.MY_DIR);
-        Utils.createDir(GifsArtConst.DIR_GIPHY);
-        Utils.createDir(GifsArtConst.DIR_GPU_IMAGES);
-        Utils.createDir(GifsArtConst.DIR_VIDEO_FRAMES);
-        Utils.createDir("GifsArt/edit_frames");
-
         context = this;
         sharedPreferences = getApplicationContext().getSharedPreferences(GifsArtConst.SHARED_PREFERENCES, MODE_PRIVATE);
 
-        burstModeCounts.add(5);
-        burstModeCounts.add(10);
-        burstModeCounts.add(15);
-
+        if (!sharedPreferences.getBoolean(GifsArtConst.SHARED_PREFERENCES_IS_OPENED, false)) {
+            Utils.createDir(GifsArtConst.MY_DIR);
+            Utils.createDir(GifsArtConst.DIR_GIPHY);
+            Utils.createDir(GifsArtConst.DIR_VIDEO_FRAMES);
+            Utils.createDir(GifsArtConst.DIR_EDIT_FRAMES);
+        }
 
         init();
         initShooting();
-
-        verifyStoragePermissions(this);
 
     }
 
@@ -160,9 +142,9 @@ public class MainActivity extends AppCompatActivity {
      *
      * @param activity
      */
-    public static void verifyStoragePermissions(Activity activity) {
+    public void verifyStoragePermissions(Activity activity) {
         // Check if we have write permission
-        int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.READ_CALENDAR);
 
         if (permission != PackageManager.PERMISSION_GRANTED) {
             // We don't have permission so prompt the user
@@ -175,6 +157,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void init() {
+
+        //long heapSize = Runtime.getRuntime().maxMemory();
+        //Toast.makeText(this, "" + heapSize, Toast.LENGTH_LONG).show();
 
         categoryContainer = (ViewGroup) findViewById(R.id.category_container);
         galleryContainer = (ViewGroup) findViewById(R.id.gallery_container);
@@ -419,6 +404,22 @@ public class MainActivity extends AppCompatActivity {
         updateAfterRestart();
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_EXTERNAL_STORAGE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Now user should be able to use camera
+                Log.d("hahh", "has");
+            } else {
+                Log.d("hahh", "don't have");
+                // Your app will not have this permission. Turn off all functions
+                // that require this permission or it will force close like your
+                // original question
+            }
+        }
+    }
+
     private void releaseCamera() {
         // stop and release camera
         try {
@@ -449,8 +450,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public boolean sendIntentWithVideo(final Intent intent, String path, final GalleryAdapter galleryAdapter, final AnimatedProgressDialog progressDialog, final boolean isOpened) {
-        File file = new File(GifsArtConst.VIDEOS_DECODED_FRAMES_DIR);
-        file.mkdirs();
 
         VideoDecoder videoDecoder = new VideoDecoder(MainActivity.this, path, Integer.MAX_VALUE, GifsArtConst.VIDEO_FRAME_SCALE_SIZE, GifsArtConst.VIDEOS_DECODED_FRAMES_DIR);
         videoDecoder.extractVideoFrames();
@@ -535,6 +534,8 @@ public class MainActivity extends AppCompatActivity {
      */
 
     private void initShooting() {
+
+        animatedProgressDialog1 = new AnimatedProgressDialog(this);
         cameraPreviewLayout = (RelativeLayout) findViewById(R.id.camera_preview);
         cameraPreview = new CameraPreview(context, camera);
 
@@ -547,15 +548,14 @@ public class MainActivity extends AppCompatActivity {
 
         cameraPreviewLayout.addView(cameraPreview);
 
-        aspectRatioButton = (ImageButton) findViewById(R.id.aspect_ratio_button);
-
         captureCicrleButtonProgressBar = (ProgressBar) findViewById(R.id.circle_progress_bar);
 
         findViewById(R.id.burst_mode_image_container).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                burstMode = burstModeCounts.get((burstModeCounts.indexOf(burstMode) + 1) % burstModeCounts.size());
-                ((TextView) findViewById(R.id.burst_mode_count)).setText("x" + burstMode);
+                //burstMode = burstModeCounts.get((burstModeCounts.indexOf(burstMode) + 1) % burstModeCounts.size());
+                //((TextView) findViewById(R.id.burst_mode_count)).setText("x" + burstMode);
+                CameraHelper.setNextBurstMode(MainActivity.this);
             }
         });
 
@@ -563,7 +563,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (!cameraFront) {
-                    setNextFlashLightMode(flashMode, camera);
+                    CameraHelper.setNextFlashLightMode(MainActivity.this, camera);
                 }
             }
         });
@@ -577,10 +577,12 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 if (aspectRatio) {
+                    ((TextView) findViewById(R.id.aspect_ratio)).setText(getString(R.string.aspect_ratio_1x1));
                     slidingUpPanelLayout.setAnchorPoint(0.4f);
                     slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.ANCHORED);
                     aspectRatio = false;
                 } else {
+                    ((TextView) findViewById(R.id.aspect_ratio)).setText(getString(R.string.aspect_ratio_3x4));
                     slidingUpPanelLayout.setAnchorPoint(1.0f);
                     slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
                     aspectRatio = true;
@@ -690,14 +692,11 @@ public class MainActivity extends AppCompatActivity {
                         captureButton.setOnLongClickListener(null);
                         visibilitySwitcher(false);
                         cameraPreview.stopRecord();
+                        animatedProgressDialog1.show();
                         recording = false;
                         videoCaptureCountDownTimer.cancel();
                         captureCicrleButtonProgressBar.setVisibility(View.INVISIBLE);
-                        if (!sharedPreferences.getBoolean(GifsArtConst.SHARED_PREFERENCES_IS_OPENED, false)) {
-                            sendCapturedVideoFramesWithIntent(new Intent(MainActivity.this, MakeGifActivity.class));
-                        } else {
-                            sendCapturedVideoFramesWithIntent(new Intent());
-                        }
+
                         /*if (CheckFreeSpaceSingleton.getInstance().haveEnoughSpace(GifsArtConst.SHOOTING_VIDEO_OUTPUT_DIR + "/" + GifsArtConst.VIDEO_NAME)) {
                             saveCapturedVideoFrames();
                         } else {
@@ -707,11 +706,11 @@ public class MainActivity extends AppCompatActivity {
                         }*/
 
                     } else {
-                        Utils.clearDir(new File(Environment.getExternalStorageDirectory() + "/" + GifsArtConst.DIR_VIDEO_FRAMES));
+                        //Utils.clearDir(new File(Environment.getExternalStorageDirectory() + "/" + GifsArtConst.DIR_VIDEO_FRAMES));
                         findViewById(R.id.burst_mode_image_container).setOnClickListener(null);
                         captureButton.setOnTouchListener(null);
                         captureButton.setOnLongClickListener(null);
-                        int n = burstMode;
+                        int n = CameraHelper.getCurrentBurstMode();
                         visibilitySwitcher(true);
                         burstModeRecursion(n);
                     }
@@ -725,9 +724,27 @@ public class MainActivity extends AppCompatActivity {
     View.OnLongClickListener onLongClickListener = new View.OnLongClickListener() {
         @Override
         public boolean onLongClick(View v) {
-            Utils.clearDir(new File(Environment.getExternalStorageDirectory() + "/" + GifsArtConst.DIR_VIDEO_FRAMES));
+            //Utils.clearDir(new File(Environment.getExternalStorageDirectory() + "/" + GifsArtConst.DIR_VIDEO_FRAMES));
             recording = true;
             visibilitySwitcher(true);
+            cameraPreview.setRenderingListener(new CameraPreview.StartRendering() {
+                @Override
+                public void toStart(boolean start) {
+                    SaveVideoFrames saveVideoFrames = new SaveVideoFrames(context);
+                    saveVideoFrames.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                    saveVideoFrames.setOnFramesSavedListener(new SaveVideoFrames.IsSaved() {
+                        @Override
+                        public void framesAreSaved(boolean done) {
+                            animatedProgressDialog1.dismiss();
+                            if (!sharedPreferences.getBoolean(GifsArtConst.SHARED_PREFERENCES_IS_OPENED, false)) {
+                                sendCapturedVideoFramesWithIntent(new Intent(MainActivity.this, MakeGifActivity.class));
+                            } else {
+                                sendCapturedVideoFramesWithIntent(new Intent());
+                            }
+                        }
+                    });
+                }
+            });
             cameraPreview.startRecord();
             videoCaptureCountDownTimer = new VideoCaptureCountDownTimer(7100, 1000);
             videoCaptureCountDownTimer.start();
@@ -740,14 +757,14 @@ public class MainActivity extends AppCompatActivity {
     public void saveBurstModeFrames() {
         final AnimatedProgressDialog animatedProgressDialog = new AnimatedProgressDialog(MainActivity.this);
         animatedProgressDialog.show();
-        BurstModeFramesSaving burstModeFramesSaving = new BurstModeFramesSaving(cameraFront, burstModeFrameBytes);
+        BurstModeFramesSaving burstModeFramesSaving = new BurstModeFramesSaving(this, cameraFront, burstModeFrameBytes);
         burstModeFramesSaving.setFramesSavedListener(new BurstModeFramesSaving.FramesSaved() {
             @Override
             public void done(boolean done) {
                 if (done) {
                     ArrayList<String> strings = new ArrayList<>();
-                    for (int i = 0; i < burstMode; i++) {
-                        strings.add(Environment.getExternalStorageDirectory() + "/" + GifsArtConst.DIR_VIDEO_FRAMES + "/img_" + i + ".jpg");
+                    for (int i = 0; i < CameraHelper.getCurrentBurstMode(); i++) {
+                        strings.add(Environment.getExternalStorageDirectory() + "/" + GifsArtConst.DIR_VIDEO_FRAMES + "/img_" + i);
                     }
                     if (!sharedPreferences.getBoolean(GifsArtConst.SHARED_PREFERENCES_IS_OPENED, false)) {
                         Intent intent = new Intent(MainActivity.this, MakeGifActivity.class);
@@ -763,7 +780,7 @@ public class MainActivity extends AppCompatActivity {
                         setResult(RESULT_OK, intent);
                         finish();
                     }
-                    CheckFreeSpaceSingleton.getInstance().addAllocatedSpaceInt(burstMode);
+                    CheckFreeSpaceSingleton.getInstance().addAllocatedSpaceInt(CameraHelper.getCurrentBurstMode());
                     animatedProgressDialog.dismiss();
                 }
             }
@@ -787,7 +804,7 @@ public class MainActivity extends AppCompatActivity {
         if (n == 0) {
             findViewById(R.id.burst_counter).setVisibility(View.INVISIBLE);
             visibilitySwitcher(false);
-            if (CheckFreeSpaceSingleton.getInstance().haveEnoughSpaceInt(burstMode)) {
+            if (CheckFreeSpaceSingleton.getInstance().haveEnoughSpaceInt(CameraHelper.getCurrentBurstMode())) {
                 saveBurstModeFrames();
             } else {
                 setResult(RESULT_CANCELED);
@@ -809,31 +826,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void setNextFlashLightMode(String currentFlashMode, Camera camera) {
-        Camera.Parameters cameraParams = camera.getParameters();
-        ImageButton flashLightSwitchButton = (ImageButton) findViewById(R.id.flash_light_button);
-        for (int i = 0; i < flashLightModes.length; i++) {
-            if (currentFlashMode.equals(flashLightModes[i])) {
-                int nextIndex = (i + 1) % flashLightModes.length;
-                flashMode = flashLightModes[nextIndex];
-                cameraParams.setFlashMode(flashMode);
-                camera.setParameters(cameraParams);
-                switch (nextIndex) {
-                    case 0:
-                        flashLightSwitchButton.setImageDrawable(getResources().getDrawable(R.drawable.flash_light_off));
-                        break;
-                    case 1:
-                        flashLightSwitchButton.setImageDrawable(getResources().getDrawable(R.drawable.flash_light_on));
-                        break;
-                    case 2:
-                        flashLightSwitchButton.setImageDrawable(getResources().getDrawable(R.drawable.flash_light_auto));
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-    }
 
     public class VideoCaptureCountDownTimer extends CountDownTimer {
         public VideoCaptureCountDownTimer(long startTime, long interval) {
@@ -854,12 +846,14 @@ public class MainActivity extends AppCompatActivity {
                     captureButton.setOnLongClickListener(null);
                     recording = false;
                     cameraPreview.stopRecord();
+                    animatedProgressDialog1.show();
                     captureCicrleButtonProgressBar.setVisibility(View.INVISIBLE);
-                    if (!sharedPreferences.getBoolean(GifsArtConst.SHARED_PREFERENCES_IS_OPENED, false)) {
+
+                    /*if (!sharedPreferences.getBoolean(GifsArtConst.SHARED_PREFERENCES_IS_OPENED, false)) {
                         sendCapturedVideoFramesWithIntent(new Intent(MainActivity.this, MakeGifActivity.class));
                     } else {
                         sendCapturedVideoFramesWithIntent(new Intent());
-                    }
+                    }*/
                     //if (CheckFreeSpaceSingleton.getInstance().haveEnoughSpace(GifsArtConst.SHOOTING_VIDEO_OUTPUT_DIR + "/" + GifsArtConst.VIDEO_NAME)) {
                     //saveCapturedVideoFrames();
                     /*} else {
@@ -876,10 +870,10 @@ public class MainActivity extends AppCompatActivity {
         cameraFront = false;
         captureButton.setOnTouchListener(captrureListener);
         captureButton.setOnLongClickListener(onLongClickListener);
-        burstMode = 5;
         currentCategoryPosition = 0;
-        ((TextView) findViewById(R.id.burst_mode_count)).setText("x" + burstMode);
+        CameraHelper.resetBurstMode(MainActivity.this);
         ((TextView) findViewById(R.id.capture_time)).setText("00:06");
+        visibilitySwitcher(false);
     }
 
     private void visibilitySwitcher(boolean isBurstMode) {

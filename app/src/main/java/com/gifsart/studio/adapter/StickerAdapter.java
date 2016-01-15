@@ -11,7 +11,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.gifsart.studio.R;
-import com.gifsart.studio.gifutils.Giphy;
+import com.gifsart.studio.gifutils.GiphyApiRequest;
 import com.gifsart.studio.item.GiphyItem;
 import com.gifsart.studio.utils.GifsArtConst;
 import com.gifsart.studio.utils.Utils;
@@ -54,9 +54,9 @@ public class StickerAdapter extends RecyclerView.Adapter<StickerAdapter.ViewHold
                 if (Utils.haveNetworkConnection(context)) {
                     offset = offset + GifsArtConst.GIPHY_LIMIT_COUNT;
 
-                    Giphy giphy = new Giphy(context, GifsArtConst.GIPHY_TAG, true, offset, GifsArtConst.GIPHY_LIMIT_COUNT);
-                    giphy.requestGiphy();
-                    giphy.setOnDownloadedListener(new Giphy.GiphyListener() {
+                    GiphyApiRequest giphyApiRequest = new GiphyApiRequest(context, GifsArtConst.GIPHY_TAG, true, offset, GifsArtConst.GIPHY_LIMIT_COUNT);
+                    giphyApiRequest.requestGiphy();
+                    giphyApiRequest.setOnDownloadedListener(new GiphyApiRequest.GiphyListener() {
                         @Override
                         public void onGiphyDownloadFinished(ArrayList<GiphyItem> items) {
                             giphyItems.addAll(items);
@@ -68,7 +68,7 @@ public class StickerAdapter extends RecyclerView.Adapter<StickerAdapter.ViewHold
                 }
             }
 
-            Uri uri = Uri.parse((giphyItems.get(position)).getGifUrl());
+            Uri uri = Uri.parse((giphyItems.get(position)).getDownsampledGifUrl());
             /*DraweeController controller = Fresco.newDraweeControllerBuilder()
                     .setUri(uri)
                     .setAutoPlayAnimations(true).build();

@@ -30,4 +30,8 @@
     <string name="sign_out_button">Sign out</string>
 
 
+    <string name="aspect_ratio_3x4">3:4</string>
+    <string name="aspect_ratio_1x1">1:1</string>
+
+
 </resources>

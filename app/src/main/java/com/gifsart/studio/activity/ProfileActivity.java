@@ -307,6 +307,22 @@ public class ProfileActivity extends AppCompatActivity {
                         }
                     }
                 });
+
+                /*final RequestQueue requestQueue = Volley.newRequestQueue(context);
+                requestQueue.getCache().clear();
+                MultiPartRequest multiPartRequest = new MultiPartRequest("https://api.picsart.com/photos/add.json?key=" + user.getKey(), new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/imm.jpg"), new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        requestQueue.stop();
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        requestQueue.stop();
+                    }
+                });
+                requestQueue.add(multiPartRequest);*/
+
                 Glide.with(context).load(Utils.getRealPathFromURI(context, imageUri)).asBitmap().centerCrop().into(new BitmapImageViewTarget(profileImageView) {
                     @Override
                     protected void setResource(Bitmap resource) {

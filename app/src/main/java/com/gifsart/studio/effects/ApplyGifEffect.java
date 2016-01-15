@@ -53,7 +53,6 @@ public class ApplyGifEffect extends AsyncTask<Void, Bitmap, Void> {
     @Override
     protected void onPostExecute(Void aVoid) {
         super.onPostExecute(aVoid);
-
     }
 
 }

@@ -23,13 +23,10 @@ import android.test.AndroidTestCase;
 import android.util.Log;
 import android.view.Surface;
 
-import com.socialin.android.photo.imgop.ImageOp;
 import com.socialin.android.photo.imgop.ImageOpCommon;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -666,8 +663,9 @@ public class ExtractMpegFrames extends AndroidTestCase {
                 }
             }
 
-            PhotoUtils.saveBufferToSDCard(filename, byteBuffer);
+            //PhotoUtils.saveBufferToSDCard(filename, byteBuffer);
 
+            PhotoUtils.saveByteBufferToRawBitmap(byteBuffer,mWidth,mHeight, Bitmap.Config.ARGB_8888,filename);
 
             /*BufferedOutputStream bos = null;
             try {

@@ -19,7 +19,7 @@ import com.gifsart.studio.R;
 import com.gifsart.studio.adapter.GiphyAdapter;
 import com.gifsart.studio.gifutils.DownloadGifFromGiphyToFile;
 import com.gifsart.studio.gifutils.GifUtils;
-import com.gifsart.studio.gifutils.Giphy;
+import com.gifsart.studio.gifutils.GiphyApiRequest;
 import com.gifsart.studio.helper.RecyclerItemClickListener;
 import com.gifsart.studio.item.GiphyItem;
 import com.gifsart.studio.utils.CheckFreeSpaceSingleton;
@@ -70,9 +70,9 @@ public class GiphyActivity extends AppCompatActivity {
         giphyRecyclerView.addItemDecoration(new SpacesItemDecoration(5));
 
         if (Utils.haveNetworkConnection(this)) {
-            Giphy giphy = new Giphy(this, tag, false, offset, limit);
-            giphy.requestGiphy();
-            giphy.setOnDownloadedListener(new Giphy.GiphyListener() {
+            GiphyApiRequest giphyApiRequest = new GiphyApiRequest(this, tag, false, offset, limit);
+            giphyApiRequest.requestGiphy();
+            giphyApiRequest.setOnDownloadedListener(new GiphyApiRequest.GiphyListener() {
                 @Override
                 public void onGiphyDownloadFinished(ArrayList<GiphyItem> items) {
                     giphyItems.addAll(items);
@@ -126,9 +126,9 @@ public class GiphyActivity extends AppCompatActivity {
             public boolean onClose() {
                 tag = GifsArtConst.GIPHY_TAG;
                 giphyAdapter.setTag(tag);
-                Giphy giphy = new Giphy(GiphyActivity.this, tag, false, offset, limit);
-                giphy.requestGiphy();
-                giphy.setOnDownloadedListener(new Giphy.GiphyListener() {
+                GiphyApiRequest giphyApiRequest = new GiphyApiRequest(GiphyActivity.this, tag, false, offset, limit);
+                giphyApiRequest.requestGiphy();
+                giphyApiRequest.setOnDownloadedListener(new GiphyApiRequest.GiphyListener() {
                     @Override
                     public void onGiphyDownloadFinished(ArrayList<GiphyItem> items) {
                         giphyAdapter.clear();
@@ -143,9 +143,9 @@ public class GiphyActivity extends AppCompatActivity {
         search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(final String query) {
-                Giphy giphy = new Giphy(GiphyActivity.this, query, false, 0, limit);
-                giphy.requestGiphy();
-                giphy.setOnDownloadedListener(new Giphy.GiphyListener() {
+                GiphyApiRequest giphyApiRequest = new GiphyApiRequest(GiphyActivity.this, query, false, 0, limit);
+                giphyApiRequest.requestGiphy();
+                giphyApiRequest.setOnDownloadedListener(new GiphyApiRequest.GiphyListener() {
                     @Override
                     public void onGiphyDownloadFinished(ArrayList<GiphyItem> items) {
                         tag = query;
@@ -191,7 +191,7 @@ public class GiphyActivity extends AppCompatActivity {
     }
 
     public void sendIntentWithGif(final Intent intent, final boolean isOpened) {
-        DownloadGifFromGiphyToFile downloadGifFromGiphyToFile = new DownloadGifFromGiphyToFile(GiphyActivity.this, giphyItems.get(lastSelectedPosition));
+        DownloadGifFromGiphyToFile downloadGifFromGiphyToFile = new DownloadGifFromGiphyToFile(GiphyActivity.this, Environment.getExternalStorageDirectory() + "/ttt.gif", giphyItems.get(lastSelectedPosition).getOriginalGifUrl());
         downloadGifFromGiphyToFile.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         downloadGifFromGiphyToFile.setOnDownloadedListener(new DownloadGifFromGiphyToFile.OnDownloaded() {
             @Override

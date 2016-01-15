@@ -13,7 +13,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.gifsart.studio.R;
-import com.gifsart.studio.gifutils.Giphy;
+import com.gifsart.studio.gifutils.GiphyApiRequest;
 import com.gifsart.studio.item.GiphyItem;
 import com.gifsart.studio.utils.GifsArtConst;
 import com.gifsart.studio.utils.Utils;
@@ -61,16 +61,16 @@ public class GiphyAdapter extends RecyclerView.Adapter<GiphyAdapter.ViewHolder> 
     public void onBindViewHolder(final ViewHolder holder, final int position) {
 
         holder.simpleDraweeView.setBackgroundColor(colors.get(random.nextInt(colors.size())));
-        Uri uri = Uri.parse(giphyItems.get(position).getGifUrl());
+        Uri uri = Uri.parse(giphyItems.get(position).getDownsampledGifUrl());
         Glide.with(context).load(uri).asGif().override(200, 200).centerCrop().into(holder.simpleDraweeView);
         // Giphy paging duaring giphy activity scralling
         if (position + 1 == limit + offset) {
             if (Utils.haveNetworkConnection(context)) {
                 offset = offset + limit;
 
-                Giphy giphy = new Giphy(context, tag, isSticker, offset, limit);
-                giphy.requestGiphy();
-                giphy.setOnDownloadedListener(new Giphy.GiphyListener() {
+                GiphyApiRequest giphyApiRequest = new GiphyApiRequest(context, tag, isSticker, offset, limit);
+                giphyApiRequest.requestGiphy();
+                giphyApiRequest.setOnDownloadedListener(new GiphyApiRequest.GiphyListener() {
                     @Override
                     public void onGiphyDownloadFinished(ArrayList<GiphyItem> items) {
                         giphyItems.addAll(items);

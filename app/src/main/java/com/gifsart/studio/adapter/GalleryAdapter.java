@@ -9,8 +9,6 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
-
 
 import com.bumptech.glide.Glide;
 import com.gifsart.studio.R;
@@ -43,46 +41,6 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
-
-        /*if (position == 0) {
-            Glide.clear(holder.mainFrameImageView);
-            array.get(position).setIsSeleted(false);
-            holder.fileTypeImageView.setImageBitmap(null);
-            holder.textView.setVisibility(View.GONE);
-            holder.mainFrameImageView.setScaleType(ImageView.ScaleType.CENTER);
-            holder.mainFrameImageView.setImageBitmap(array.get(0).getBitmap());
-            holder.mainFrameImageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(activity, ShootingGifActivity.class);
-                    if (activity.getSharedPreferences(GifsArtConst.SHARED_PREFERENCES, Context.MODE_PRIVATE).getBoolean(GifsArtConst.SHARED_PREFERENCES_IS_OPENED, false)) {
-                        activity.startActivityForResult(intent, GifsArtConst.REQUEST_CODE_SHOOTING_GIF_REOPENED);
-                    } else {
-                        activity.startActivity(intent);
-                    }
-                }
-            });
-        } else if (position == 1) {
-            activity.setResult(Activity.RESULT_OK);
-            Glide.clear(holder.mainFrameImageView);
-            array.get(position).setIsSeleted(false);
-            holder.fileTypeImageView.setImageBitmap(null);
-            holder.textView.setVisibility(View.GONE);
-            holder.mainFrameImageView.setScaleType(ImageView.ScaleType.CENTER);
-            holder.mainFrameImageView.setImageBitmap(array.get(1).getBitmap());
-            holder.mainFrameImageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    deselectAll();
-                    Intent intent = new Intent(activity, GiphyActivity.class);
-                    if (activity.getSharedPreferences(GifsArtConst.SHARED_PREFERENCES, Context.MODE_PRIVATE).getBoolean(GifsArtConst.SHARED_PREFERENCES_IS_OPENED, false)) {
-                        activity.startActivityForResult(intent, GifsArtConst.REQUEST_CODE_GIPHY_REOPENED);
-                    } else {
-                        activity.startActivity(intent);
-                    }
-                }
-            });
-        } else {*/
         holder.mainFrameImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -99,15 +57,15 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
                     }
 
                 } else {
-                    if (CheckFreeSpaceSingleton.getInstance().haveEnoughSpace(array.get(position).getFilePath())) {
-                        CheckFreeSpaceSingleton.getInstance().addAllocatedSpaceFromFilePath(array.get(position).getFilePath());
+                    //if (CheckFreeSpaceSingleton.getInstance().haveEnoughSpace(array.get(position).getFilePath())) {
+                        //CheckFreeSpaceSingleton.getInstance().addAllocatedSpaceFromFilePath(array.get(position).getFilePath());
                         array.get(position).setIsSeleted(true);
                         selected.add(array.get(position));
                         ((TextView) activity.findViewById(R.id.main_activity_toolbar_selected_text)).setText(getSelected().size() + " Selected");
                         notifyItemChanged(position);
-                    } else {
+                   /* } else {
                         Toast.makeText(activity, "No Enough Space", Toast.LENGTH_SHORT).show();
-                    }
+                    }*/
                 }
 
                 holder.textView.setSelected(array

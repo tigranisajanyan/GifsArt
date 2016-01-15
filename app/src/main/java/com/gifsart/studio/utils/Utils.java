@@ -265,7 +265,7 @@ public class Utils {
 
     public static void createDir(String fileName) {
 
-        String root = Environment.getExternalStorageDirectory().getParent();
+        String root = Environment.getExternalStorageDirectory().getAbsolutePath();
         File myDir = new File(root + "/" + fileName);
         if (!myDir.exists()) {
             myDir.mkdirs();

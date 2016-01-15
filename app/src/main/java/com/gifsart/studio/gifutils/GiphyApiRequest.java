@@ -22,7 +22,7 @@ import java.util.ArrayList;
 /**
  * Created by Tigran on 9/25/15.
  */
-public class Giphy {
+public class GiphyApiRequest {
 
     public static final String IMAGES = "images";
 
@@ -35,7 +35,7 @@ public class Giphy {
     private GiphyListener giphyListener;
     private boolean isSticker;
 
-    public Giphy(Context context, String tag, boolean isSticker, int offset, int limit) {
+    public GiphyApiRequest(Context context, String tag, boolean isSticker, int offset, int limit) {
         this.context = context;
         if (tag != "" || tag != null) {
             this.tag = tag;
@@ -72,7 +72,7 @@ public class Giphy {
                             jsonArray = jsonObject.getJSONArray("data");
                             for (int i = 0; i < jsonArray.length(); i++) {
                                 GiphyItem giphyItem = new GiphyItem();
-                                giphyItem.setGifUrl(jsonArray.getJSONObject(i).getJSONObject(IMAGES).getJSONObject(GifsArtConst.GIPHY_SIZE_DOWNSAMPLED).getString("url"));
+                                giphyItem.setDownsampledGifUrl(jsonArray.getJSONObject(i).getJSONObject(IMAGES).getJSONObject(GifsArtConst.GIPHY_SIZE_DOWNSAMPLED).getString("url"));
                                 giphyItem.setOriginalGifUrl(jsonArray.getJSONObject(i).getJSONObject(IMAGES).getJSONObject(GifsArtConst.GIPHY_SIZE_ORIGINAL).getString("url"));
                                 giphyItem.setGifHeight(jsonArray.getJSONObject(i).getJSONObject(IMAGES).getJSONObject(GifsArtConst.GIPHY_SIZE_ORIGINAL).getInt("height"));
                                 giphyItem.setGifWidth(jsonArray.getJSONObject(i).getJSONObject(IMAGES).getJSONObject(GifsArtConst.GIPHY_SIZE_ORIGINAL).getInt("width"));

@@ -59,7 +59,6 @@ public class ShareContraller {
         }
     }
 
-
     enum ShareGifType {
         FACEBOOK,
         INSTAGRAM,
@@ -186,4 +185,5 @@ public class ShareContraller {
             Toast.makeText(context, "whatsapp", Toast.LENGTH_SHORT).show();
         }*/
     }
+
 }

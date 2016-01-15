@@ -99,7 +99,7 @@ public class GifImitation extends AsyncTask<Void, Bitmap, Void> {
                     ++count;
                 }
             } else if ((gifItems.get(index).getType() == Type.VIDEO) && gifItems.get(index).isSelected()) {
-                for (int i = 0; i < gifItems.get(index).getBitmaps().size(); i++) {
+                for (int i = 0; i < gifItems.get(index).getFilePaths().size(); i++) {
                     try {
                         //Pause work if control is paused.
                         tControl.waitIfPaused();
@@ -111,7 +111,7 @@ public class GifImitation extends AsyncTask<Void, Bitmap, Void> {
                         break;
                     }
 
-                    publishProgress(gifItems.get(index).getBitmaps().get(i));
+                    publishProgress(PhotoUtils.loadRawBitmap(gifItems.get(index).getFilePaths().get(i)));
                     try {
                         TimeUnit.MILLISECONDS.sleep(gifItems.get(index).getCurrentDuration());
                     } catch (InterruptedException e) {

@@ -1,21 +1,13 @@
 package com.gifsart.studio.camera;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.YuvImage;
 import android.hardware.Camera;
-import android.os.Environment;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.RelativeLayout;
-
-import com.decoder.PhotoUtils;
-import com.gifsart.studio.utils.GifsArtConst;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -37,19 +29,14 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     private Camera.Size mPictureSize;
 
     private boolean recording = false;
-    private int counter = 0;
 
     private int orientation = 90;
     private int pictureFixedWidth = 640;
     private int pictureFixedHeight = 480;
+    private int pictureFormat;
 
-    public CameraPreview(Context context) {
-        super(context);
-    }
-
-    public CameraPreview(Context context, AttributeSet attributeSet) {
-        super(context, attributeSet);
-    }
+    public static ArrayList<byte[]> datas = new ArrayList<>();
+    private StartRendering startRendering;
 
     public CameraPreview(Context context, Camera camera) {
         super(context);
@@ -84,15 +71,15 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
         Log.d(TAG, "surace_destroyed");
-        stopPreviewAndFreeCamera();
+        //stopPreviewAndFreeCamera();
     }
 
     @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
         if (recording) {
-            String path = Environment.getExternalStorageDirectory().getPath() + "/" + GifsArtConst.DIR_VIDEO_FRAMES + "/img_" + counter + ".jpg";
-            savePreviewDataToFile(camera, data, path);
-            counter++;
+            //String path = Environment.getExternalStorageDirectory().getPath() + "/" + GifsArtConst.DIR_VIDEO_FRAMES + "/img_" + counter;
+            savePreviewDataToFile(camera, data);
+            //counter++;
         }
     }
 
@@ -114,6 +101,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 
     public void refreshCamera(Camera camera) {
         if (mHolder.getSurface() == null) {
+            Log.d(TAG, "preview surface does not exist");
             // preview surface does not exist
             return;
         }
@@ -121,6 +109,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
         try {
             mCamera.stopPreview();
         } catch (Exception e) {
+            Log.d(TAG, "tried to stop a non-existent preview");
             // ignore: tried to stop a non-existent preview
         }
         // set preview size and make any resize, rotate or
@@ -132,14 +121,14 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
             Camera.Parameters parameters = mCamera.getParameters();
 
             //mPreviewSize = getOptimalPreviewSize(mPreviewSizeList, 1280, 960);
-            mPreviewSize = getBestAspectPreviewSize(90, 1280, 960, parameters, 0.1);
             //mPictureSize = getBestPictureSize(mPictureSizeList, 640, 480);
 
-            List<int[]> fpsRange = parameters.getSupportedPreviewFpsRange();
+            mPreviewSize = getBestAspectPreviewSize(orientation, pictureFixedWidth, pictureFixedHeight, parameters);
 
+            /*List<int[]> fpsRange = parameters.getSupportedPreviewFpsRange();
             for (int i = 0; i < fpsRange.size(); i++) {
                 Log.d("gaga", fpsRange.get(i)[0] + " / " + fpsRange.get(i)[1]);
-            }
+            }*/
 
             /*if (fpsRange.size() == 1) {
                 //fpsRange.get(0)[0] < CAMERA_PREVIEW_FPS < fpsRange.get(0)[1]
@@ -149,7 +138,9 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
                 parameters.setPreviewFpsRange(fpsRange.get(0)[0], fpsRange.get(0)[1]);
             }*/
 
-            parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
+            //parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
+
+            parameters.setPreviewSize(pictureFixedWidth, pictureFixedHeight);
             parameters.setPictureSize(pictureFixedWidth, pictureFixedHeight);
 
             int w = parameters.getPreviewSize().width;
@@ -165,61 +156,31 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
                 parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
             }
 
+            pictureFormat = camera.getParameters().getPreviewFormat();
+
             mCamera.setPreviewDisplay(mHolder);
             mCamera.setDisplayOrientation(orientation);
             mCamera.setParameters(parameters);
             mCamera.autoFocus(null);
             mCamera.setPreviewCallback(this);
-
             mCamera.startPreview();
 
             Log.d(TAG, "camera_preview_size :   " + parameters.getPreviewSize().width + "  /  " + parameters.getPreviewSize().height);
             Log.d(TAG, "camera_picture_size :   " + parameters.getPictureSize().width + "  /  " + parameters.getPictureSize().height);
+
         } catch (Exception e) {
-            //e.printStackTrace();
             Log.d(VIEW_LOG_TAG, "Error starting camera preview: " + e.getMessage());
         }
     }
 
 
-    private Camera.Size getOptimalPreviewSize(List<Camera.Size> sizes, int w, int h) {
-        final double ASPECT_TOLERANCE = 0.1;
-        double targetRatio = (double) h / w;
-
-        if (sizes == null) return null;
-
-        Camera.Size optimalSize = null;
-        double minDiff = Double.MAX_VALUE;
-
-        int targetHeight = h;
-
-        for (Camera.Size size : sizes) {
-            double ratio = (double) size.width / size.height;
-            if (Math.abs(ratio - targetRatio) > ASPECT_TOLERANCE) continue;
-            if (Math.abs(size.height - targetHeight) < minDiff) {
-                optimalSize = size;
-                minDiff = Math.abs(size.height - targetHeight);
-            }
-        }
-
-        if (optimalSize == null) {
-            minDiff = Double.MAX_VALUE;
-            for (Camera.Size size : sizes) {
-                if (Math.abs(size.height - targetHeight) < minDiff) {
-                    optimalSize = size;
-                    minDiff = Math.abs(size.height - targetHeight);
-                }
-            }
-        }
-        return optimalSize;
-    }
-
     public static Camera.Size getBestAspectPreviewSize(int displayOrientation,
                                                        int width,
                                                        int height,
-                                                       Camera.Parameters parameters,
-                                                       double closeEnough) {
+                                                       Camera.Parameters parameters
+    ) {
 
+        double closeEnough = 0.1;
         double targetRatio = (double) width / height;
         Camera.Size bestSize = null;
 
@@ -283,63 +244,33 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
         return bestSize;
     }
 
-    public Camera.Size getBestPictureSize(List<Camera.Size> sizes, int w, int h) {
-        final double ASPECT_TOLERANCE = 0.1;
-        double targetRatio = (double) h / w;
-
-        if (sizes == null) return null;
-
-        Camera.Size optimalSize = null;
-        double minDiff = Double.MAX_VALUE;
-
-        int targetHeight = h;
-
-        for (Camera.Size size : sizes) {
-            double ratio = (double) size.width / size.height;
-            if (Math.abs(ratio - targetRatio) > ASPECT_TOLERANCE) continue;
-            if (Math.abs(size.height - targetHeight) < minDiff) {
-                optimalSize = size;
-                minDiff = Math.abs(size.height - targetHeight);
-            }
-        }
-
-        if (optimalSize == null) {
-            minDiff = Double.MAX_VALUE;
-            for (Camera.Size size : sizes) {
-                if (Math.abs(size.height - targetHeight) < minDiff) {
-                    optimalSize = size;
-                    minDiff = Math.abs(size.height - targetHeight);
-                }
-            }
-        }
-        return optimalSize;
-    }
-
 
     /**
      * @param camera
      * @param data
-     * @param filePath
      */
-    private void savePreviewDataToFile(Camera camera, byte[] data, String filePath) {
+    public void savePreviewDataToFile(Camera camera, byte[] data) {
 
-        Camera.Parameters parameters = camera.getParameters();
-        int width = parameters.getPreviewSize().width;
-        int height = parameters.getPreviewSize().height;
-
-        YuvImage yuv = new YuvImage(data, parameters.getPreviewFormat(), width, height, null);
+        YuvImage yuv = new YuvImage(data, pictureFormat, pictureFixedWidth, pictureFixedHeight, null);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        yuv.compressToJpeg(new Rect(0, 0, width, height), 90, out);
+        yuv.compressToJpeg(new Rect(0, 0, pictureFixedWidth, pictureFixedHeight), 90, out);
 
         byte[] bytes = out.toByteArray();
-        Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+
+        datas.add(bytes);
+
+        if (datas.size() == 5) {
+            startRendering.toStart(true);
+        }
+        /*Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
 
         Matrix matrix = new Matrix();
-        matrix.postRotate(90);
+        matrix.postRotate(90);*/
 
-        Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, width / 2, height / 2, true);
-        Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
+
+        //Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, pictureFixedWidth / 2, pictureFixedHeight / 2, true);
+        //Bitmap rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
 
         /*OutputStream imagefile = null;
         try {
@@ -348,7 +279,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
             e.printStackTrace();
         }
         rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 80, imagefile);*/
-        PhotoUtils.saveRawBitmap(rotatedBitmap, filePath);
+        //PhotoUtils.saveRawBitmap(rotatedBitmap, filePath);
     }
 
     /**
@@ -381,6 +312,14 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 
     public void stopRecord() {
         recording = false;
+    }
+
+    public interface StartRendering {
+        void toStart(boolean start);
+    }
+
+    public void setRenderingListener(StartRendering rendering) {
+        this.startRendering = rendering;
     }
 
 }

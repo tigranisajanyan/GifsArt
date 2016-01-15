@@ -26,8 +26,7 @@ public class UserFactory {
      * @param object Object
      * @return User
      */
-    public static User parseFrom(Object object) {
-
+    public static User parseFromObject(Object object) {
 
         JSONObject jsonObject = (JSONObject) object;
 
@@ -47,7 +46,7 @@ public class UserFactory {
      *
      * @return User
      */
-    public static User parseFrom(String response) {
+    public static User parseFromString(String response) {
 
         Gson gson = new Gson();
         User user = null;
@@ -114,7 +113,7 @@ public class UserFactory {
      * @param limit
      * @return
      */
-    public static ArrayList<Photo> parseFromArray(String response, int offset, int limit) {
+    public static ArrayList<Photo> parseFromStringAsPhotosArray(String response, int offset, int limit) {
         ArrayList<Photo> tmpPh = new ArrayList<>();
         Photo nwPh;
         User nwUs;
@@ -122,12 +121,10 @@ public class UserFactory {
         if (limit < 1) limit = 1;
 
         try {
-
             JSONObject jsonObj = new JSONObject(response);
             Gson gson = new Gson();
             JSONArray jarr = jsonObj.getJSONArray("response");
             for (int i = offset; i < jarr.length() && limit > 0; i++, limit--) {
-
                 nwPh = gson.fromJson(jarr.get(i).toString(), Photo.class);
                 try {
                     gson = new Gson();

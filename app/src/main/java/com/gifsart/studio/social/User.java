@@ -19,7 +19,6 @@ import java.util.List;
  */
 public class User implements Serializable {
 
-
     @SerializedName("likes_count")
     @Expose
     private Integer likesCount;

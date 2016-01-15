@@ -2,9 +2,7 @@ package com.gifsart.studio.gifutils;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.os.Environment;
 
-import com.gifsart.studio.item.GiphyItem;
 import com.gifsart.studio.utils.AnimatedProgressDialog;
 
 import java.io.ByteArrayOutputStream;
@@ -19,7 +17,8 @@ import java.net.URL;
 public class DownloadGifFromGiphyToFile extends AsyncTask<Void, Integer, Boolean> {
 
     private Context context;
-    private GiphyItem giphyItem;
+    private String outputPath;
+    private String downloadingFileUrl;
 
     private AnimatedProgressDialog progressDialog;
 
@@ -27,9 +26,10 @@ public class DownloadGifFromGiphyToFile extends AsyncTask<Void, Integer, Boolean
     private HttpURLConnection ucon;
     private byte[] buffer;
 
-    public DownloadGifFromGiphyToFile(Context context, GiphyItem giphyItem) {
+    public DownloadGifFromGiphyToFile(Context context, String outputPath, String downloadingFileUrl) {
         this.context = context;
-        this.giphyItem = giphyItem;
+        this.outputPath = outputPath;
+        this.downloadingFileUrl = downloadingFileUrl;
     }
 
     @Override
@@ -37,13 +37,13 @@ public class DownloadGifFromGiphyToFile extends AsyncTask<Void, Integer, Boolean
         super.onPreExecute();
         progressDialog = new AnimatedProgressDialog(context);
         progressDialog.setCancelable(false);
-        //progressDialog.show();
+        progressDialog.show();
     }
 
     @Override
     protected Boolean doInBackground(Void... params) {
         try {
-            URL url = new URL(giphyItem.getOriginalGifUrl());
+            URL url = new URL(downloadingFileUrl);
             ucon = (HttpURLConnection) url.openConnection();
             InputStream is = ucon.getInputStream();
             ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
@@ -54,9 +54,8 @@ public class DownloadGifFromGiphyToFile extends AsyncTask<Void, Integer, Boolean
                 byteBuffer.write(buffer, 0, len);
             }
             buffer = byteBuffer.toByteArray();
-            FileOutputStream stream = new FileOutputStream(Environment.getExternalStorageDirectory() + "/ttt.gif");
+            FileOutputStream stream = new FileOutputStream(outputPath);
             stream.write(byteBuffer.toByteArray());
-
         } catch (Exception e) {
             e.printStackTrace();
             return false;
@@ -69,7 +68,6 @@ public class DownloadGifFromGiphyToFile extends AsyncTask<Void, Integer, Boolean
         super.onPostExecute(result);
         onDownloaded.onDownloaded(result);
         progressDialog.dismiss();
-
     }
 
     public void setOnDownloadedListener(OnDownloaded l) {

@@ -11,7 +11,7 @@ import android.widget.SearchView;
 
 import com.gifsart.studio.R;
 import com.gifsart.studio.adapter.GiphyAdapter;
-import com.gifsart.studio.gifutils.Giphy;
+import com.gifsart.studio.gifutils.GiphyApiRequest;
 import com.gifsart.studio.item.GiphyItem;
 import com.gifsart.studio.utils.SpacesItemDecoration;
 
@@ -54,9 +54,9 @@ public class GiphyStickerActivity extends AppCompatActivity {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(final String query) {
-                Giphy giphy = new Giphy(GiphyStickerActivity.this, query, true, 0, 30);
-                giphy.requestGiphy();
-                giphy.setOnDownloadedListener(new Giphy.GiphyListener() {
+                GiphyApiRequest giphyApiRequest = new GiphyApiRequest(GiphyStickerActivity.this, query, true, 0, 30);
+                giphyApiRequest.requestGiphy();
+                giphyApiRequest.setOnDownloadedListener(new GiphyApiRequest.GiphyListener() {
                     @Override
                     public void onGiphyDownloadFinished(ArrayList<GiphyItem> items) {
                         tag = query;

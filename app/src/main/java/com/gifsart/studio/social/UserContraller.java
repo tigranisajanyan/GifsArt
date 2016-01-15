@@ -68,6 +68,23 @@ public class UserContraller {
         this.context = context;
     }
 
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public ArrayList<Photo> getUserPhotos() {
+        return userPhotos;
+    }
+
+    public void setUserPhotos(ArrayList<Photo> userPhotos) {
+        this.userPhotos = userPhotos;
+    }
+
+
     /**
      *
      */
@@ -83,7 +100,7 @@ public class UserContraller {
                             if (ErrorHandler.statusIsError(response)) {
                                 userRequest.onRequestReady(RequestConstants.REQUEST_USER_ERROR_CODE, response);
                             } else {
-                                user = UserFactory.parseFrom(response);
+                                user = UserFactory.parseFromString(response);
                                 userRequest.onRequestReady(RequestConstants.REQUEST_USER_SUCCESS_CODE, response);
                             }
                         }
@@ -115,7 +132,7 @@ public class UserContraller {
                     if (ErrorHandler.statusIsError(response)) {
                         userRequest.onRequestReady(RequestConstants.LOGIN_USER_ERROR_CODE, response);
                     } else {
-                        user = UserFactory.parseFrom(response);
+                        user = UserFactory.parseFromString(response);
                         userRequest.onRequestReady(RequestConstants.LOGIN_USER_SUCCESS_CODE, response);
                     }
                 }
@@ -162,7 +179,7 @@ public class UserContraller {
                     if (ErrorHandler.statusIsError(response)) {
                         userRequest.onRequestReady(RequestConstants.LOGIN_USER_ERROR_CODE, response);
                     } else {
-                        user = UserFactory.parseFrom(response);
+                        user = UserFactory.parseFromString(response);
                         userRequest.onRequestReady(RequestConstants.LOGIN_USER_SUCCESS_CODE, response);
                     }
                 }
@@ -211,7 +228,7 @@ public class UserContraller {
                     if (ErrorHandler.statusIsError(response)) {
                         userRequest.onRequestReady(RequestConstants.SIGN_UP_PICSART_ERROR_CODE, response);
                     } else {
-                        user = UserFactory.parseFrom(response);
+                        user = UserFactory.parseFromString(response);
                         userRequest.onRequestReady(RequestConstants.SIGN_UP_PICSART_SUCCESS_CODE, response);
                     }
                 }
@@ -259,7 +276,7 @@ public class UserContraller {
                     if (ErrorHandler.statusIsError(response)) {
                         userRequest.onRequestReady(RequestConstants.SIGN_UP_WITH_FACEBOOK_ERROR_CODE, response);
                     } else {
-                        user = UserFactory.parseFrom(response);
+                        user = UserFactory.parseFromString(response);
                         userRequest.onRequestReady(RequestConstants.SIGN_UP_WITH_FACEBOOK_SUCCESS_CODE, response);
                     }
                 }
@@ -369,7 +386,7 @@ public class UserContraller {
                             if (ErrorHandler.statusIsError(response)) {
                                 userRequest.onRequestReady(RequestConstants.REQUEST_USER_PHOTO_ERROR_CODE, response);
                             } else {
-                                userPhotos = UserFactory.parseFromArray(response, 0, 30);
+                                userPhotos = UserFactory.parseFromStringAsPhotosArray(response, 0, 30);
                                 userRequest.onRequestReady(RequestConstants.REQUEST_USER_PHOTO_SUCCESS_CODE, response);
                             }
                         }
@@ -508,26 +525,6 @@ public class UserContraller {
     }
 
 
-    public synchronized void upload12(String filePath, String apiKey) {
-
-    }
-
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public ArrayList<Photo> getUserPhotos() {
-        return userPhotos;
-    }
-
-    public void setUserPhotos(ArrayList<Photo> userPhotos) {
-        this.userPhotos = userPhotos;
-    }
 
     public interface UserRequest {
         void onRequestReady(int requestNumber, String messege);
@@ -596,7 +593,7 @@ public class UserContraller {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
+        return user;
     }
 
     /*private static void saveUserData() {

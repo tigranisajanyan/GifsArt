@@ -1,5 +1,6 @@
 package com.gifsart.studio.camera;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -7,6 +8,8 @@ import android.os.AsyncTask;
 import android.os.Environment;
 
 import com.decoder.PhotoUtils;
+import com.gifsart.studio.utils.FileCounterSingleton;
+import com.gifsart.studio.utils.GifsArtConst;
 
 import java.util.ArrayList;
 
@@ -15,13 +18,15 @@ import java.util.ArrayList;
  */
 public class BurstModeFramesSaving extends AsyncTask<Void, Integer, Void> {
 
+    private Context context;
     private FramesSaved framesSaved;
     private ArrayList<byte[]> bytes = new ArrayList<>();
-    boolean isFront = true;
+    boolean cameraIsFront = true;
 
-    public BurstModeFramesSaving(boolean isFront, ArrayList<byte[]> bytes) {
+    public BurstModeFramesSaving(Context context, boolean cameraIsFront, ArrayList<byte[]> bytes) {
+        this.context = context;
         this.bytes = bytes;
-        this.isFront = isFront;
+        this.cameraIsFront = cameraIsFront;
     }
 
     @Override
@@ -36,7 +41,7 @@ public class BurstModeFramesSaving extends AsyncTask<Void, Integer, Void> {
             /*try {
                 FileOutputStream fileOutputStream = new FileOutputStream(new File(Environment.getExternalStorageDirectory() + "/GifsArt/.video_frames/", "img_" + i + ".jpg"));
                 bitmap = rotate(bitmap, 90);
-                if (isFront) {
+                if (cameraIsFront) {
                     bitmap = rotate(bitmap, 180);
                 }
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 90, fileOutputStream);
@@ -47,10 +52,10 @@ public class BurstModeFramesSaving extends AsyncTask<Void, Integer, Void> {
                 e.printStackTrace();
             }*/
             bitmap = rotate(bitmap, 90);
-            if (isFront) {
+            if (cameraIsFront) {
                 bitmap = rotate(bitmap, 180);
             }
-            PhotoUtils.saveRawBitmap(bitmap, Environment.getExternalStorageDirectory() + "/GifsArt/.video_frames/img_" + i + ".jpg");
+            PhotoUtils.saveRawBitmap(bitmap, Environment.getExternalStorageDirectory().getPath() + "/" + GifsArtConst.DIR_VIDEO_FRAMES + "/img_" + FileCounterSingleton.getInstance(context).increaseIndex());
         }
         return null;
     }

@@ -116,7 +116,6 @@ public class UploadImageToPicsart extends AsyncTask<Void, Integer, JSONObject> {
             }
 
             multipartContent.addPart("file", new FileBody(file));
-            //multipartContent.addPart("file", new ByteArrayBody(file));
 
             if (photo_is == PHOTO_IS.AVATAR) {
                 url = UPLOAD_PHOTO_TO_PICSART_AVATAR + userApiKey;
@@ -234,7 +233,6 @@ public class UploadImageToPicsart extends AsyncTask<Void, Integer, JSONObject> {
             super.writeTo(new CountingOutputStream(outstream, this.listener));
         }
 
-
         /**
          * This class serves for counting progress of transferred streams.
          */
@@ -265,7 +263,6 @@ public class UploadImageToPicsart extends AsyncTask<Void, Integer, JSONObject> {
 
     public interface ProgressListener {
         boolean doneFlag(boolean b);
-
         void transferred(long num);
 
     }
@@ -290,7 +287,6 @@ public class UploadImageToPicsart extends AsyncTask<Void, Integer, JSONObject> {
     public enum PHOTO_PUBLIC {
         PRIVATE,
         PUBLIC
-
     }
 
 

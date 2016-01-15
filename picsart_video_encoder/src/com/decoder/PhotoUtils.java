@@ -240,5 +240,34 @@ public class PhotoUtils {
     }
 
 
+    public static void saveByteBufferToRawBitmap(ByteBuffer byteBuffer, int width, int height, Bitmap.Config config, String filePath) {
+        try {
+            File file = new File(filePath);
+            // make sure containing dir exists
+            if (!file.exists() && file.getParent() != null) {
+                File parentFile = file.getParentFile();
+                if (!parentFile.exists()) {
+                    parentFile.mkdirs();
+                }
+            }
+            DataOutputStream stream = new DataOutputStream(new FileOutputStream(file));
+            stream.writeInt(0x2E_52_41_57); // .RAW
+            stream.writeInt(width);
+            stream.writeInt(height);
+            stream.writeInt(config.ordinal());
+
+            byte[] rawData = byteBuffer.array();
+
+            ByteBuffer buffer = ByteBuffer.wrap(rawData);
+            //bitmap.copyPixelsToBuffer(buffer);
+
+            stream.write(rawData);
+            stream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
 }
 

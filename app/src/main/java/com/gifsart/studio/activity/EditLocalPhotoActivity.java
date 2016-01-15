@@ -21,7 +21,6 @@ import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.gifsart.studio.R;
 import com.gifsart.studio.adapter.ProfileUserPhotosAdapter;
 import com.gifsart.studio.gifutils.DownloadGifFromGiphyToFile;
-import com.gifsart.studio.item.GiphyItem;
 import com.gifsart.studio.social.RequestConstants;
 import com.gifsart.studio.social.User;
 import com.gifsart.studio.social.UserContraller;
@@ -36,7 +35,6 @@ public class EditLocalPhotoActivity extends AppCompatActivity {
     private String photoId;
     private boolean isPublic;
     private String gifUrl;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -150,9 +148,7 @@ public class EditLocalPhotoActivity extends AppCompatActivity {
         findViewById(R.id.edit_photo).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                GiphyItem giphyItem = new GiphyItem();
-                giphyItem.setOriginalGifUrl(gifUrl);
-                DownloadGifFromGiphyToFile downloadGifFromGiphyToFile = new DownloadGifFromGiphyToFile(EditLocalPhotoActivity.this, giphyItem);
+                DownloadGifFromGiphyToFile downloadGifFromGiphyToFile = new DownloadGifFromGiphyToFile(EditLocalPhotoActivity.this, Environment.getExternalStorageDirectory() + "/ttt.gif", gifUrl);
                 downloadGifFromGiphyToFile.setOnDownloadedListener(new DownloadGifFromGiphyToFile.OnDownloaded() {
                     @Override
                     public void onDownloaded(boolean isDownladed) {
@@ -171,9 +167,7 @@ public class EditLocalPhotoActivity extends AppCompatActivity {
         findViewById(R.id.share_photo).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                GiphyItem giphyItem = new GiphyItem();
-                giphyItem.setOriginalGifUrl(gifUrl);
-                DownloadGifFromGiphyToFile downloadGifFromGiphyToFile = new DownloadGifFromGiphyToFile(EditLocalPhotoActivity.this, giphyItem);
+                DownloadGifFromGiphyToFile downloadGifFromGiphyToFile = new DownloadGifFromGiphyToFile(EditLocalPhotoActivity.this, Environment.getExternalStorageDirectory() + "/ttt.gif", gifUrl);
                 downloadGifFromGiphyToFile.setOnDownloadedListener(new DownloadGifFromGiphyToFile.OnDownloaded() {
                     @Override
                     public void onDownloaded(boolean isDownladed) {

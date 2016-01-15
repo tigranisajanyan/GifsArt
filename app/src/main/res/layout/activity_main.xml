@@ -139,7 +139,7 @@
                 android:layout_gravity="top|right"
                 android:background="@drawable/ratio_button"
                 android:gravity="center"
-                android:text="1:1"
+                android:text="@string/aspect_ratio_1x1"
                 android:textColor="@color/font_main_color" />
 
             <TextView

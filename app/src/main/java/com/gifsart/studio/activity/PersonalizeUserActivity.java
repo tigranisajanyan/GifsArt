@@ -31,7 +31,7 @@ public class PersonalizeUserActivity extends AppCompatActivity {
     private Button doneButton;
 
     private boolean isSignUpedByFacebook = false;
-    private Uri imageUri;
+    private Uri imageUri = null;
 
     private User user;
 
@@ -66,6 +66,7 @@ public class PersonalizeUserActivity extends AppCompatActivity {
         doneButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 UserContraller userContraller = new UserContraller(PersonalizeUserActivity.this);
                 userContraller.setOnRequestReadyListener(new UserContraller.UserRequest() {
                     @Override
@@ -75,21 +76,26 @@ public class PersonalizeUserActivity extends AppCompatActivity {
                             if (isSignUpedByFacebook) {
                                 user.setUsername(profileUsernameEditText.getText().toString());
                             }
-                            final UploadImageToPicsart uploadImageToPicsart = new UploadImageToPicsart(PersonalizeUserActivity.this, user.getKey(), Utils.getRealPathFromURI(PersonalizeUserActivity.this, imageUri), GifsArtConst.MY_DIR, UploadImageToPicsart.PHOTO_PUBLIC.PUBLIC, UploadImageToPicsart.PHOTO_IS.AVATAR);
-                            uploadImageToPicsart.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                            uploadImageToPicsart.setOnUploadedListener(new UploadImageToPicsart.ImageUploaded() {
-                                @Override
-                                public void uploadIsDone(boolean uploaded, String messege) {
-                                    if (uploaded) {
-                                        user.setPhoto(uploadImageToPicsart.getUploadedImageUrl());
-                                    } else {
-                                        user.setPhoto(GifsArtConst.EMPTY_PROFILE_IMAGE_PATH);
+                            if (imageUri != null) {
+                                final UploadImageToPicsart uploadImageToPicsart = new UploadImageToPicsart(PersonalizeUserActivity.this, user.getKey(), Utils.getRealPathFromURI(PersonalizeUserActivity.this, imageUri), GifsArtConst.MY_DIR, UploadImageToPicsart.PHOTO_PUBLIC.PUBLIC, UploadImageToPicsart.PHOTO_IS.AVATAR);
+                                uploadImageToPicsart.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                                uploadImageToPicsart.setOnUploadedListener(new UploadImageToPicsart.ImageUploaded() {
+                                    @Override
+                                    public void uploadIsDone(boolean uploaded, String messege) {
+                                        if (uploaded) {
+                                            user.setPhoto(uploadImageToPicsart.getUploadedImageUrl());
+                                        } else {
+                                            user.setPhoto(GifsArtConst.EMPTY_PROFILE_IMAGE_PATH);
+                                        }
+                                        UserContraller.writeUserToFile(PersonalizeUserActivity.this, user);
+                                        setResult(RESULT_OK);
+                                        finish();
                                     }
-                                    UserContraller.writeUserToFile(PersonalizeUserActivity.this, user);
-                                    setResult(RESULT_OK);
-                                    finish();
-                                }
-                            });
+                                });
+                            }
+                            UserContraller.writeUserToFile(PersonalizeUserActivity.this, user);
+                            setResult(RESULT_OK);
+                            finish();
                         } else {
                             AlertDialog alert = UserContraller.setupDialogBuilder(PersonalizeUserActivity.this, messege).create();
                             alert.show();

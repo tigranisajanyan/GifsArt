@@ -55,10 +55,10 @@ public class GifsArtConst {
 
     public static String DIR_VIDEO_FRAMES = "GifsArt/.video_frames";
     public static String DIR_GIPHY = "GifsArt/giphy";
-    public static String DIR_GPU_IMAGES = "Pictures/GPUImage";
+    public static String DIR_EDIT_FRAMES = "GifsArt/edit_frames";
 
 
-    public static int VIDEO_FRAME_SCALE_SIZE = 3;
+    public static int VIDEO_FRAME_SCALE_SIZE = 2;
     public static int VIDEO_MAX_DURATION = 300000; // Set max duration 30 sec.
     public static int VIDEO_FILE_MAX_SIZE = 40000000; // Set max file size 40M
     public static int VIDEO_OUTPUT_ORIENTATION = 90;
