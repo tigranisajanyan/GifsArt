@@ -80,7 +80,7 @@ public class GiphyActivity extends AppCompatActivity {
                 }
             });
         } else {
-            Toast.makeText(this, "No Wifi Connection", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show();
             finish();
         }
 
@@ -95,7 +95,7 @@ public class GiphyActivity extends AppCompatActivity {
                         lastSelectedPosition = position;
                         return;
                     } else {
-                        Toast.makeText(GiphyActivity.this, "No enough space", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(GiphyActivity.this, getString(R.string.no_enough_space), Toast.LENGTH_SHORT).show();
                     }
                 } else {
                     if (lastSelectedPosition == position) {
@@ -111,7 +111,7 @@ public class GiphyActivity extends AppCompatActivity {
                             lastSelectedPosition = position;
                             return;
                         } else {
-                            Toast.makeText(GiphyActivity.this, "No enough space", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(GiphyActivity.this, getString(R.string.no_enough_space), Toast.LENGTH_SHORT).show();
                         }
                     }
                 }
@@ -184,7 +184,7 @@ public class GiphyActivity extends AppCompatActivity {
                         sendIntentWithGif(new Intent(), true);
                     }
                 } else {
-                    Toast.makeText(GiphyActivity.this, "No gif is selected", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(GiphyActivity.this, getString(R.string.no_images_selected), Toast.LENGTH_SHORT).show();
                 }
             }
         });

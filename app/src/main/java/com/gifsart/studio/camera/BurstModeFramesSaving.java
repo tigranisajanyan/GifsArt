@@ -18,10 +18,15 @@ import java.util.ArrayList;
  */
 public class BurstModeFramesSaving extends AsyncTask<Void, Integer, Void> {
 
+    private static final String LOG_TAG = SaveVideoFrames.class.getSimpleName();
+    private static final int ROTATE_DEGREE_90 = 90;
+    private static final int ROTATE_DEGREE_270 = 270;
+
     private Context context;
-    private FramesSaved framesSaved;
+    private FramesAreSaved framesAreSaved;
+    private boolean cameraIsFront = true;
+
     private ArrayList<byte[]> bytes = new ArrayList<>();
-    boolean cameraIsFront = true;
 
     public BurstModeFramesSaving(Context context, boolean cameraIsFront, ArrayList<byte[]> bytes) {
         this.context = context;
@@ -37,7 +42,15 @@ public class BurstModeFramesSaving extends AsyncTask<Void, Integer, Void> {
     @Override
     protected Void doInBackground(Void... params) {
         for (int i = 0; i < bytes.size(); i++) {
+
             Bitmap bitmap = BitmapFactory.decodeByteArray(bytes.get(i), 0, bytes.get(i).length);
+            if (cameraIsFront) {
+                bitmap = rotate(bitmap, ROTATE_DEGREE_270);
+            } else {
+                bitmap = rotate(bitmap, ROTATE_DEGREE_90);
+            }
+            PhotoUtils.saveRawBitmap(bitmap, Environment.getExternalStorageDirectory().getPath() + GifsArtConst.SLASH + GifsArtConst.DIR_VIDEO_FRAMES + "/img_" + FileCounterSingleton.getInstance(context).increaseIndex());
+
             /*try {
                 FileOutputStream fileOutputStream = new FileOutputStream(new File(Environment.getExternalStorageDirectory() + "/GifsArt/.video_frames/", "img_" + i + ".jpg"));
                 bitmap = rotate(bitmap, 90);
@@ -51,11 +64,6 @@ public class BurstModeFramesSaving extends AsyncTask<Void, Integer, Void> {
             } catch (IOException e) {
                 e.printStackTrace();
             }*/
-            bitmap = rotate(bitmap, 90);
-            if (cameraIsFront) {
-                bitmap = rotate(bitmap, 180);
-            }
-            PhotoUtils.saveRawBitmap(bitmap, Environment.getExternalStorageDirectory().getPath() + "/" + GifsArtConst.DIR_VIDEO_FRAMES + "/img_" + FileCounterSingleton.getInstance(context).increaseIndex());
         }
         return null;
     }
@@ -63,7 +71,7 @@ public class BurstModeFramesSaving extends AsyncTask<Void, Integer, Void> {
     @Override
     protected void onPostExecute(Void aVoid) {
         super.onPostExecute(aVoid);
-        framesSaved.done(true);
+        framesAreSaved.framesAreSaved(true);
     }
 
     public Bitmap rotate(Bitmap bitmap, int degree) {
@@ -76,12 +84,12 @@ public class BurstModeFramesSaving extends AsyncTask<Void, Integer, Void> {
         return Bitmap.createBitmap(bitmap, 0, 0, w, h, mtx, true);
     }
 
-    public interface FramesSaved {
-        void done(boolean done);
+    public interface FramesAreSaved {
+        void framesAreSaved(boolean done);
     }
 
-    public void setFramesSavedListener(FramesSaved fs) {
-        this.framesSaved = fs;
+    public void setFramesSavedListener(FramesAreSaved fs) {
+        this.framesAreSaved = fs;
     }
 
 }

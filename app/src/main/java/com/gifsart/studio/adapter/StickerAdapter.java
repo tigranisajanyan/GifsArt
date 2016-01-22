@@ -73,7 +73,7 @@ public class StickerAdapter extends RecyclerView.Adapter<StickerAdapter.ViewHold
                     .setUri(uri)
                     .setAutoPlayAnimations(true).build();
             holder.stickerImageView.setController(controller);*/
-            Glide.with(context).load(uri).asGif().centerCrop().into(holder.stickerImageView);
+            Glide.with(context).asGif().load(uri).into(holder.stickerImageView);
         }
     }
 

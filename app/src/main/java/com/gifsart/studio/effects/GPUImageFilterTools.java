@@ -70,7 +70,6 @@ import jp.co.cyberagent.android.gpuimage.GPUImageLaplacianFilter;
 import jp.co.cyberagent.android.gpuimage.GPUImageLevelsFilter;
 import jp.co.cyberagent.android.gpuimage.GPUImageLightenBlendFilter;
 import jp.co.cyberagent.android.gpuimage.GPUImageLinearBurnBlendFilter;
-import jp.co.cyberagent.android.gpuimage.GPUImageLookupFilter;
 import jp.co.cyberagent.android.gpuimage.GPUImageLuminosityBlendFilter;
 import jp.co.cyberagent.android.gpuimage.GPUImageMonochromeFilter;
 import jp.co.cyberagent.android.gpuimage.GPUImageMultiplyBlendFilter;
@@ -95,7 +94,6 @@ import jp.co.cyberagent.android.gpuimage.GPUImageSourceOverBlendFilter;
 import jp.co.cyberagent.android.gpuimage.GPUImageSphereRefractionFilter;
 import jp.co.cyberagent.android.gpuimage.GPUImageSubtractBlendFilter;
 import jp.co.cyberagent.android.gpuimage.GPUImageSwirlFilter;
-import jp.co.cyberagent.android.gpuimage.GPUImageToneCurveFilter;
 import jp.co.cyberagent.android.gpuimage.GPUImageToonFilter;
 import jp.co.cyberagent.android.gpuimage.GPUImageTwoInputFilter;
 import jp.co.cyberagent.android.gpuimage.GPUImageVignetteFilter;
@@ -366,7 +364,7 @@ public class GPUImageFilterTools {
 
     }
 
-    private static GPUImageFilter createBlendFilter(Context context, Class<? extends GPUImageTwoInputFilter> filterClass) {
+    public static GPUImageFilter createBlendFilter(Context context, Class<? extends GPUImageTwoInputFilter> filterClass) {
         try {
             GPUImageTwoInputFilter filter = filterClass.newInstance();
             filter.setBitmap(BitmapFactory.decodeResource(context.getResources(), R.drawable.car));

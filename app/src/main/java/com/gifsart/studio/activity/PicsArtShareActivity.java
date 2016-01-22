@@ -9,11 +9,13 @@ import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Switch;
+import android.widget.Toast;
 
 import com.gifsart.studio.R;
 import com.gifsart.studio.social.UploadImageToPicsart;
 import com.gifsart.studio.social.User;
 import com.gifsart.studio.social.UserContraller;
+import com.gifsart.studio.utils.Utils;
 
 import java.io.IOException;
 
@@ -68,18 +70,22 @@ public class PicsArtShareActivity extends AppCompatActivity {
         findViewById(R.id.picsart_share_activity_toolbar_done_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final UploadImageToPicsart uploadImageToPicsart = new UploadImageToPicsart(PicsArtShareActivity.this, user.getKey(), filePath, editText.getText().toString(), photo_public, UploadImageToPicsart.PHOTO_IS.GENERAL);
-                uploadImageToPicsart.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                uploadImageToPicsart.setOnUploadedListener(new UploadImageToPicsart.ImageUploaded() {
-                    @Override
-                    public void uploadIsDone(boolean uploaded, String messege) {
-                        Intent intent = new Intent(PicsArtShareActivity.this, ShareGifActivity.class);
-                        intent.putExtra("saved_file_path", Environment.getExternalStorageDirectory() + "/test.gif");
-                        intent.putExtra("saved_file_url", uploadImageToPicsart.getUploadedImageUrl());
-                        startActivity(intent);
-                        finish();
-                    }
-                });
+                if (Utils.haveNetworkConnection(PicsArtShareActivity.this)) {
+                    final UploadImageToPicsart uploadImageToPicsart = new UploadImageToPicsart(PicsArtShareActivity.this, user.getKey(), filePath, editText.getText().toString(), photo_public, UploadImageToPicsart.PHOTO_IS.GENERAL);
+                    uploadImageToPicsart.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                    uploadImageToPicsart.setOnUploadedListener(new UploadImageToPicsart.ImageUploaded() {
+                        @Override
+                        public void uploadIsDone(boolean uploaded, String messege) {
+                            Intent intent = new Intent(PicsArtShareActivity.this, ShareGifActivity.class);
+                            intent.putExtra("saved_file_path", Environment.getExternalStorageDirectory() + "/test.gif");
+                            intent.putExtra("saved_file_url", uploadImageToPicsart.getUploadedImageUrl());
+                            startActivity(intent);
+                            finish();
+                        }
+                    });
+                } else {
+                    Toast.makeText(PicsArtShareActivity.this, getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }

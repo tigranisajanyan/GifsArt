@@ -1,24 +1,28 @@
 package com.gifsart.studio.item;
 
+import com.gifsart.studio.social.ShareContraller;
+
 /**
  * Created by Tigran on 10/30/15.
  */
 public class ShareGifItem {
 
     private int resourceId;
-    private String itemTitle;
+    private int colorId;
+    private ShareContraller.ShareGifType shareGifType;
 
-    public ShareGifItem(int resourceId, String itemTitle) {
+    public ShareGifItem(int resourceId, int colorId, ShareContraller.ShareGifType shareGifType) {
         this.resourceId = resourceId;
-        this.itemTitle = itemTitle;
+        this.colorId = colorId;
+        this.shareGifType = shareGifType;
     }
 
-    public String getItemTitle() {
-        return itemTitle;
+    public ShareContraller.ShareGifType getItemType() {
+        return shareGifType;
     }
 
-    public void setItemTitle(String itemTitle) {
-        this.itemTitle = itemTitle;
+    public void setItemType(ShareContraller.ShareGifType shareGifType) {
+        this.shareGifType = shareGifType;
     }
 
     public int getResourceId() {
@@ -27,6 +31,14 @@ public class ShareGifItem {
 
     public void setResourceId(int resourceId) {
         this.resourceId = resourceId;
+    }
+
+    public int getColorId() {
+        return colorId;
+    }
+
+    public void setColorId(int colorId) {
+        this.colorId = colorId;
     }
 
 

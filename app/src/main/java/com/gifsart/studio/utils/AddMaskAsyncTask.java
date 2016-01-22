@@ -3,17 +3,15 @@ package com.gifsart.studio.utils;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.os.AsyncTask;
 
+import com.decoder.PhotoUtils;
 import com.gifsart.studio.gifutils.GifUtils;
 import com.gifsart.studio.item.GifItem;
 
 import java.util.ArrayList;
-
-import pl.droidsonroids.gif.GifDrawable;
 
 /**
  * Created by Tigran on 10/22/15.
@@ -52,13 +50,13 @@ public class AddMaskAsyncTask extends AsyncTask<Void, Void, Void> {
                 drawClipart(gifItems.get(i).getBitmap(), bitmapArrayList.get(pos % size));
                 pos++;
             } else if (gifItems.get(i).getType() == Type.GIF) {
-                for (int j = 0; j < gifItems.get(i).getBitmaps().size(); j++) {
-                    drawClipart(gifItems.get(i).getBitmaps().get(j), bitmapArrayList.get(pos % size));
+                for (int j = 0; j < gifItems.get(i).getFilePaths().size(); j++) {
+                    drawClipart(PhotoUtils.loadRawBitmap(gifItems.get(i).getFilePaths().get(j)), bitmapArrayList.get(pos % size));
                     pos++;
                 }
             } else if (gifItems.get(i).getType() == Type.VIDEO) {
-                for (int j = 0; j < gifItems.get(i).getBitmaps().size(); j++) {
-                    drawClipart(gifItems.get(i).getBitmaps().get(j), bitmapArrayList.get(pos % size));
+                for (int j = 0; j < gifItems.get(i).getFilePaths().size(); j++) {
+                    drawClipart(PhotoUtils.loadRawBitmap(gifItems.get(i).getFilePaths().get(j)), bitmapArrayList.get(pos % size));
                     pos++;
                 }
             }

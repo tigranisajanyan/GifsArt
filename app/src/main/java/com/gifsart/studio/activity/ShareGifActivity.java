@@ -4,16 +4,15 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 
-import com.facebook.CallbackManager;
-import com.facebook.login.LoginManager;
 import com.facebook.share.model.ShareLinkContent;
 import com.facebook.share.widget.ShareDialog;
 import com.gifsart.studio.R;
@@ -23,16 +22,17 @@ import com.gifsart.studio.item.ShareGifItem;
 import com.gifsart.studio.social.ShareContraller;
 import com.gifsart.studio.social.UploadImageToPicsart;
 import com.gifsart.studio.social.UserContraller;
-import com.gifsart.studio.utils.SpacesItemDecoration;
-import com.gifsart.studio.utils.Utils;
 
 import java.util.ArrayList;
 
 public class ShareGifActivity extends AppCompatActivity {
 
     private static final int REQUEST_SIGNIN_ACTIVITY = 111;
+    private static final String SHARE_GIF_TITLE = "Title";
+    private static final String SHARE_GIF_ACTIVTY_TITLE = "Share";
 
-    private RecyclerView recyclerView;
+    private android.support.v7.app.ActionBar actionBar;
+    private RecyclerView shareItemRecyclerView;
 
     private LinearLayoutManager linearLayoutManager;
     private RecyclerView.ItemAnimator itemAnimator;
@@ -41,84 +41,59 @@ public class ShareGifActivity extends AppCompatActivity {
     private String filePath;
     private String fileUrl;
 
-    private CallbackManager callbackManager;
-    private LoginManager loginManager;
-
-
     private ArrayList<ShareGifItem> shareGifItems = new ArrayList<>();
-    private static final String EXTRA_GIF_PATH = "gif_file_path_string";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_share_gif);
 
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy);
+        actionBar = getSupportActionBar();
+        actionBar.setTitle(SHARE_GIF_ACTIVTY_TITLE);
+        actionBar.setDisplayHomeAsUpEnabled(true);
 
-        shareGifItems.add(new ShareGifItem(R.drawable.facebook, "Facebook"));
-        shareGifItems.add(new ShareGifItem(R.drawable.instagram, "Instagram"));
-        shareGifItems.add(new ShareGifItem(R.drawable.twitter, "Twitter"));
-        shareGifItems.add(new ShareGifItem(R.drawable.messenger, "Messenger"));
-        shareGifItems.add(new ShareGifItem(R.drawable.whatsapp, "Whatsapp"));
+        //StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        //StrictMode.setThreadPolicy(policy);
+
+        shareGifItems.add(new ShareGifItem(R.drawable.facebook, R.color.color_facebook, ShareContraller.ShareGifType.FACEBOOK));
+        shareGifItems.add(new ShareGifItem(R.drawable.messenger, R.color.color_messenger, ShareContraller.ShareGifType.MESSENGER));
+        shareGifItems.add(new ShareGifItem(R.drawable.twitter, R.color.color_twitter, ShareContraller.ShareGifType.TWITTER));
+        shareGifItems.add(new ShareGifItem(R.drawable.instagram, R.color.color_instagram, ShareContraller.ShareGifType.INSTAGRAM));
+        shareGifItems.add(new ShareGifItem(R.drawable.whatsapp, R.color.color_whatsapp, ShareContraller.ShareGifType.WHATSAPP));
+        shareGifItems.add(new ShareGifItem(R.drawable.whatsapp, R.color.color_email, ShareContraller.ShareGifType.EMAIL));
+        shareGifItems.add(new ShareGifItem(R.drawable.whatsapp, R.color.color_more, ShareContraller.ShareGifType.MORE));
 
         filePath = getIntent().getStringExtra("saved_file_path");
         fileUrl = getIntent().getStringExtra("saved_file_url");
 
-        recyclerView = (RecyclerView) findViewById(R.id.share_gif_activity_rec_view);
+        shareItemRecyclerView = (RecyclerView) findViewById(R.id.share_gif_activity_rec_view);
 
         linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         itemAnimator = new DefaultItemAnimator();
         shareGifAdapter = new ShareGifAdapter(shareGifItems, this);
 
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setClipToPadding(true);
-        recyclerView.setLayoutManager(linearLayoutManager);
-        recyclerView.setItemAnimator(itemAnimator);
+        shareItemRecyclerView.setHasFixedSize(true);
+        shareItemRecyclerView.setClipToPadding(true);
+        shareItemRecyclerView.setLayoutManager(linearLayoutManager);
+        shareItemRecyclerView.setItemAnimator(itemAnimator);
+        shareItemRecyclerView.setAdapter(shareGifAdapter);
 
-        recyclerView.setAdapter(shareGifAdapter);
-        recyclerView.addItemDecoration(new SpacesItemDecoration((int) Utils.dpToPixel(4, this)));
-
-        recyclerView.addOnItemTouchListener(new RecyclerItemClickListener(this, new RecyclerItemClickListener.OnItemClickListener() {
+        shareItemRecyclerView.addOnItemTouchListener(new RecyclerItemClickListener(this, new RecyclerItemClickListener.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                ShareContraller shareContraller = new ShareContraller(filePath, ShareGifActivity.this);
-                switch (position) {
-                    case 0:
-                        if (fileUrl == null) {
-                            Intent intent = new Intent(ShareGifActivity.this, SignInActivity.class);
-                            startActivityForResult(intent, REQUEST_SIGNIN_ACTIVITY);
-                        } else {
-                            shareFacebook();
-                        }
-                        break;
-                    case 1:
-                        shareContraller.shareInstagram();
-                        break;
-                    case 2:
-                        shareContraller.shareTwitter();
-                        break;
-                    case 3:
-                        shareContraller.shareMessenger();
-                        break;
-                    case 4:
-                        shareContraller.shareWhatsApp();
-                        break;
-                    default:
-                        break;
+                if (position == 0) {
+                    if (fileUrl == null) {
+                        Intent intent = new Intent(ShareGifActivity.this, SignInActivity.class);
+                        startActivityForResult(intent, REQUEST_SIGNIN_ACTIVITY);
+                    } else {
+                        shareFacebook();
+                    }
+                } else {
+                    ShareContraller shareContraller = new ShareContraller(filePath, ShareGifActivity.this);
+                    shareContraller.shareGif(shareGifItems.get(position).getItemType());
                 }
             }
         }));
-
-        findViewById(R.id.share_gif_activity_done_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(ShareGifActivity.this, GifPreviewActivity.class);
-                intent.putExtra(EXTRA_GIF_PATH, filePath);
-                startActivity(intent);
-                finish();
-            }
-        });
 
     }
 
@@ -127,8 +102,7 @@ public class ShareGifActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_SIGNIN_ACTIVITY) {
             if (resultCode == RESULT_OK) {
-                final UploadImageToPicsart uploadImageToPicsart = new UploadImageToPicsart(ShareGifActivity.this, UserContraller.readUserFromFile(ShareGifActivity.this).getKey(), filePath, "title", UploadImageToPicsart.PHOTO_PUBLIC.PUBLIC, UploadImageToPicsart.PHOTO_IS.GENERAL);
-                uploadImageToPicsart.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                final UploadImageToPicsart uploadImageToPicsart = new UploadImageToPicsart(ShareGifActivity.this, UserContraller.readUserFromFile(ShareGifActivity.this).getKey(), filePath, SHARE_GIF_TITLE, UploadImageToPicsart.PHOTO_PUBLIC.PUBLIC, UploadImageToPicsart.PHOTO_IS.GENERAL);
                 uploadImageToPicsart.setOnUploadedListener(new UploadImageToPicsart.ImageUploaded() {
                     @Override
                     public void uploadIsDone(boolean uploaded, String messege) {
@@ -140,7 +114,28 @@ public class ShareGifActivity extends AppCompatActivity {
                         }
                     }
                 });
+                uploadImageToPicsart.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             }
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_share_gif, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                this.finish();
+                return true;
+            case R.id.action_done:
+                this.finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 
@@ -152,6 +147,5 @@ public class ShareGifActivity extends AppCompatActivity {
             ShareDialog.show(this, linkContent);
         }
     }
-
 
 }

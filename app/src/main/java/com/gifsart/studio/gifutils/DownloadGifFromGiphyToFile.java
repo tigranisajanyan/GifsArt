@@ -3,8 +3,6 @@ package com.gifsart.studio.gifutils;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.gifsart.studio.utils.AnimatedProgressDialog;
-
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -20,8 +18,6 @@ public class DownloadGifFromGiphyToFile extends AsyncTask<Void, Integer, Boolean
     private String outputPath;
     private String downloadingFileUrl;
 
-    private AnimatedProgressDialog progressDialog;
-
     private OnDownloaded onDownloaded;
     private HttpURLConnection ucon;
     private byte[] buffer;
@@ -35,9 +31,6 @@ public class DownloadGifFromGiphyToFile extends AsyncTask<Void, Integer, Boolean
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-        progressDialog = new AnimatedProgressDialog(context);
-        progressDialog.setCancelable(false);
-        progressDialog.show();
     }
 
     @Override
@@ -67,7 +60,6 @@ public class DownloadGifFromGiphyToFile extends AsyncTask<Void, Integer, Boolean
     protected void onPostExecute(Boolean result) {
         super.onPostExecute(result);
         onDownloaded.onDownloaded(result);
-        progressDialog.dismiss();
     }
 
     public void setOnDownloadedListener(OnDownloaded l) {

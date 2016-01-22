@@ -6,35 +6,9 @@
     android:background="@color/background_color"
     tools:context="com.gifsart.studio.activity.ShareGifActivity">
 
-    <RelativeLayout
-        android:id="@+id/share_gif_activity_toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/navigation_bar_color">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:text="Share"
-            android:textColor="@color/font_main_color"
-            android:textSize="20dp" />
-
-        <Button
-            android:id="@+id/share_gif_activity_done_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:background="@android:color/transparent"
-            android:text="Done"
-            android:textColor="@color/pink" />
-    </RelativeLayout>
-
     <android.support.v7.widget.RecyclerView
         android:id="@+id/share_gif_activity_rec_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/share_gif_activity_toolbar"
-        android:layout_marginTop="5dp" />
+        android:layout_height="match_parent" />
 
 </RelativeLayout>

@@ -25,7 +25,7 @@ public class GifImitation extends AsyncTask<Void, Bitmap, Void> {
     private int duration;
     private boolean play = false;
     private int k = 0;
-    int index;
+    private int index;
 
     ThreadControl tControl = new ThreadControl();
 
@@ -34,7 +34,6 @@ public class GifImitation extends AsyncTask<Void, Bitmap, Void> {
     int height = 0;
 
     public GifImitation(Context context, GPUImageView container, ArrayList<GifItem> gifItems, int duration) {
-
         this.container = container;
         this.gifItems = gifItems;
         this.duration = duration;
@@ -57,8 +56,10 @@ public class GifImitation extends AsyncTask<Void, Bitmap, Void> {
     @Override
     protected Void doInBackground(Void... params) {
         while (play) {
+            if (isCancelled()) break;
             index = k % gifItems.size();
             if (gifItems.get(index).getType() == Type.IMAGE && gifItems.get(index).isSelected()) {
+
                 try {
                     //Pause work if control is paused.
                     tControl.waitIfPaused();
@@ -70,6 +71,7 @@ public class GifImitation extends AsyncTask<Void, Bitmap, Void> {
                     break;
                 }
 
+                if (isCancelled()) break;
                 publishProgress(PhotoUtils.loadRawBitmap(gifItems.get(index).getFilePath()));
                 try {
                     TimeUnit.MILLISECONDS.sleep(gifItems.get(index).getCurrentDuration());
@@ -78,7 +80,8 @@ public class GifImitation extends AsyncTask<Void, Bitmap, Void> {
                 }
                 ++count;
             } else if (gifItems.get(index).getType() == Type.GIF && gifItems.get(index).isSelected()) {
-                for (int i = 0; i < gifItems.get(index).getBitmaps().size(); i++) {
+                for (int i = 0; i < gifItems.get(index).getFilePaths().size(); i++) {
+
                     try {
                         //Pause work if control is paused.
                         tControl.waitIfPaused();
@@ -89,8 +92,8 @@ public class GifImitation extends AsyncTask<Void, Bitmap, Void> {
                     if (tControl.isCancelled()) {
                         break;
                     }
-
-                    publishProgress(gifItems.get(index).getBitmaps().get(i));
+                    if (isCancelled()) break;
+                    publishProgress(PhotoUtils.loadRawBitmap(gifItems.get(index).getFilePaths().get(i)));
                     try {
                         TimeUnit.MILLISECONDS.sleep(gifItems.get(index).getCurrentDuration());
                     } catch (InterruptedException e) {
@@ -100,6 +103,7 @@ public class GifImitation extends AsyncTask<Void, Bitmap, Void> {
                 }
             } else if ((gifItems.get(index).getType() == Type.VIDEO) && gifItems.get(index).isSelected()) {
                 for (int i = 0; i < gifItems.get(index).getFilePaths().size(); i++) {
+
                     try {
                         //Pause work if control is paused.
                         tControl.waitIfPaused();
@@ -111,6 +115,7 @@ public class GifImitation extends AsyncTask<Void, Bitmap, Void> {
                         break;
                     }
 
+                    if (isCancelled()) break;
                     publishProgress(PhotoUtils.loadRawBitmap(gifItems.get(index).getFilePaths().get(i)));
                     try {
                         TimeUnit.MILLISECONDS.sleep(gifItems.get(index).getCurrentDuration());
@@ -126,7 +131,6 @@ public class GifImitation extends AsyncTask<Void, Bitmap, Void> {
                 //e.printStackTrace();
             }
             k++;
-            if (isCancelled()) break;
         }
         return null;
     }
@@ -134,13 +138,15 @@ public class GifImitation extends AsyncTask<Void, Bitmap, Void> {
     @Override
     protected void onProgressUpdate(Bitmap... values) {
         super.onProgressUpdate(values);
-        Bitmap bitmap = values[0];
-        if (width != bitmap.getWidth() || height != bitmap.getHeight()) {
-            container.getGPUImage().deleteImage();
-            width = bitmap.getWidth();
-            height = bitmap.getHeight();
+        if (play) {
+            Bitmap bitmap = values[0];
+            if (width != bitmap.getWidth() || height != bitmap.getHeight()) {
+                container.getGPUImage().deleteImage();
+                width = bitmap.getWidth();
+                height = bitmap.getHeight();
+            }
+            container.getGPUImage().setImage(bitmap);
         }
-        container.getGPUImage().setImage(bitmap);
     }
 
     @Override
@@ -154,6 +160,16 @@ public class GifImitation extends AsyncTask<Void, Bitmap, Void> {
         //and will cancel thread control anyway.
         //Pause control.
         tControl.pause();
+    }
+
+    public void cancel() {
+        play = false;
+        try {
+            tControl.waitIfPaused();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        tControl.cancel();
     }
 
     public void onResume() {
@@ -175,6 +191,19 @@ public class GifImitation extends AsyncTask<Void, Bitmap, Void> {
             gifItems.get(i).setIsSelected(true);
         }
         k = 0;
+    }
+
+    private void setupPauseAndStop() {
+        try {
+            //Pause work if control is paused.
+            tControl.waitIfPaused();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        //Stop work if control is cancelled.
+        if (tControl.isCancelled()) {
+            return;
+        }
     }
 
 }

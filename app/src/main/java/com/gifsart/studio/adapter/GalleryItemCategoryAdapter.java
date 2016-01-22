@@ -40,7 +40,7 @@ public class GalleryItemCategoryAdapter extends RecyclerView.Adapter<GalleryItem
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
         if (galleryCategoryItems.get(position).getCategoryCover() != "") {
-            Glide.with(context).load(galleryCategoryItems.get(position).getCategoryCover()).asBitmap().fitCenter().into(holder.galleryCategoryItemImageView);
+            Glide.with(context).asBitmap().load(galleryCategoryItems.get(position).getCategoryCover()).into(holder.galleryCategoryItemImageView);
         } else if (galleryCategoryItems.get(position).getThumbnail() != null) {
             holder.galleryCategoryItemImageView.setImageBitmap(galleryCategoryItems.get(position).getThumbnail());
         }

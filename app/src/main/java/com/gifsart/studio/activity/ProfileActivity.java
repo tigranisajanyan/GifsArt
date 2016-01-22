@@ -42,7 +42,7 @@ import java.util.ArrayList;
 
 public class ProfileActivity extends AppCompatActivity {
 
-    public static final String LOG_TAG = "profile_activity";
+    public static final String LOG_TAG = ProfileActivity.class.getSimpleName();
 
     private static final int REQUEST_SIGNIN_ACTIVITY = 111;
     private static final int REQUEST_SIGNUP_ACTIVITY = 222;
@@ -133,9 +133,9 @@ public class ProfileActivity extends AppCompatActivity {
             @Override
             public void onItemClick(View view, int position) {
                 Intent intent = new Intent(context, EditLocalPhotoActivity.class);
-                intent.putExtra("image_url", profileUserPhotosAdapter.getItem(position).getUrl());
-                intent.putExtra("is_public", profileUserPhotosAdapter.getItem(position).getIsPublic());
-                intent.putExtra("photo_id", profileUserPhotosAdapter.getItem(position).getId());
+                intent.putExtra(GifsArtConst.INTENT_IMAGE_URL, profileUserPhotosAdapter.getItem(position).getUrl());
+                intent.putExtra(GifsArtConst.INTENT_IS_PUBLIC, profileUserPhotosAdapter.getItem(position).getIsPublic());
+                intent.putExtra(GifsArtConst.INTENT_PHOTO_ID, profileUserPhotosAdapter.getItem(position).getId());
                 startActivityForResult(intent, REQUEST_OPEN_PHOTO_EDIT);
             }
         }));
@@ -218,7 +218,6 @@ public class ProfileActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        // finish() is called in super: we only override this method to be able to override the transition
         super.onBackPressed();
         overridePendingTransition(R.transition.pull_in_right, R.transition.push_out_left);
     }
@@ -323,7 +322,7 @@ public class ProfileActivity extends AppCompatActivity {
                 });
                 requestQueue.add(multiPartRequest);*/
 
-                Glide.with(context).load(Utils.getRealPathFromURI(context, imageUri)).asBitmap().centerCrop().into(new BitmapImageViewTarget(profileImageView) {
+                Glide.with(context).asBitmap().load(Utils.getRealPathFromURI(context, imageUri)).into(new BitmapImageViewTarget(profileImageView) {
                     @Override
                     protected void setResource(Bitmap resource) {
                         RoundedBitmapDrawable circularBitmapDrawable =
@@ -387,7 +386,7 @@ public class ProfileActivity extends AppCompatActivity {
     public void updateUserInfo() {
         if (Utils.haveNetworkConnection(this)) {
             if (!user.getPhoto().equals(GifsArtConst.EMPTY_PROFILE_IMAGE_PATH)) {
-                Glide.with(context).load(user.getPhoto() + GifsArtConst.DOWNLOAD_GIF_POSTFIX_240).asBitmap().centerCrop().into(new BitmapImageViewTarget(profileImageView) {
+                Glide.with(context).asBitmap().load(user.getPhoto() + GifsArtConst.DOWNLOAD_GIF_POSTFIX_240).into(new BitmapImageViewTarget(profileImageView) {
                     @Override
                     protected void setResource(Bitmap resource) {
                         RoundedBitmapDrawable circularBitmapDrawable =

@@ -1,7 +1,6 @@
 package com.gifsart.studio.adapter;
 
 import android.content.Context;
-import android.net.Uri;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -11,6 +10,8 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.gifsart.studio.R;
 import com.gifsart.studio.social.Photo;
 import com.gifsart.studio.social.UserContraller;
@@ -55,7 +56,7 @@ public class ProfileUserPhotosAdapter extends RecyclerView.Adapter<ProfileUserPh
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
         holder.userPhotoImageView.setBackgroundColor(colors.get(random.nextInt(colors.size())));
-        Glide.with(context).load(Uri.parse(userPhotos.get(position).getUrl() + GifsArtConst.DOWNLOAD_GIF_POSTFIX_240_F5)).asGif().override(imageSize, imageSize).centerCrop().into(holder.userPhotoImageView);
+        Glide.with(context).asGif().thumbnail(0.6f).load(userPhotos.get(position).getUrl() + GifsArtConst.DOWNLOAD_GIF_POSTFIX_240_F5).apply(RequestOptions.noTransform().diskCacheStrategy(DiskCacheStrategy.RESOURCE)).into(holder.userPhotoImageView);
         if (userPhotos.get(position).getIsPublic()) {
             holder.privateImageView.setVisibility(View.GONE);
         } else {
@@ -109,6 +110,7 @@ public class ProfileUserPhotosAdapter extends RecyclerView.Adapter<ProfileUserPh
             int imageSize = context.getResources().getDisplayMetrics().widthPixels / 2;
             FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(imageSize, imageSize);
             userPhotoImageView = (ImageView) itemView.findViewById(R.id.user_profile_photos_image_view);
+            userPhotoImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
             privateImageView = (ImageView) itemView.findViewById(R.id.private_image_view);
             userPhotoImageView.setLayoutParams(layoutParams);
         }

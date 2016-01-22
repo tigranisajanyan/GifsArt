@@ -12,8 +12,6 @@ import com.bumptech.glide.Glide;
 import com.gifsart.studio.R;
 import com.gifsart.studio.utils.MaskRes;
 
-import java.util.ArrayList;
-
 /**
  * Created by Tigran on 10/22/15.
  */
@@ -39,7 +37,7 @@ public class MasksAdapter extends RecyclerView.Adapter<MasksAdapter.ViewHolder> 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
 
-        Glide.with(context).load(maskResourceIds[position]).asBitmap().into(holder.maskImageView);
+        Glide.with(context).asBitmap().load(maskResourceIds[position]).into(holder.maskImageView);
 
     }
 

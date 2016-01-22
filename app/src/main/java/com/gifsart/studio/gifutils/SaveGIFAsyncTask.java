@@ -1,24 +1,16 @@
 package com.gifsart.studio.gifutils;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.AsyncTask;
-import android.util.Log;
 
-import com.gifsart.studio.activity.GifPreviewActivity;
-import com.gifsart.studio.activity.MakeGifActivity;
+import com.decoder.PhotoUtils;
 import com.gifsart.studio.activity.ShareGifActivity;
 import com.gifsart.studio.item.GifItem;
-import com.gifsart.studio.utils.GifsArtConst;
+import com.gifsart.studio.utils.SquareFitMode;
 import com.gifsart.studio.utils.Type;
-import com.gifsart.studio.utils.Utils;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
@@ -27,12 +19,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Callable;
 
-import bolts.Bolts;
-import bolts.Continuation;
-import bolts.Task;
 import jp.co.cyberagent.android.gpuimage.GPUImage;
 import jp.co.cyberagent.android.gpuimage.GPUImageFilter;
 import jp.co.cyberagent.android.gpuimage.GPUImageView;
@@ -52,9 +39,9 @@ public class SaveGIFAsyncTask extends AsyncTask<Void, Integer, Void> {
 
     int num = 0;
 
-    private MakeGifActivity.SquareFitMode squareFitMode;
+    private SquareFitMode squareFitMode;
 
-    public SaveGIFAsyncTask(String outputDir, ArrayList<GifItem> gifItems, MakeGifActivity.SquareFitMode squareFitMode, GPUImageView gpuImageView, GPUImageFilter gpuImageFilter, Activity activity) {
+    public SaveGIFAsyncTask(String outputDir, ArrayList<GifItem> gifItems, SquareFitMode squareFitMode, GPUImageView gpuImageView, GPUImageFilter gpuImageFilter, Activity activity) {
         this.outputDir = outputDir;
         this.gifItems = gifItems;
         this.gpuImageView = gpuImageView;
@@ -98,14 +85,14 @@ public class SaveGIFAsyncTask extends AsyncTask<Void, Integer, Void> {
                     publishProgress(num);
                     num++;
                 } else if (gifItems.get(i).getType() == Type.GIF) {
-                    for (int j = 0; j < gifItems.get(i).getBitmaps().size(); j++) {
-                        addGifFrame(animatedGifEncoder, gifItems.get(i).getBitmaps().get(j), gifItems.get(i).getCurrentDuration());
+                    for (int j = 0; j < gifItems.get(i).getFilePaths().size(); j++) {
+                        addGifFrame(animatedGifEncoder, PhotoUtils.loadRawBitmap(gifItems.get(i).getFilePaths().get(j)), gifItems.get(i).getCurrentDuration());
                         publishProgress(num);
                         num++;
                     }
                 } else if (gifItems.get(i).getType() == Type.VIDEO) {
-                    for (int j = 0; j < gifItems.get(i).getBitmaps().size(); j++) {
-                        addGifFrame(animatedGifEncoder, gifItems.get(i).getBitmaps().get(j), gifItems.get(i).getCurrentDuration());
+                    for (int j = 0; j < gifItems.get(i).getFilePaths().size(); j++) {
+                        addGifFrame(animatedGifEncoder, PhotoUtils.loadRawBitmap(gifItems.get(i).getFilePaths().get(j)), gifItems.get(i).getCurrentDuration());
                         publishProgress(num);
                         num++;
                     }
@@ -178,7 +165,7 @@ public class SaveGIFAsyncTask extends AsyncTask<Void, Integer, Void> {
             if (gifItems.get(i).getType() == Type.IMAGE) {
                 count++;
             } else {
-                count += gifItems.get(i).getBitmaps().size();
+                count += gifItems.get(i).getFilePaths().size();
             }
         }
         return count;
@@ -186,11 +173,11 @@ public class SaveGIFAsyncTask extends AsyncTask<Void, Integer, Void> {
 
     // if all gif items doesn't have same width and height , square fit mode will be square fit
     public void checkSquareFitMode() {
-        if (squareFitMode == MakeGifActivity.SquareFitMode.FIT_MODE_ORIGINAL) {
+        if (squareFitMode == SquareFitMode.FIT_MODE_ORIGINAL) {
             for (int i = 0; i < gifItems.size(); i++) {
                 for (int j = 0; j < gifItems.size(); j++) {
                     if (gifItems.get(i).getBitmap().getWidth() != gifItems.get(j).getBitmap().getWidth() || gifItems.get(i).getBitmap().getHeight() != gifItems.get(j).getBitmap().getHeight()) {
-                        squareFitMode = MakeGifActivity.SquareFitMode.FIT_MODE_SQUARE_FIT;
+                        squareFitMode = SquareFitMode.FIT_MODE_SQUARE_FIT;
                         break;
                     }
                 }
@@ -219,9 +206,9 @@ public class SaveGIFAsyncTask extends AsyncTask<Void, Integer, Void> {
                     gpuImage.setImage(gifItems.get(i).getBitmap());
                     gifItems.get(i).setBitmap(gpuImage.getBitmapWithFilterApplied());
                 } else {
-                    for (int j = 0; j < gifItems.get(i).getBitmaps().size(); j++) {
-                        gpuImage.setImage(gifItems.get(i).getBitmaps().get(j));
-                        gifItems.get(i).getBitmaps().set(j, gpuImage.getBitmapWithFilterApplied());
+                    for (int j = 0; j < gifItems.get(i).getFilePaths().size(); j++) {
+                        gpuImage.setImage(PhotoUtils.loadRawBitmap(gifItems.get(i).getFilePaths().get(j)));
+                        //gifItems.get(i).get().set(j, gpuImage.getBitmapWithFilterApplied());/// // TODO: 1/18/16  save applied effect to file
                     }
                 }
             }

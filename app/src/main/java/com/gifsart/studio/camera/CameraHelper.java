@@ -9,7 +9,10 @@ import android.widget.TextView;
 
 import com.gifsart.studio.R;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Created by Tigran on 12/10/15.
@@ -109,6 +112,77 @@ public class CameraHelper {
         }
         ((TextView) activity.findViewById(R.id.burst_mode_count)).setText("x" + currentBurstMode);
     }
+
+    public static Camera.Size getBestAspectPreviewSize(int displayOrientation,
+                                                       int width,
+                                                       int height,
+                                                       Camera.Parameters parameters
+    ) {
+
+        double closeEnough = 0.1;
+        double targetRatio = (double) width / height;
+        Camera.Size bestSize = null;
+
+        if (displayOrientation == 90 || displayOrientation == 270) {
+            targetRatio = (double) height / width;
+        }
+
+        List<Camera.Size> sizes = parameters.getSupportedPreviewSizes();
+        TreeMap<Double, List> diffs = new TreeMap<Double, List>();
+
+
+        for (Camera.Size size : sizes) {
+
+            double ratio = (double) size.width / size.height;
+
+            double diff = Math.abs(ratio - targetRatio);
+            if (diff < closeEnough) {
+                if (diffs.keySet().contains(diff)) {
+                    //add the value to the list
+                    diffs.get(diff).add(size);
+                } else {
+                    List newList = new ArrayList<Camera.Size>();
+                    newList.add(size);
+                    diffs.put(diff, newList);
+                }
+
+            }
+        }
+
+        //diffs now contains all of the usable sizes
+        //now let's see which one has the least amount of
+        for (Map.Entry entry : diffs.entrySet()) {
+            List<Camera.Size> entries = (List) entry.getValue();
+            for (Camera.Size s : entries) {
+
+                if (s.width >= width && s.height >= width) {
+                    bestSize = s;
+                }
+            }
+        }
+
+        //if we don't have bestSize then just use whatever the default was to begin with
+        if (bestSize == null) {
+            if (parameters.getPreviewSize() != null) {
+                bestSize = parameters.getPreviewSize();
+                return bestSize;
+            }
+
+            //pick the smallest difference in ratio?  or pick the largest resolution?
+            //right now we are just picking the lowest ratio difference
+            for (Map.Entry entry : diffs.entrySet()) {
+                List<Camera.Size> entries = (List) entry.getValue();
+                for (Camera.Size s : entries) {
+                    if (bestSize == null) {
+                        bestSize = s;
+                    }
+                }
+            }
+        }
+
+        return bestSize;
+    }
+
 
     public static int getCurrentBurstMode() {
         return currentBurstMode;

@@ -392,9 +392,9 @@ public class ShootingGifActivity extends ActionBarActivity {
         animatedProgressDialog.setCancelable(false);
         animatedProgressDialog.show();
         BurstModeFramesSaving burstModeFramesSaving = new BurstModeFramesSaving(this, cameraFront, burstModeFrameBytes);
-        burstModeFramesSaving.setFramesSavedListener(new BurstModeFramesSaving.FramesSaved() {
+        burstModeFramesSaving.setFramesSavedListener(new BurstModeFramesSaving.FramesAreSaved() {
             @Override
-            public void done(boolean done) {
+            public void framesAreSaved(boolean done) {
                 if (done) {
                     ArrayList<String> strings = new ArrayList<>();
                     for (int i = 0; i < burstMode; i++) {

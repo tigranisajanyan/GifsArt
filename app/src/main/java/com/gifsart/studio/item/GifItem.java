@@ -4,8 +4,8 @@ import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.gifsart.studio.activity.MakeGifActivity;
 import com.gifsart.studio.clipart.Clipart;
+import com.gifsart.studio.utils.SquareFitMode;
 import com.gifsart.studio.utils.Type;
 
 import java.io.File;
@@ -17,7 +17,6 @@ import java.util.ArrayList;
 public class GifItem implements Parcelable {
 
     private Bitmap bitmap;
-    private ArrayList<Bitmap> bitmaps = new ArrayList<>();
     private int duraton;
     private int currentDuration;
     private Type type = Type.NONE;
@@ -27,7 +26,7 @@ public class GifItem implements Parcelable {
 
     private int maskPosition = 0;
     private int effectPosition = 0;
-    private MakeGifActivity.SquareFitMode squareFitMode = MakeGifActivity.SquareFitMode.FIT_MODE_SQUARE;
+    private SquareFitMode squareFitMode = SquareFitMode.FIT_MODE_SQUARE;
 
     private String filePath;
     private ArrayList<String> filePaths;
@@ -48,8 +47,8 @@ public class GifItem implements Parcelable {
     }
 
     protected GifItem(Parcel in) {
+        type = in.readParcelable(Type.class.getClassLoader());
         bitmap = in.readParcelable(Bitmap.class.getClassLoader());
-        bitmaps = in.createTypedArrayList(Bitmap.CREATOR);
         duraton = in.readInt();
         currentDuration = in.readInt();
         isSelected = in.readByte() != 0;
@@ -70,14 +69,6 @@ public class GifItem implements Parcelable {
             return new GifItem[size];
         }
     };
-
-    public ArrayList<Bitmap> getBitmaps() {
-        return bitmaps;
-    }
-
-    public void setBitmaps(ArrayList<Bitmap> bitmaps) {
-        this.bitmaps = bitmaps;
-    }
 
     public int getDuraton() {
         return duraton;
@@ -167,8 +158,8 @@ public class GifItem implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeParcelable(type, flags);
         dest.writeParcelable(bitmap, flags);
-        dest.writeTypedList(bitmaps);
         dest.writeInt(duraton);
         dest.writeInt(currentDuration);
         dest.writeByte((byte) (isSelected ? 1 : 0));
@@ -177,4 +168,6 @@ public class GifItem implements Parcelable {
         dest.writeString(filePath);
         dest.writeStringList(filePaths);
     }
+
+
 }

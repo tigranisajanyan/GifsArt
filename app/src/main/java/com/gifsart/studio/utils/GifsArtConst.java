@@ -43,6 +43,16 @@ public class GifsArtConst {
     public static String INTENT_SIGN_UP_WITH_FACEBOOK = "sign_up_with_facebook";
 
 
+    /**
+     * EditLocalPhotoActivity Intents
+     */
+    public static String INTENT_PHOTO_ID = "photo_id";
+    public static String INTENT_IS_PUBLIC = "is_public";
+    public static String INTENT_IMAGE_URL = "image_url";
+    public static String INTENT_SAVED_FILE_PATH = "saved_file_path";
+    public static String INTENT_SAVED_FILE_URL = "saved_file_url";
+
+
     public static String INTENT_OPEN_SIGN_IN = "open_signin";
     public static String INTENT_OPEN_SIGN_UP = "open_signup";
 
@@ -51,7 +61,7 @@ public class GifsArtConst {
     public static String SHARED_PREFERENCES = "shared_preferences";
 
     public static String SHOOTING_VIDEO_OUTPUT_DIR = Environment.getExternalStorageDirectory() + "/" + MY_DIR;
-    public static String VIDEOS_DECODED_FRAMES_DIR = Environment.getExternalStorageDirectory() + "/" + MY_DIR + "/video_frames";
+    public static String VIDEOS_DECODED_FRAMES_DIR = Environment.getExternalStorageDirectory() + "/" + MY_DIR + "/.video_frames";
 
     public static String DIR_VIDEO_FRAMES = "GifsArt/.video_frames";
     public static String DIR_GIPHY = "GifsArt/giphy";

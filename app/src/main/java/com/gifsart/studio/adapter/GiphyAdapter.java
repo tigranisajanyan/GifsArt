@@ -1,7 +1,6 @@
 package com.gifsart.studio.adapter;
 
 import android.content.Context;
-import android.net.Uri;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -11,11 +10,12 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.gifsart.studio.R;
 import com.gifsart.studio.gifutils.GiphyApiRequest;
 import com.gifsart.studio.item.GiphyItem;
 import com.gifsart.studio.utils.GifsArtConst;
+import com.gifsart.studio.utils.GlideLoader;
 import com.gifsart.studio.utils.Utils;
 
 import java.util.ArrayList;
@@ -35,13 +35,16 @@ public class GiphyAdapter extends RecyclerView.Adapter<GiphyAdapter.ViewHolder> 
     private String tag;
     private int selectedPosition = -1;
     private boolean isSticker = false;
-    Random random = new Random();
+    private Random random = new Random();
+
+    GlideLoader glideLoader;
 
     public GiphyAdapter(ArrayList<GiphyItem> giphyItems, String tag, boolean isSticker, Context context) {
         this.giphyItems = giphyItems;
         this.tag = tag;
         this.isSticker = isSticker;
         this.context = context;
+        glideLoader = new GlideLoader(context);
     }
 
     @Override
@@ -60,9 +63,10 @@ public class GiphyAdapter extends RecyclerView.Adapter<GiphyAdapter.ViewHolder> 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
 
-        holder.simpleDraweeView.setBackgroundColor(colors.get(random.nextInt(colors.size())));
-        Uri uri = Uri.parse(giphyItems.get(position).getDownsampledGifUrl());
-        Glide.with(context).load(uri).asGif().override(200, 200).centerCrop().into(holder.simpleDraweeView);
+        holder.giphyImageView.setBackgroundColor(colors.get(random.nextInt(colors.size())));
+        //Uri uri = Uri.parse(giphyItems.get(position).getDownsampledGifUrl());
+        glideLoader.loadWithParamsAsGifDrawable(giphyItems.get(position).getDownsampledGifUrl(), holder.giphyImageView, RequestOptions.noTransform(), null);
+        //Glide.with(context).load(uri).asGif().override(200, 200).centerCrop().into(holder.giphyImageView);
         // Giphy paging duaring giphy activity scralling
         if (position + 1 == limit + offset) {
             if (Utils.haveNetworkConnection(context)) {
@@ -78,7 +82,7 @@ public class GiphyAdapter extends RecyclerView.Adapter<GiphyAdapter.ViewHolder> 
                     }
                 });
             } else {
-                Toast.makeText(context, "No Wifi Connection", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, context.getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show();
             }
         }
 
@@ -120,15 +124,15 @@ public class GiphyAdapter extends RecyclerView.Adapter<GiphyAdapter.ViewHolder> 
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
-        public ImageView simpleDraweeView = null;
+        public ImageView giphyImageView = null;
         public ImageView corner;
 
         public ViewHolder(View itemView) {
             super(itemView);
-            simpleDraweeView = (ImageView) itemView.findViewById(R.id.giphy_image_view);
+            giphyImageView = (ImageView) itemView.findViewById(R.id.giphy_image_view);
             corner = (ImageView) itemView.findViewById(R.id.giphy_corner);
             FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(context.getResources().getDisplayMetrics().widthPixels / 2, context.getResources().getDisplayMetrics().widthPixels / 2);
-            simpleDraweeView.setLayoutParams(layoutParams);
+            giphyImageView.setLayoutParams(layoutParams);
             corner.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, context.getResources().getDisplayMetrics().widthPixels / 2));
             corner.setVisibility(View.GONE);
         }

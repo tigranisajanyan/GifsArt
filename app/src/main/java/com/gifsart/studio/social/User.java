@@ -9,13 +9,6 @@ import java.util.List;
 
 /**
  * This class serves as POJO
- * <p/>
- * <p>Some Getters of this class  throw a <tt>NullPointerException</tt>
- * if the collections or class objects provided to them are null.
- * <p/>
- * <p>This class is a member of the
- * <a href="www.com.picsart.com">
- * </a>.
  */
 public class User implements Serializable {
 

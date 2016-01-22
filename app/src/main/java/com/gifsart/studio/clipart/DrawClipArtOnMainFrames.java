@@ -8,6 +8,7 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.os.AsyncTask;
 
+import com.decoder.PhotoUtils;
 import com.gifsart.studio.item.GifItem;
 import com.gifsart.studio.utils.Type;
 
@@ -40,12 +41,12 @@ public class DrawClipArtOnMainFrames extends AsyncTask<Void, Integer, Void> {
             if (gifItems.get(i).getType() == Type.IMAGE) {
                 drawClipart(gifItems.get(i).getBitmap());
             } else if (gifItems.get(i).getType() == Type.GIF) {
-                for (int j = 0; j < gifItems.get(i).getBitmaps().size(); j++) {
-                    drawClipart(gifItems.get(i).getBitmaps().get(j));
+                for (int j = 0; j < gifItems.get(i).getFilePaths().size(); j++) {
+                    drawClipart(PhotoUtils.loadRawBitmap(gifItems.get(i).getFilePaths().get(j)));
                 }
             } else if (gifItems.get(i).getType() == Type.VIDEO) {
-                for (int j = 0; j < gifItems.get(i).getBitmaps().size(); j++) {
-                    drawClipart(gifItems.get(i).getBitmaps().get(j));
+                for (int j = 0; j < gifItems.get(i).getFilePaths().size(); j++) {
+                    drawClipart(PhotoUtils.loadRawBitmap(gifItems.get(i).getFilePaths().get(j)));
                 }
             }
         }

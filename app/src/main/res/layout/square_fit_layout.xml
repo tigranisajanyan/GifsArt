@@ -60,7 +60,7 @@
         android:orientation="vertical">
 
         <ImageButton
-            android:id="@+id/square_fit_button"
+            android:id="@+id/square_fit_button_1"
             android:layout_width="80dp"
             android:layout_height="80dp"
             android:background="@color/navigation_bar_color"

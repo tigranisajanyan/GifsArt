@@ -665,7 +665,7 @@ public class ExtractMpegFrames extends AndroidTestCase {
 
             //PhotoUtils.saveBufferToSDCard(filename, byteBuffer);
 
-            PhotoUtils.saveByteBufferToRawBitmap(byteBuffer,mWidth,mHeight, Bitmap.Config.ARGB_8888,filename);
+            PhotoUtils.saveByteBufferToRawBitmap(byteBuffer,mWidth,mHeight, Bitmap.Config.ARGB_4444,filename);
 
             /*BufferedOutputStream bos = null;
             try {

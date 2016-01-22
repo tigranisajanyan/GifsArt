@@ -45,7 +45,7 @@ public class CheckFreeSpaceSingleton {
             allocatedSpace += GifUtils.getGifFramesCount(filePath);
 
         } else if (Utils.getMimeType(filePath) == Type.VIDEO) {
-            this.allocatedSpace += (Utils.checkVideoFrameDuration(filePath, 25) * 2 / 3);
+            this.allocatedSpace += (Utils.checkVideoFrameDuration(filePath, 25));
 
         }
     }
@@ -62,7 +62,7 @@ public class CheckFreeSpaceSingleton {
             this.allocatedSpace -= gifFrameCount;
 
         } else if (Utils.getMimeType(filePath) == Type.VIDEO && allocatedSpace != 0) {
-            int videoFrameCount = (Utils.checkVideoFrameDuration(filePath, 25) * 2 / 3);
+            int videoFrameCount = (Utils.checkVideoFrameDuration(filePath, 25));
             this.allocatedSpace -= videoFrameCount;
         }
     }
@@ -80,7 +80,7 @@ public class CheckFreeSpaceSingleton {
                 return true;
             }
         } else if (Utils.getMimeType(filePath) == Type.VIDEO) {
-            int videoFrameCount = (Utils.checkVideoFrameDuration(filePath, 25) * 2 / 3);
+            int videoFrameCount = (Utils.checkVideoFrameDuration(filePath, 25));
             if (freeSpace - 5 > videoFrameCount) {
                 return true;
             }
@@ -101,18 +101,24 @@ public class CheckFreeSpaceSingleton {
         return GIF_MAX_FRAMES_COUNT - allocatedSpace;
     }
 
+    /**
+     *  Checking app heap memory size and choosing which memory type it should be
+     */
     private void checkDeviceMemoryCategory() {
-        long memorySize = Utils.getTotalRAMinMB();
-        // devices with RAM from 899MB to 1500MB
-        if (memorySize > 899 && memorySize < 1500) {
+        int memorySize = PicsartContext.memoryType.getSize();
+        // app heap is from 64Mb to 128Mb
+        if (memorySize >= PicsartContext.MemoryType.NORMAL_PLUS.getSize() && memorySize < PicsartContext.MemoryType.HIGH.getSize()) {
+            GIF_MAX_FRAMES_COUNT = 50;
+        }// app heap is from 128Mb to 256Mb
+        else if (memorySize >= PicsartContext.MemoryType.HIGH.getSize() && memorySize < PicsartContext.MemoryType.XHIGH.getSize()) {
             GIF_MAX_FRAMES_COUNT = 80;
-        }// devices with RAM from 1500MB to 2500MB
-        else if (memorySize >= 1500 && memorySize < 2500) {
-            GIF_MAX_FRAMES_COUNT = 110;
-        }// devices with RAM from 2500MB and higher
-        else if (memorySize >= 2500) {
+        }// app heap is from 256Mb to 512Mb
+        else if (memorySize >= PicsartContext.MemoryType.XHIGH.getSize() && memorySize < PicsartContext.MemoryType.XXHIGH.getSize()) {
+            GIF_MAX_FRAMES_COUNT = 100;
+        }// app heap is from 512Mb and higher
+        else if (memorySize >= PicsartContext.MemoryType.XXHIGH.getSize()) {
             GIF_MAX_FRAMES_COUNT = 150;
-        }// devices with RAM from 899MB and lower
+        }// app heap is lower than 64Mb
         else {
             GIF_MAX_FRAMES_COUNT = 30;
         }

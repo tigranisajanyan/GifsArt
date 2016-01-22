@@ -218,7 +218,6 @@ public class PhotoUtils {
         try {
             DataInputStream stream = new DataInputStream(new FileInputStream(filePath));
             if (stream.readInt() == 0x2E_52_41_57) { // .RAW
-
                 int width = stream.readInt();
                 int height = stream.readInt();
                 Bitmap.Config config = Bitmap.Config.values()[stream.readInt()];
@@ -239,7 +238,6 @@ public class PhotoUtils {
         return result;
     }
 
-
     public static void saveByteBufferToRawBitmap(ByteBuffer byteBuffer, int width, int height, Bitmap.Config config, String filePath) {
         try {
             File file = new File(filePath);
@@ -257,10 +255,6 @@ public class PhotoUtils {
             stream.writeInt(config.ordinal());
 
             byte[] rawData = byteBuffer.array();
-
-            ByteBuffer buffer = ByteBuffer.wrap(rawData);
-            //bitmap.copyPixelsToBuffer(buffer);
-
             stream.write(rawData);
             stream.close();
         } catch (IOException e) {

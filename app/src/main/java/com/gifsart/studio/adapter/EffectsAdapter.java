@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.gifsart.studio.R;
 import com.gifsart.studio.effects.GPUEffects;
 
@@ -20,14 +19,12 @@ import java.util.ArrayList;
  */
 public class EffectsAdapter extends RecyclerView.Adapter<EffectsAdapter.ViewHolder> {
 
-    private GPUEffects.FilterList filters;
     private ArrayList<Bitmap> imageBitmaps = new ArrayList<>();
     private LayoutInflater inflater = null;
     private Context context;
 
-    public EffectsAdapter(GPUEffects.FilterList filters, Context context) {
+    public EffectsAdapter(Context context) {
         this.context = context;
-        this.filters = filters;
     }
 
     @Override
@@ -40,9 +37,8 @@ public class EffectsAdapter extends RecyclerView.Adapter<EffectsAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
-
         holder.effectImageView.setImageBitmap(imageBitmaps.get(position));
-        holder.textView.setText(filters.names.get(position));
+        holder.textView.setText(GPUEffects.FilterType.fromInt(position).name());
 
     }
 
@@ -74,7 +70,6 @@ public class EffectsAdapter extends RecyclerView.Adapter<EffectsAdapter.ViewHold
             super(itemView);
 
             effectImageView = (ImageView) itemView.findViewById(R.id.effect_image_view);
-
             textView = (TextView) itemView.findViewById(R.id.effect_text_view);
         }
     }

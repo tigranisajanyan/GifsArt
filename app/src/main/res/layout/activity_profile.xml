@@ -49,7 +49,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/profile_activity_toolbar"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="8dp"
         android:visibility="invisible">
 
         <ImageView
@@ -81,6 +81,13 @@
             android:textColor="@color/font_main_color" />
 
     </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@+id/profile_activity_user_container"
+        android:layout_marginTop="5dp"
+        android:background="@color/navigation_bar_color" />
 
     <RelativeLayout
         android:id="@+id/get_started_container"

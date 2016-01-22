@@ -6,19 +6,15 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.os.Environment;
-import android.support.v7.app.NotificationCompat;
-import android.util.Log;
 
-import com.gifsart.studio.activity.MakeGifActivity;
-import com.gifsart.studio.clipart.Clipart;
+import com.decoder.PhotoUtils;
 import com.gifsart.studio.clipart.MainView;
 import com.gifsart.studio.effects.GPUEffects;
 import com.gifsart.studio.item.GifItem;
 import com.gifsart.studio.utils.GifsArtConst;
+import com.gifsart.studio.utils.SquareFitMode;
 import com.gifsart.studio.utils.Type;
 import com.gifsart.studio.utils.Utils;
-import com.picsart.studio.gifencoder.GifEncoder;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
@@ -42,7 +38,7 @@ public class SaveGifBolts {
     private static int pos = 0;
     private static int size = 0;
 
-    public static Task<Void> doSquareFitTask(final MakeGifActivity.SquareFitMode squareFitMode, final ArrayList<GifItem> gifItems) {
+    public static Task<Void> doSquareFitTask(final SquareFitMode squareFitMode, final ArrayList<GifItem> gifItems) {
         return Task.callInBackground(new Callable<Void>() {
             @Override
             public Void call() throws IOException {
@@ -50,12 +46,12 @@ public class SaveGifBolts {
                     if (gifItems.get(i).getType() == Type.IMAGE) {
                         gifItems.get(i).setBitmap(doSquareFit(squareFitMode, gifItems.get(i).getBitmap()));
                     } else if (gifItems.get(i).getType() == Type.GIF) {
-                        for (int j = 0; j < gifItems.get(i).getBitmaps().size(); j++) {
-                            gifItems.get(i).getBitmaps().set(j, doSquareFit(squareFitMode, gifItems.get(i).getBitmaps().get(j)));
+                        for (int j = 0; j < gifItems.get(i).getFilePaths().size(); j++) {
+                            PhotoUtils.saveRawBitmap(doSquareFit(squareFitMode, PhotoUtils.loadRawBitmap(gifItems.get(i).getFilePaths().get(j))), gifItems.get(i).getFilePaths().get(j));
                         }
                     } else if (gifItems.get(i).getType() == Type.VIDEO) {
-                        for (int j = 0; j < gifItems.get(i).getBitmaps().size(); j++) {
-                            gifItems.get(i).getBitmaps().set(j, doSquareFit(squareFitMode, gifItems.get(i).getBitmaps().get(j)));
+                        for (int j = 0; j < gifItems.get(i).getFilePaths().size(); j++) {
+                            PhotoUtils.saveRawBitmap(doSquareFit(squareFitMode, PhotoUtils.loadRawBitmap(gifItems.get(i).getFilePaths().get(j))), gifItems.get(i).getFilePaths().get(j));
                         }
                     }
                 }
@@ -64,21 +60,21 @@ public class SaveGifBolts {
         });
     }
 
-    private static Bitmap doSquareFit(MakeGifActivity.SquareFitMode squareFitMode, Bitmap bitmap) {
-        if (squareFitMode == MakeGifActivity.SquareFitMode.FIT_MODE_SQUARE_FIT) {
+    private static Bitmap doSquareFit(SquareFitMode squareFitMode, Bitmap bitmap) {
+        if (squareFitMode == SquareFitMode.FIT_MODE_SQUARE_FIT) {
             return Utils.squareFit(bitmap, GifsArtConst.GIF_FRAME_SIZE);
-        } else if (squareFitMode == MakeGifActivity.SquareFitMode.FIT_MODE_SQUARE) {
+        } else if (squareFitMode == SquareFitMode.FIT_MODE_SQUARE) {
             return Utils.scaleCenterCrop(bitmap, GifsArtConst.GIF_FRAME_SIZE, GifsArtConst.GIF_FRAME_SIZE);
         }
         return bitmap;
     }
 
-    public static MakeGifActivity.SquareFitMode checkSquareFitMode(ArrayList<GifItem> gifItems, MakeGifActivity.SquareFitMode squareFitMode) {
-        if (squareFitMode == MakeGifActivity.SquareFitMode.FIT_MODE_ORIGINAL) {
+    public static SquareFitMode checkSquareFitMode(ArrayList<GifItem> gifItems, SquareFitMode squareFitMode) {
+        if (squareFitMode == SquareFitMode.FIT_MODE_ORIGINAL) {
             for (int i = 0; i < gifItems.size(); i++) {
                 for (int j = 0; j < gifItems.size(); j++) {
                     if (gifItems.get(i).getBitmap().getWidth() != gifItems.get(j).getBitmap().getWidth() || gifItems.get(i).getBitmap().getHeight() != gifItems.get(j).getBitmap().getHeight()) {
-                        return MakeGifActivity.SquareFitMode.FIT_MODE_SQUARE_FIT;
+                        return SquareFitMode.FIT_MODE_SQUARE_FIT;
                     }
                 }
             }
@@ -105,12 +101,12 @@ public class SaveGifBolts {
                         if (gifItems.get(i).getType() == Type.IMAGE) {
                             addGifFrame(animatedGifEncoder, gifItems.get(i).getBitmap(), gifItems.get(i).getCurrentDuration());
                         } else if (gifItems.get(i).getType() == Type.GIF) {
-                            for (int j = 0; j < gifItems.get(i).getBitmaps().size(); j++) {
-                                addGifFrame(animatedGifEncoder, gifItems.get(i).getBitmaps().get(j), gifItems.get(i).getCurrentDuration());
+                            for (int j = 0; j < gifItems.get(i).getFilePaths().size(); j++) {
+                                addGifFrame(animatedGifEncoder, PhotoUtils.loadRawBitmap(gifItems.get(i).getFilePaths().get(j)), gifItems.get(i).getCurrentDuration());
                             }
                         } else if (gifItems.get(i).getType() == Type.VIDEO) {
-                            for (int j = 0; j < gifItems.get(i).getBitmaps().size(); j++) {
-                                addGifFrame(animatedGifEncoder, gifItems.get(i).getBitmaps().get(j), gifItems.get(i).getCurrentDuration());
+                            for (int j = 0; j < gifItems.get(i).getFilePaths().size(); j++) {
+                                addGifFrame(animatedGifEncoder, PhotoUtils.loadRawBitmap(gifItems.get(i).getFilePaths().get(j)), gifItems.get(i).getCurrentDuration());
                             }
                         }
                     }
@@ -146,7 +142,7 @@ public class SaveGifBolts {
         return Task.callInBackground(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                if (gpuImageFilter != GPUEffects.createFilterForType(GPUEffects.FilterType.NONE)) {
+                if (gpuImageFilter != GPUEffects.createFilterForType(context, GPUEffects.FilterType.NONE)) {
                     GPUImage gpuImage = new GPUImage(context);
                     gpuImage.setFilter(gpuImageFilter);
                     for (int i = 0; i < gifItems.size(); i++) {
@@ -155,9 +151,9 @@ public class SaveGifBolts {
                             gifItems.get(i).setBitmap(gpuImage.getBitmapWithFilterApplied());
                             gpuImage.deleteImage();
                         } else {
-                            for (int j = 0; j < gifItems.get(i).getBitmaps().size(); j++) {
-                                gpuImage.setImage(gifItems.get(i).getBitmaps().get(j));
-                                gifItems.get(i).getBitmaps().set(j, gpuImage.getBitmapWithFilterApplied());
+                            for (int j = 0; j < gifItems.get(i).getFilePaths().size(); j++) {
+                                gpuImage.setImage(PhotoUtils.loadRawBitmap(gifItems.get(i).getFilePaths().get(j)));
+                                PhotoUtils.saveRawBitmap(gpuImage.getBitmapWithFilterApplied(), gifItems.get(i).getFilePaths().get(j));
                                 gpuImage.deleteImage();
                             }
                         }
@@ -177,12 +173,12 @@ public class SaveGifBolts {
                     if (gifItems.get(i).getType() == Type.IMAGE) {
                         drawClipart(mainView, gifItems.get(i).getBitmap());
                     } else if (gifItems.get(i).getType() == Type.GIF) {
-                        for (int j = 0; j < gifItems.get(i).getBitmaps().size(); j++) {
-                            drawClipart(mainView, gifItems.get(i).getBitmaps().get(j));
+                        for (int j = 0; j < gifItems.get(i).getFilePaths().size(); j++) {
+                            PhotoUtils.saveRawBitmap(drawClipart(mainView, PhotoUtils.loadRawBitmap(gifItems.get(i).getFilePaths().get(j))), gifItems.get(i).getFilePaths().get(j));
                         }
                     } else if (gifItems.get(i).getType() == Type.VIDEO) {
-                        for (int j = 0; j < gifItems.get(i).getBitmaps().size(); j++) {
-                            drawClipart(mainView, gifItems.get(i).getBitmaps().get(j));
+                        for (int j = 0; j < gifItems.get(i).getFilePaths().size(); j++) {
+                            PhotoUtils.saveRawBitmap(drawClipart(mainView, PhotoUtils.loadRawBitmap(gifItems.get(i).getFilePaths().get(j))), gifItems.get(i).getFilePaths().get(j));
                         }
                     }
                 }
@@ -191,7 +187,7 @@ public class SaveGifBolts {
         });
     }
 
-    private static void drawClipart(MainView mainView, Bitmap bitmap) {
+    private static Bitmap drawClipart(MainView mainView, Bitmap bitmap) {
         Canvas canvas = new Canvas(bitmap);
         Paint paint = new Paint();
 
@@ -206,6 +202,7 @@ public class SaveGifBolts {
         } else {
             canvas.drawBitmap(bitmap, 0, 0, paint);
         }
+        return bitmap;
     }
 
     public static Task<Void> addMaskToGifTask(final ArrayList<GifItem> gifItems, final int resourceId, final int maskTransparency, final Context context) {
@@ -220,13 +217,13 @@ public class SaveGifBolts {
                         drawMask(gifItems.get(i).getBitmap(), bitmapArrayList.get(pos % size), maskTransparency);
                         pos++;
                     } else if (gifItems.get(i).getType() == Type.GIF) {
-                        for (int j = 0; j < gifItems.get(i).getBitmaps().size(); j++) {
-                            drawMask(gifItems.get(i).getBitmaps().get(j), bitmapArrayList.get(pos % size), maskTransparency);
+                        for (int j = 0; j < gifItems.get(i).getFilePaths().size(); j++) {
+                            PhotoUtils.saveRawBitmap(drawMask(PhotoUtils.loadRawBitmap(gifItems.get(i).getFilePaths().get(j)), bitmapArrayList.get(pos % size), maskTransparency), gifItems.get(i).getFilePaths().get(j));
                             pos++;
                         }
                     } else if (gifItems.get(i).getType() == Type.VIDEO) {
-                        for (int j = 0; j < gifItems.get(i).getBitmaps().size(); j++) {
-                            drawMask(gifItems.get(i).getBitmaps().get(j), bitmapArrayList.get(pos % size), maskTransparency);
+                        for (int j = 0; j < gifItems.get(i).getFilePaths().size(); j++) {
+                            PhotoUtils.saveRawBitmap(drawMask(PhotoUtils.loadRawBitmap(gifItems.get(i).getFilePaths().get(j)), bitmapArrayList.get(pos % size), maskTransparency), gifItems.get(i).getFilePaths().get(j));
                             pos++;
                         }
                     }
@@ -236,13 +233,14 @@ public class SaveGifBolts {
         });
     }
 
-    private static void drawMask(Bitmap mainFrame, Bitmap maskFrame, int maskTransparency) {
+    private static Bitmap drawMask(Bitmap mainFrame, Bitmap maskFrame, int maskTransparency) {
         Canvas canvas = new Canvas(mainFrame);
         Paint paint = new Paint();
         paint.setAlpha(maskTransparency);
         Rect originalRect = new Rect(0, 0, maskFrame.getWidth(), maskFrame.getHeight());
         Rect newRect = new Rect(0, 0, canvas.getWidth(), canvas.getHeight());
         canvas.drawBitmap(maskFrame, originalRect, newRect, paint);
+        return mainFrame;
     }
 
 }

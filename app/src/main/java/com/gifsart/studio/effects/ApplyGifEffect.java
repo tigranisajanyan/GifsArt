@@ -2,10 +2,11 @@ package com.gifsart.studio.effects;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 
+import com.gifsart.studio.R;
 import com.gifsart.studio.adapter.EffectsAdapter;
-import com.gifsart.studio.utils.GifsArtConst;
 import com.gifsart.studio.utils.Utils;
 
 import jp.co.cyberagent.android.gpuimage.GPUImage;
@@ -17,29 +18,25 @@ public class ApplyGifEffect extends AsyncTask<Void, Bitmap, Void> {
 
     private Context context;
     private EffectsAdapter effectsAdapter;
-    private Bitmap bitmap;
-    private GPUEffects.FilterList filters;
+    private GPUImage gpuImage;
 
-    public ApplyGifEffect(Bitmap firstFrame, GPUEffects.FilterList filters, EffectsAdapter effectsAdapter, Context context) {
+    public ApplyGifEffect(EffectsAdapter effectsAdapter, Context context) {
         this.context = context;
         this.effectsAdapter = effectsAdapter;
-        this.bitmap = firstFrame;
-        this.filters = filters;
     }
 
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-
+        gpuImage = new GPUImage(context);
+        gpuImage.setImage(Utils.scaleCenterCrop(BitmapFactory.decodeResource(context.getResources(), R.drawable.effect1), 150, 150));
     }
 
     @Override
     protected Void doInBackground(Void... params) {
-        GPUImage gpuImage = new GPUImage(context);
-        gpuImage.setImage(bitmap);
-        for (int i = 0; i < filters.filters.size(); i++) {
-            gpuImage.setFilter(GPUEffects.createFilterForType(filters.filters.get(i)));
-            publishProgress(Utils.scaleCenterCrop(gpuImage.getBitmapWithFilterApplied(), GifsArtConst.GIF_FRAME_SIZE, GifsArtConst.GIF_FRAME_SIZE));
+        for (int i = 0; i < GPUEffects.FilterType.values().length; i++) {
+            gpuImage.setFilter(GPUEffects.createFilterForType(context, GPUEffects.FilterType.fromInt(i)));
+            publishProgress(gpuImage.getBitmapWithFilterApplied());
         }
         return null;
     }

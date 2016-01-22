@@ -55,6 +55,8 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String LOG_TAG = MainActivity.class.getSimpleName();
+
     private RecyclerView galleryItemsRecyclerView;
     private RecyclerView galleryCategoryRecyclerView;
     private ProgressBar progressBar;
@@ -113,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //verifyStoragePermissions(this);
+        verifyStoragePermissions(this);
 
         Utils.initImageLoader(getApplicationContext());
 
@@ -135,13 +137,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    /**
-     * Checks if the app has permission to write to device storage
-     * <p/>
-     * If the app does not has permission then the user will be prompted to grant permissions
-     *
-     * @param activity
-     */
     public void verifyStoragePermissions(Activity activity) {
         // Check if we have write permission
         int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.READ_CALENDAR);
@@ -238,9 +233,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (galleryAdapter.getSelected().size() > 0) {
-
                     final AnimatedProgressDialog progressDialog = new AnimatedProgressDialog(MainActivity.this);
-                    progressDialog.setCancelable(false);
                     progressDialog.show();
                     boolean hasVideo = false;
                     ArrayList<String> arrayList = galleryAdapter.getSelected();
@@ -394,7 +387,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        Log.d("main_activity", "onPause");
+        Log.d(LOG_TAG, "onPause");
         releaseCamera();
     }
 
@@ -404,21 +397,6 @@ public class MainActivity extends AppCompatActivity {
         updateAfterRestart();
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUEST_EXTERNAL_STORAGE) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Now user should be able to use camera
-                Log.d("hahh", "has");
-            } else {
-                Log.d("hahh", "don't have");
-                // Your app will not have this permission. Turn off all functions
-                // that require this permission or it will force close like your
-                // original question
-            }
-        }
-    }
 
     private void releaseCamera() {
         // stop and release camera
@@ -450,7 +428,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public boolean sendIntentWithVideo(final Intent intent, String path, final GalleryAdapter galleryAdapter, final AnimatedProgressDialog progressDialog, final boolean isOpened) {
-
         VideoDecoder videoDecoder = new VideoDecoder(MainActivity.this, path, Integer.MAX_VALUE, GifsArtConst.VIDEO_FRAME_SCALE_SIZE, GifsArtConst.VIDEOS_DECODED_FRAMES_DIR);
         videoDecoder.extractVideoFrames();
         videoDecoder.setOnDecodeFinishedListener(new VideoDecoder.OnDecodeFinishedListener() {
@@ -730,9 +707,9 @@ public class MainActivity extends AppCompatActivity {
             cameraPreview.setRenderingListener(new CameraPreview.StartRendering() {
                 @Override
                 public void toStart(boolean start) {
-                    SaveVideoFrames saveVideoFrames = new SaveVideoFrames(context);
+                    SaveVideoFrames saveVideoFrames = new SaveVideoFrames(context, cameraFront);
                     saveVideoFrames.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                    saveVideoFrames.setOnFramesSavedListener(new SaveVideoFrames.IsSaved() {
+                    saveVideoFrames.setOnFramesSavedListener(new SaveVideoFrames.FramesAreSaved() {
                         @Override
                         public void framesAreSaved(boolean done) {
                             animatedProgressDialog1.dismiss();
@@ -758,9 +735,9 @@ public class MainActivity extends AppCompatActivity {
         final AnimatedProgressDialog animatedProgressDialog = new AnimatedProgressDialog(MainActivity.this);
         animatedProgressDialog.show();
         BurstModeFramesSaving burstModeFramesSaving = new BurstModeFramesSaving(this, cameraFront, burstModeFrameBytes);
-        burstModeFramesSaving.setFramesSavedListener(new BurstModeFramesSaving.FramesSaved() {
+        burstModeFramesSaving.setFramesSavedListener(new BurstModeFramesSaving.FramesAreSaved() {
             @Override
-            public void done(boolean done) {
+            public void framesAreSaved(boolean done) {
                 if (done) {
                     ArrayList<String> strings = new ArrayList<>();
                     for (int i = 0; i < CameraHelper.getCurrentBurstMode(); i++) {
@@ -839,7 +816,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onTick(long millisUntilFinished) {
             ((TextView) findViewById(R.id.capture_time)).setText("00:0" + ((millisUntilFinished / 1000) - 1));
-            Log.d("gagag", "" + millisUntilFinished);
+            Log.d(LOG_TAG, "time: " + millisUntilFinished);
             if (millisUntilFinished <= 2000) {
                 if (recording) {
                     captureButton.setOnTouchListener(null);

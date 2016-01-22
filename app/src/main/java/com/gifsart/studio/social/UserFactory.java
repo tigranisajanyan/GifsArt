@@ -11,9 +11,6 @@ import java.util.ArrayList;
 /**
  * This class consists exclusively of parsing methods, that trying make User/ collection of User
  * using gson reflection on class.
- * <p/>
- * This class is a member of the
- * "www.picsart.com"
  */
 public class UserFactory {
 
@@ -107,7 +104,6 @@ public class UserFactory {
     }
 
     /**
-     *
      * @param response
      * @param offset
      * @param limit

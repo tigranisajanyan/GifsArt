@@ -54,17 +54,15 @@ public class ShareContraller {
             case MESSENGER:
                 shareMessenger();
                 break;
+            case EMAIL:
+                shareGmail();
+                break;
+            case MORE:
+                androidNativeShare();
+                break;
             default:
                 break;
         }
-    }
-
-    enum ShareGifType {
-        FACEBOOK,
-        INSTAGRAM,
-        TWITTER,
-        WHATSAPP,
-        MESSENGER
     }
 
     public void shareInstagram() {
@@ -146,6 +144,39 @@ public class ShareContraller {
         }
     }
 
+    public void shareGmail() {
+        if (PackageContraller.isPackageExisted(activity, GMAIL_PACKAGE_NAME)) {
+            Intent share = new Intent(Intent.ACTION_SEND);
+            share.putExtra(Intent.EXTRA_TEXT, GifsArtConst.MY_DIR);
+            share.setType(FILE_TYPE_IMAGE);
+            File media = new File(filePath);
+            Uri uri = Uri.fromFile(media);
+            try {
+                share.putExtra(Intent.EXTRA_STREAM, uri);
+                share.setPackage(GMAIL_PACKAGE_NAME);
+                activity.startActivity(share);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            Toast.makeText(activity, "gmail", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void androidNativeShare() {
+        Intent share = new Intent(Intent.ACTION_SEND);
+        share.putExtra(Intent.EXTRA_TEXT, GifsArtConst.MY_DIR);
+        share.setType(FILE_TYPE_IMAGE);
+        File media = new File(filePath);
+        Uri uri = Uri.fromFile(media);
+        try {
+            share.putExtra(Intent.EXTRA_STREAM, uri);
+            activity.startActivity(Intent.createChooser(share, "Share Image!"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void shareFacebook() {
         ShareLinkContent content = new ShareLinkContent.Builder()
                 .setContentUrl(Uri.parse("http://cdn78.picsart.com/186853261001202.gif"))
@@ -184,6 +215,31 @@ public class ShareContraller {
         } else {
             Toast.makeText(context, "whatsapp", Toast.LENGTH_SHORT).show();
         }*/
+    }
+
+    public enum ShareGifType {
+        FACEBOOK,
+        MESSENGER,
+        TWITTER,
+        INSTAGRAM,
+        WHATSAPP,
+        EMAIL,
+        MORE;
+
+        public static ShareGifType fromInt(int val) {
+            ShareGifType[] codes = values();
+
+            if (val < 0 || val >= codes.length) {
+                return null;
+            } else {
+                return values()[val];
+            }
+        }
+
+        public int toInt() {
+            return ordinal();
+        }
+
     }
 
 }

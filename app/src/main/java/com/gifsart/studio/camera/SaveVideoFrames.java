@@ -18,13 +18,19 @@ import com.gifsart.studio.utils.GifsArtConst;
  */
 public class SaveVideoFrames extends AsyncTask<Void, Void, Void> {
 
+    private static final String LOG_TAG = SaveVideoFrames.class.getSimpleName();
+    private static final int ROTATE_DEGREE_90 = 90;
+    private static final int ROTATE_DEGREE_270 = 270;
 
-    public AnimatedProgressDialog animatedProgressDialog;
-    public IsSaved isSaved;
-    public Context context;
+    private AnimatedProgressDialog animatedProgressDialog;
+    private FramesAreSaved framesAreSaved;
+    private Context context;
+    private boolean cameraFront;
 
-    public SaveVideoFrames(Context context) {
+
+    public SaveVideoFrames(Context context, boolean cameraFront) {
         this.context = context;
+        this.cameraFront = cameraFront;
     }
 
     @Override
@@ -32,7 +38,7 @@ public class SaveVideoFrames extends AsyncTask<Void, Void, Void> {
         super.onPreExecute();
         animatedProgressDialog = new AnimatedProgressDialog(context);
         //animatedProgressDialog.show();
-        Log.d("gagag", "start rendering");
+        Log.d(LOG_TAG, "start rendering");
 
     }
 
@@ -40,13 +46,18 @@ public class SaveVideoFrames extends AsyncTask<Void, Void, Void> {
     protected Void doInBackground(Void... params) {
         for (int i = 0; i < CameraPreview.datas.size(); i++) {
             if (isCancelled()) return null;
-            String path = Environment.getExternalStorageDirectory().getPath() + "/" + GifsArtConst.DIR_VIDEO_FRAMES + "/img_" + FileCounterSingleton.getInstance(context).increaseIndex();
+            String path = Environment.getExternalStorageDirectory().getPath() + GifsArtConst.SLASH + GifsArtConst.DIR_VIDEO_FRAMES + "/img_" + FileCounterSingleton.getInstance(context).increaseIndex();
             Bitmap bitmap = BitmapFactory.decodeByteArray(CameraPreview.datas.get(i), 0, CameraPreview.datas.get(i).length);
 
             Matrix matrix = new Matrix();
-            matrix.postRotate(90);
+            if (cameraFront) {
+                matrix.postRotate(ROTATE_DEGREE_270);
+            } else {
+                matrix.postRotate(ROTATE_DEGREE_90);
+            }
 
             Bitmap rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+            PhotoUtils.saveRawBitmap(rotatedBitmap, path);
 
             /*OutputStream imagefile = null;
             try {
@@ -55,7 +66,6 @@ public class SaveVideoFrames extends AsyncTask<Void, Void, Void> {
                 e.printStackTrace();
             }
             rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 80, imagefile);*/
-            PhotoUtils.saveRawBitmap(rotatedBitmap, path);
         }
         return null;
     }
@@ -63,16 +73,17 @@ public class SaveVideoFrames extends AsyncTask<Void, Void, Void> {
     @Override
     protected void onPostExecute(Void aVoid) {
         super.onPostExecute(aVoid);
-        isSaved.framesAreSaved(true);
+        framesAreSaved.framesAreSaved(true);
         CameraPreview.datas.clear();
         animatedProgressDialog.dismiss();
     }
 
-    public interface IsSaved {
+    public interface FramesAreSaved {
         void framesAreSaved(boolean done);
     }
 
-    public void setOnFramesSavedListener(IsSaved saved) {
-        isSaved = saved;
+    public void setOnFramesSavedListener(FramesAreSaved saved) {
+        framesAreSaved = saved;
     }
+
 }

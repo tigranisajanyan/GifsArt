@@ -13,6 +13,7 @@
     <string name="no_images_selected">No Images Selected</string>
     <string name="facebook_app_id">539133572903067</string>
     <string name="no_internet_connection">No internet connection</string>
+    <string name="no_enough_space">No enough space</string>
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
 

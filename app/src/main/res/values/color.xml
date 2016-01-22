@@ -13,4 +13,13 @@
     <color name="item_backgroud">#2A2C2F</color>
     <color name="black_transparent_20">#20000000</color>
 
+    <color name="color_facebook">#3B5998</color>
+    <color name="color_messenger">#0B88FF</color>
+    <color name="color_twitter">#55ACEE</color>
+    <color name="color_instagram">#4E7B9E</color>
+    <color name="color_whatsapp">#3DBE4E</color>
+    <color name="color_email">#E8A60F</color>
+    <color name="color_more">#454545</color>
+
+
 </resources>

@@ -3,7 +3,6 @@ package com.decoder;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Environment;
-import android.widget.Toast;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -39,7 +38,7 @@ public class VideoDecoder {
      * extracting frames from video
      */
     public void extractVideoFrames() {
-        new ExtractFrames().execute();
+        new ExtractFrames().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     public void setOnDecodeFinishedListener(OnDecodeFinishedListener l) {
@@ -84,22 +83,6 @@ public class VideoDecoder {
     public interface OnDecodeFinishedListener {
 
         void onFinish(boolean isDone);
-
-    }
-
-    public void clearDir(File dir) {
-        try {
-            File[] files = dir.listFiles();
-            if (files != null)
-                for (File f : files) {
-                    if (f.isDirectory())
-                        clearDir(f);
-                    f.delete();
-                }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        dir.delete();
 
     }
 

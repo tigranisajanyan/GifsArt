@@ -1,8 +1,11 @@
 package com.gifsart.studio.effects;
 
+import android.content.Context;
+
 import java.util.LinkedList;
 import java.util.List;
 
+import jp.co.cyberagent.android.gpuimage.GPUImageAddBlendFilter;
 import jp.co.cyberagent.android.gpuimage.GPUImageBrightnessFilter;
 import jp.co.cyberagent.android.gpuimage.GPUImageColorInvertFilter;
 import jp.co.cyberagent.android.gpuimage.GPUImageContrastFilter;
@@ -12,6 +15,7 @@ import jp.co.cyberagent.android.gpuimage.GPUImageGammaFilter;
 import jp.co.cyberagent.android.gpuimage.GPUImageGrayscaleFilter;
 import jp.co.cyberagent.android.gpuimage.GPUImageHueFilter;
 import jp.co.cyberagent.android.gpuimage.GPUImagePosterizeFilter;
+import jp.co.cyberagent.android.gpuimage.GPUImageScreenBlendFilter;
 import jp.co.cyberagent.android.gpuimage.GPUImageSepiaFilter;
 import jp.co.cyberagent.android.gpuimage.GPUImageSharpenFilter;
 
@@ -20,8 +24,23 @@ import jp.co.cyberagent.android.gpuimage.GPUImageSharpenFilter;
  */
 public class GPUEffects {
 
+
     public enum FilterType {
-        NONE, CONTRAST, GRAYSCALE, SHARPEN, SEPIA, EMBOSS, POSTERIZE, GAMMA, BRIGHTNESS, INVERT, HUE
+        NONE, CONTRAST, GRAYSCALE, SHARPEN, SEPIA, EMBOSS, POSTERIZE, GAMMA, BRIGHTNESS, INVERT, HUE, BLEND_1, BLEND_2;
+
+        public static FilterType fromInt(int val) {
+            FilterType[] codes = values();
+
+            if (val < 0 || val >= codes.length) {
+                return null;
+            } else {
+                return values()[val];
+            }
+        }
+
+        public int toInt() {
+            return ordinal();
+        }
     }
 
     public static class FilterList {
@@ -34,7 +53,7 @@ public class GPUEffects {
         }
     }
 
-    public static GPUImageFilter createFilterForType(final FilterType type) {
+    public static GPUImageFilter createFilterForType(Context context, final FilterType type) {
         switch (type) {
             case NONE:
                 return new GPUImageFilter();
@@ -60,6 +79,10 @@ public class GPUEffects {
                 return new GPUImageEmbossFilter();
             case POSTERIZE:
                 return new GPUImagePosterizeFilter();
+            case BLEND_1:
+                return GPUImageFilterTools.createBlendFilter(context, GPUImageScreenBlendFilter.class);
+            case BLEND_2:
+                return GPUImageFilterTools.createBlendFilter(context, GPUImageAddBlendFilter.class);
             default:
                 throw new IllegalStateException("No filter of that type!");
         }

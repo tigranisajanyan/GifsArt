@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -38,8 +39,9 @@ public class ShareGifAdapter extends RecyclerView.Adapter<ShareGifAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
-        Glide.with(context).load(shareGifItems.get(position).getResourceId()).fitCenter().into(holder.shareGifItemCover);
-        holder.shareGifItemTitle.setText(shareGifItems.get(position).getItemTitle());
+        Glide.with(context).load(shareGifItems.get(position).getResourceId()).into(holder.shareGifItemIcon);
+        holder.shareGifItemTitle.setText(shareGifItems.get(position).getItemType().name());
+        holder.shareGifItemContainer.setBackgroundColor(context.getResources().getColor(shareGifItems.get(position).getColorId()));
     }
 
     @Override
@@ -50,18 +52,18 @@ public class ShareGifAdapter extends RecyclerView.Adapter<ShareGifAdapter.ViewHo
 
     public ShareGifItem getItem(int position) {
         return shareGifItems.get(position);
-
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
 
-        public ImageView shareGifItemCover;
+        public RelativeLayout shareGifItemContainer;
+        public ImageView shareGifItemIcon;
         public TextView shareGifItemTitle;
 
         public ViewHolder(View itemView) {
             super(itemView);
-
-            shareGifItemCover = (ImageView) itemView.findViewById(R.id.share_gif_item_image);
+            shareGifItemContainer = (RelativeLayout) itemView.findViewById(R.id.share_gif_item_container);
+            shareGifItemIcon = (ImageView) itemView.findViewById(R.id.share_gif_item_image);
             shareGifItemTitle = (TextView) itemView.findViewById(R.id.sharegif_item_title);
         }
     }

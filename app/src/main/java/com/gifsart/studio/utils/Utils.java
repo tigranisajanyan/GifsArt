@@ -2,7 +2,6 @@ package com.gifsart.studio.utils;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.database.Cursor;
@@ -383,25 +382,6 @@ public class Utils {
         return null;
     }
 
-    public static void shareImage(Activity activity, String outputDir) {
-        Intent share = new Intent(Intent.ACTION_SEND);
-
-        // If you want to share a png image only, you can do:
-        // setType("image/png"); OR for jpeg: setType("image/jpeg");
-        share.setType("image/*");
-
-        // Make sure you put example png image named myImage.png in your
-        // directory
-        String imagePath = outputDir;
-
-        File imageFileToShare = new File(imagePath);
-
-        Uri uri = Uri.fromFile(imageFileToShare);
-        share.putExtra(Intent.EXTRA_STREAM, uri);
-
-        activity.startActivity(Intent.createChooser(share, "Share Image!"));
-    }
-
     public static Type getMimeType(String url) {
         String stringType = null;
         Type type = null;
@@ -445,7 +425,7 @@ public class Utils {
     }
 
     public static Bitmap squareFit(Bitmap bitmap, int size) {
-        Bitmap bmOverlay = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
+        Bitmap bmOverlay = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_4444);
         bmOverlay.setDensity(bitmap.getDensity());
         bmOverlay.eraseColor(Color.WHITE);
 
@@ -463,7 +443,6 @@ public class Utils {
     public static int checkVideoFrameDuration(String videoPath, int frameCount) {
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
         retriever.setDataSource(videoPath);
-
         int duration = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
         return duration / frameCount;
     }

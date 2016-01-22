@@ -6,27 +6,20 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
-
 
 import com.decoder.PhotoUtils;
 import com.gifsart.studio.R;
 import com.gifsart.studio.activity.MainActivity;
-import com.gifsart.studio.clipart.util.BitmapManager;
-import com.gifsart.studio.helper.ItemTouchHelperAdapter;
 import com.gifsart.studio.item.GifItem;
 import com.gifsart.studio.utils.GifsArtConst;
 import com.gifsart.studio.utils.Type;
-import com.gifsart.studio.utils.Utils;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 
 /**
  * Created by Tigran on 6/23/15.
@@ -38,7 +31,6 @@ public class SlideAdapter extends RecyclerView.Adapter<SlideAdapter.ViewHolder> 
     private Context context;
 
     public SlideAdapter(ArrayList<GifItem> arr, Activity activity, Context context) {
-
         array = arr;
         this.context = context;
         this.activity = activity;
@@ -53,7 +45,9 @@ public class SlideAdapter extends RecyclerView.Adapter<SlideAdapter.ViewHolder> 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
 
-        holder.mainFrameImage.setImageBitmap(array.get(position).getBitmap());
+        if (array.get(position).getFilePath() != null) {
+            holder.mainFrameImage.setImageBitmap(PhotoUtils.loadRawBitmap(array.get(position).getFilePath()));
+        }
         if (array.get(position).getType() == Type.GIF) {
             holder.imageType.setImageDrawable(activity.getResources().getDrawable(R.drawable.gif_icon));
         } else if (array.get(position).getType() == Type.VIDEO) {

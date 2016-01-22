@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.gifsart.studio.R;
@@ -57,15 +58,15 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
                     }
 
                 } else {
-                    //if (CheckFreeSpaceSingleton.getInstance().haveEnoughSpace(array.get(position).getFilePath())) {
-                        //CheckFreeSpaceSingleton.getInstance().addAllocatedSpaceFromFilePath(array.get(position).getFilePath());
+                    if (CheckFreeSpaceSingleton.getInstance().haveEnoughSpace(array.get(position).getFilePath())) {
+                        CheckFreeSpaceSingleton.getInstance().addAllocatedSpaceFromFilePath(array.get(position).getFilePath());
                         array.get(position).setIsSeleted(true);
                         selected.add(array.get(position));
                         ((TextView) activity.findViewById(R.id.main_activity_toolbar_selected_text)).setText(getSelected().size() + " Selected");
                         notifyItemChanged(position);
-                   /* } else {
+                    } else {
                         Toast.makeText(activity, "No Enough Space", Toast.LENGTH_SHORT).show();
-                    }*/
+                    }
                 }
 
                 holder.textView.setSelected(array
@@ -77,7 +78,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
         ((TextView) activity.findViewById(R.id.main_activity_toolbar_cancel)).setText(((selected.size() > 0) ? "Deselect" : "Cancel"));
 
         try {
-            Glide.with(activity).load(array.get(position).getFilePath()).asBitmap().centerCrop().into(holder.mainFrameImageView);
+            Glide.with(activity).asBitmap().load(array.get(position).getFilePath()).into(holder.mainFrameImageView);
             holder.textView
                     .setSelected(array.get(position).isSeleted());
 
